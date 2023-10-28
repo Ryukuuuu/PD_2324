@@ -5,6 +5,8 @@ import Data.Message;
 import Data.MessageTypes;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -37,19 +39,40 @@ public class ClientManager {
         return true;
     }
 
-    private boolean sendMessageToServer(MessageTypes messageType){
-        Message message = new Message(messageType,getClientData());
-        return true;
+    public boolean authentication(String email,String password){
+        Message message = new Message(MessageTypes.LOGIN,new ClientData(email,password));
+
+        try(ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
+            ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());){
+
+            oos.writeObject(message);
+            oos.flush();
+
+            message = (Message)ois.readObject();
+
+            if(message.getType() == MessageTypes.SUCCESS){
+                clientData.fillClientDataAfterLogin(message.getClientData());
+                oos.close();
+                ois.close();
+                return true;
+            }
+            else{
+                System.out.println("Error on login");
+            }
+
+        }catch (IOException ioe){
+            System.out.println("IOException[ClientManager.authentication]");
+        }catch (ClassNotFoundException cnfe){
+            System.out.println("ClassNotFoundException[ClientManager.authentication]");
+        }
+        return false;
     }
 
-    public boolean authentication(String email,String passWord){
-        //Pede à DB para se autenticar
-
-
+    public boolean sendMessageToServer(MessageTypes type){
+        Message message = new Message(type,clientData);
 
         return true;
     }
-
 
     public ClientData getClientData() {
         return clientData;

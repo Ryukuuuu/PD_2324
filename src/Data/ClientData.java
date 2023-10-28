@@ -17,6 +17,11 @@ public class ClientData implements Serializable {
 
     public ClientData(){}
 
+    public ClientData(String email,String password){
+        this.email = email;
+        this.password = password;
+    }
+
     public ClientData(String name, long id, String email, String password, boolean logged, boolean admin) {
         this.name = name;
         this.id = id;
@@ -25,6 +30,17 @@ public class ClientData implements Serializable {
         this.logged = logged;
         this.admin = admin;
     }
+    
+    
+    //Called if login is successful to fill the object with the info in the database
+    public void fillClientDataAfterLogin(ClientData clientData){
+        this.name = clientData.getName();
+        this.id = clientData.getId();
+        this.logged = clientData.isLogged();
+        this.admin = clientData.isAdmin();
+    }
+    
+    
 
     public String getName() {
         return name;

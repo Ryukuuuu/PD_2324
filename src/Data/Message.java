@@ -21,4 +21,19 @@ public class Message implements Serializable {
     }
 
 
+    public MessageTypes getType() {
+        return type;
+    }
+
+    public void setType(MessageTypes type) {
+        this.type = type;
+    }
+
+    public ClientData getClientData() {
+        return clientData;
+    }
+
+    public void setClientData(ClientData clientData) {
+        this.clientData = clientData;
+    }
 }
