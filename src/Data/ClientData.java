@@ -15,6 +15,8 @@ public class ClientData implements Serializable {
     private boolean logged;
     private boolean admin;
 
+    public ClientData(){}
+
     public ClientData(String name, long id, String email, String password, boolean logged, boolean admin) {
         this.name = name;
         this.id = id;
