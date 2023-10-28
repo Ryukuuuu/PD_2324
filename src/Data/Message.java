@@ -1,5 +1,7 @@
 package Data;
 
+import Client.Client;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -12,6 +14,11 @@ public class Message implements Serializable {
 
     //User who sent the message
     private ClientData clientData;
+
+    public Message(MessageTypes type, ClientData clientData){
+        this.type = type;
+        this.clientData = clientData;
+    }
 
 
 }

@@ -25,5 +25,9 @@ public enum MessageTypes {
     //Common types
     AUTHENTICATION,
     LOGIN,
-    LOGOUT
+    LOGOUT,
+
+    //Server Return Messages
+    SUCCESS,
+    FAILED
 }
