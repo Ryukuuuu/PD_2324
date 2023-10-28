@@ -11,7 +11,7 @@ public class Message implements Serializable {
     private MessageTypes type;
 
     //User who sent the message
-    private User user;
+    private ClientData clientData;
 
 
 }

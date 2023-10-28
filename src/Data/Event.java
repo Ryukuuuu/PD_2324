@@ -10,8 +10,20 @@ public class Event implements Serializable {
     private String name;
     private String local;
     private String date;
+    private long activeCode;
+    private String codeValidityEnding = null;
     private String startingTime;
     private String endingTime;
+
+    public Event(String name, String local, String date, long activeCode, String codeValidityEnding, String startingTime, String endingTime) {
+        this.name = name;
+        this.local = local;
+        this.date = date;
+        this.activeCode = activeCode;
+        this.codeValidityEnding = codeValidityEnding;
+        this.startingTime = startingTime;
+        this.endingTime = endingTime;
+    }
 
     public Event(String name, String local, String date, String startingTime, String endingTime) {
         this.name = name;
@@ -59,6 +71,22 @@ public class Event implements Serializable {
 
     public void setEndingTime(String endingTime) {
         this.endingTime = endingTime;
+    }
+
+    public long getActiveCode() {
+        return activeCode;
+    }
+
+    public void setActiveCode(long activeCode) {
+        this.activeCode = activeCode;
+    }
+
+    public String getCodeValidityEnding() {
+        return codeValidityEnding;
+    }
+
+    public void setCodeValidityEnding(String codeValidityEnding) {
+        this.codeValidityEnding = codeValidityEnding;
     }
 
     @Override
