@@ -20,6 +20,9 @@ public class Message implements Serializable {
         this.clientData = clientData;
     }
 
+    public Message(MessageTypes type){
+        this.type = type;
+    }
 
     public MessageTypes getType() {
         return type;

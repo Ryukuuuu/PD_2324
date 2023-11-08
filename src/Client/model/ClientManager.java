@@ -9,70 +9,76 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.concurrent.TimeoutException;
 
 public class ClientManager {
 
     private ClientData clientData;
     private Socket clientSocket;
+    private final String serverIp;
+    private final int serverPort;
 
-    public ClientManager(String[] args){
-        setupClientManager(args);
-        clientData = new ClientData();
+    private static final int TIMEOUT_LOGIN = 10000;
+
+    public ClientManager(String ipServer,String portServer){
+        this.clientData = new ClientData();
+        this.serverPort = Integer.parseInt(portServer);
+        this.serverIp = ipServer;
     }
 
-    private boolean setupClientManager(String[] args){
-
-        if(args.length != 2){
-            System.out.println("Expected 2 arguments <serverAddress> <serverPort>");
-            return false;
+    //Connects to server and creates ObjectStreams
+    //Returns true if the connection is created
+    //False if there's a problem
+    private boolean connectSocket(){
+        try{
+            Socket socket = new Socket(InetAddress.getByName(serverIp),serverPort);
+            this.setClientSocket(socket);
+        }catch (IOException e){
+            System.out.println("Error creating socket");
         }
+        return clientSocket == null;
+    }
 
-        try(Socket socket = new Socket(InetAddress.getByName(args[0]),Integer.parseInt(args[1]))){
-            setClientSocket(socket);
-        }catch (UnknownHostException uhe){
-            System.out.println("Unknown host exception");
-        }catch (IOException ioe){
-            System.out.println("IOException");
+
+    //Returns true if logIn was successfull
+    //False otherwise
+    public boolean logInClient(ClientData logInInfo){
+        try{
+            if(connectSocket()){
+                return false;
+            }
+
+            Message loginMessage = new Message(MessageTypes.LOGIN, logInInfo);
+
+            try(ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
+            ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream())){
+
+                oos.writeObject(loginMessage);
+                oos.flush();
+
+                clientSocket.setSoTimeout(TIMEOUT_LOGIN);
+
+                loginMessage = (Message) ois.readObject();
+
+                System.out.println("recebido: " + loginMessage.getType());
+
+                this.clientData = loginMessage.getClientData();
+
+            }catch (ClassNotFoundException e){
+                System.out.println("ClassNotFoundException[ClientManager.logInClient]");
+            }catch (SocketTimeoutException e){
+                System.out.println("SocketTimeoutException[ClientManager.logInClient]");
+            }
+
+
+        }catch (IOException e) {
+            System.out.println("IOException[ClientManager.logInClient]");
         }
-
         return true;
     }
 
-    public boolean authentication(String email,String password){
-        Message message = new Message(MessageTypes.LOGIN,new ClientData(email,password));
-
-        try(ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream());
-            ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());){
-
-            oos.writeObject(message);
-            oos.flush();
-
-            message = (Message)ois.readObject();
-
-            if(message.getType() == MessageTypes.SUCCESS){
-                clientData.fillClientDataAfterLogin(message.getClientData());
-                oos.close();
-                ois.close();
-                return true;
-            }
-            else{
-                System.out.println("Error on login");
-            }
-
-        }catch (IOException ioe){
-            System.out.println("IOException[ClientManager.authentication]");
-        }catch (ClassNotFoundException cnfe){
-            System.out.println("ClassNotFoundException[ClientManager.authentication]");
-        }
-        return false;
-    }
-
-    public boolean sendMessageToServer(MessageTypes type){
-        Message message = new Message(type,clientData);
-
-        return true;
-    }
 
     public ClientData getClientData() {
         return clientData;
@@ -89,4 +95,6 @@ public class ClientManager {
     public void setClientSocket(Socket clientSocket) {
         this.clientSocket = clientSocket;
     }
+
+    
 }
