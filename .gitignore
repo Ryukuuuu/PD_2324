@@ -145,6 +145,6 @@ replay_pid*
 .idea/*
 *.iml
 target/*
-!javafx-sdk/lib/*
+
 mvn*
 ./mvn
