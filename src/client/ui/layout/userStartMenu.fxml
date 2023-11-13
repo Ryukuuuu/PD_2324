@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Text?>
+
+
+<BorderPane fx:id="borderPane" fx:controller="client.ui.controllers.UserMenuController" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+   <top>
+      <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <items>
+            <Button fx:id="btnProfile" mnemonicParsing="false" text="Profile" />
+          <Button fx:id="btnEventsMenu" mnemonicParsing="false" text="Events" />
+            <Button fx:id="btnLogout" onAction="#logout" alignment="TOP_LEFT" mnemonicParsing="false" text="LogOut" />
+        </items>
+      </ToolBar>
+   </top>
+   <center>
+      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="User Menu" wrappingWidth="202.703125" BorderPane.alignment="CENTER" />
+   </center>
+</BorderPane>

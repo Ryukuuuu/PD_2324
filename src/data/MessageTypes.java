@@ -1,4 +1,4 @@
-package Data;
+package data;
 
 public enum MessageTypes {
     //Normal user types
@@ -26,6 +26,7 @@ public enum MessageTypes {
     AUTHENTICATION,
     LOGIN,
     LOGOUT,
+    SIGNIN,
 
     //Server Return Messages
     SUCCESS,

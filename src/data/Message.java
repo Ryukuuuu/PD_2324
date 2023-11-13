@@ -1,6 +1,4 @@
-package Data;
-
-import Client.Client;
+package data;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -15,6 +13,8 @@ public class Message implements Serializable {
     //User who sent the message
     private ClientData clientData;
 
+    private long eventCode;
+
     public Message(MessageTypes type, ClientData clientData){
         this.type = type;
         this.clientData = clientData;
@@ -22,6 +22,12 @@ public class Message implements Serializable {
 
     public Message(MessageTypes type){
         this.type = type;
+    }
+
+    public Message(MessageTypes type, ClientData clientData,long eventCode){
+        this.type = type;
+        this.clientData = clientData;
+        this.eventCode = eventCode;
     }
 
     public MessageTypes getType() {
@@ -38,5 +44,13 @@ public class Message implements Serializable {
 
     public void setClientData(ClientData clientData) {
         this.clientData = clientData;
+    }
+
+    public long getEventCode() {
+        return eventCode;
+    }
+
+    public void setEventCode(long eventCode) {
+        this.eventCode = eventCode;
     }
 }

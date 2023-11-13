@@ -1,7 +1,7 @@
-package Client.ui;
+package client.ui;
 
-import Client.model.ClientManager;
-import Data.ClientData;
+import client.model.ClientManager;
+import data.ClientData;
 
 import java.util.Scanner;
 
@@ -21,7 +21,8 @@ public class ClientUI {
         System.out.println("Insert password: ");
         loginClientData.setPassword(scanner.nextLine());
 
-        return clientManager.logInClient(loginClientData);
+        //return clientManager.logInClient(loginClientData);
+        return false;
     }
 
     private boolean showMainMenu(){

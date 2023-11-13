@@ -1,4 +1,4 @@
-package Data;
+package data;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -18,6 +18,13 @@ public class ClientData implements Serializable {
     public ClientData(){}
 
     public ClientData(String email,String password){
+        this.email = email;
+        this.password = password;
+    }
+
+    public ClientData(String name,String id,String email,String password){
+        this.name = name;
+        this.id = Long.parseLong(id);
         this.email = email;
         this.password = password;
     }
