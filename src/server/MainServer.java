@@ -16,7 +16,7 @@ public class MainServer {
 
         local_DB_Directory = args[1];
         service_name = args[2];
-
+        System.out.println("<Servidor> A iniciar sistema...");
         try{
             client_port = Integer.parseInt(args[0]);
             registry_port = Integer.parseInt(args[3]);
@@ -26,6 +26,7 @@ public class MainServer {
         }
 
         UserConnectionsThread userConnectionsThread = new UserConnectionsThread(client_port);
+        System.out.println("<Servidor> Thread para criação de Conexões com Users criada!");
         userConnectionsThread.start();
     }
 }
