@@ -21,12 +21,12 @@ public class MainServer {
             client_port = Integer.parseInt(args[0]);
             registry_port = Integer.parseInt(args[3]);
         }catch (NumberFormatException e){
-            System.out.println("<ERRO> O porto de escuta para os clientes ou para o lançamento do registry introduzido, não é um número válido!\n");
+            System.out.println("<ERRO> O porto de escuta para os clientes ou para o lancamento do registry introduzido, nao e um numero valido!\n");
             return;
         }
 
         UserConnectionsThread userConnectionsThread = new UserConnectionsThread(client_port);
-        System.out.println("<Servidor> Thread para criação de Conexões com Users criada!");
+        System.out.println("<Servidor> Thread para criacao de Conexoes com Users criada!");
         userConnectionsThread.start();
     }
 }

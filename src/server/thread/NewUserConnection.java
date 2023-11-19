@@ -20,10 +20,10 @@ public class NewUserConnection implements Runnable{
         this.toClientSocket = toClientSocket;
         this.testDatabase = testDatabase;
         try{
-            ois = new ObjectInputStream(toClientSocket.getInputStream());
             oos = new ObjectOutputStream(toClientSocket.getOutputStream());
+            ois = new ObjectInputStream(toClientSocket.getInputStream());
         } catch (IOException e) {
-            System.out.println("<ERRO> Não foi possível obter as streams associadas a um Socket conectado ao cliente.");
+            System.out.println("<ERRO> Nao foi possivel obter as streams associadas a um Socket conectado ao cliente.");
         }
     }
 

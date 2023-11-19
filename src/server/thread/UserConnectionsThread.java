@@ -28,13 +28,13 @@ public class UserConnectionsThread extends Thread{
             try{
                 //ciclo há espera de conexões
                 while (true) {
-                    System.out.println("<Conexão com User> A aguardar novas conexões...");
+                    System.out.println("<Conexao com User> A aguardar novas conexoes...");
                     toClientSocket = ss.accept();
 
                     //não sei se isto é preciso, mas por enquanto deixo estar.
                     usersConnected.add(toClientSocket);
                     nCreatedThreads++;
-                    System.out.println("<Conexão com User> Novo User a estabelecer ligação -> #" + nCreatedThreads);
+                    System.out.println("<Conexao com User> Novo User a estabelecer ligacao -> #" + nCreatedThreads);
                     //crio Thread para efetuar comunicação com o cliente e arranco logo com ela
                     Thread t = new Thread(new NewUserConnection(toClientSocket, new TestDatabase()), "Thread " + nCreatedThreads);
                     t.start();
