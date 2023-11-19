@@ -54,10 +54,10 @@ public class NewUserConnection implements Runnable{
         while(true){
             try {
                 requestMessage = (Message)ois.readObject();
-                System.out.println("<PEDIDO> " + requestMessage.getType().name() + "de <" + requestMessage.getClientData().getEmail() + ">" );
+                System.out.println("<PEDIDO> " + requestMessage.getType().name() + " de <" + requestMessage.getClientData().getEmail() + ">" );
 
                 responseMessage = handleRequestMessage(requestMessage);
-                System.out.println("<RESPOSTA> " + requestMessage.getType().name() + "de <" + requestMessage.getClientData().getEmail() + ">>> " + responseMessage.getType().name());
+                System.out.println("<RESPOSTA> " + requestMessage.getType().name() + " de <" + requestMessage.getClientData().getEmail() + ">>> " + responseMessage.getType().name());
 
                 oos.writeObject(responseMessage);
                 oos.flush();
