@@ -2,6 +2,7 @@ package client.fsm.states;
 
 import client.fsm.ClientContext;
 import client.model.ClientManager;
+import data.ClientData;
 
 public class SignIn extends ClientStateAdapter{
 
@@ -10,10 +11,8 @@ public class SignIn extends ClientStateAdapter{
     }
 
     @Override
-    public boolean submitSignIn(String name,String id,String email,String password){
-        if(!clientManager.createNewClient(name, id, email, password)){
-            return false;
-        }
+    public boolean submitSignIn(ClientData clientData){
+        clientManager.setClientData(clientData);
         changeState(ClientState.START_MENU);
         return true;
     }

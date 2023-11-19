@@ -18,6 +18,12 @@ public class StartMenu extends ClientStateAdapter{
     }
 
     @Override
+    public boolean profile(){
+        changeState(ClientState.PROFILE);
+        return true;
+    }
+
+    @Override
     public boolean logout() {
         changeState(ClientState.LOGIN);
         return true;

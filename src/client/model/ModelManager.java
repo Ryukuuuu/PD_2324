@@ -2,44 +2,117 @@ package client.model;
 
 import client.fsm.ClientContext;
 import client.fsm.states.ClientState;
-import testdatabase.TestDatabase;
+import data.ClientData;
+import data.Message;
+import data.MessageTypes;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 public class ModelManager {
 
-
-
     public static final String PROP_UPDATE = "_update_";
     public static final String PROP_STATE = "_state_";
 
     private PropertyChangeSupport pcs;
     private ClientContext fsm;
+    private ConnectionManager connectionManager;
+
 
     public ModelManager(String[] args){
-        fsm = new ClientContext(args[0],args[1]);
+        fsm = new ClientContext();
         pcs = new PropertyChangeSupport(this);
+        connectionManager = new ConnectionManager(this,args);
     }
 
+    /*---------------------PROPERTY CHANGE---------------------*/
     public void addClient(String property, PropertyChangeListener listener){pcs.addPropertyChangeListener(property,listener);}
 
+    /*---------------------LOGIN---------------------*/
+
+    //Sends login message to the server
     public void login(String email,String password){
-        fsm.login(email,password);
+        connectionManager.sendMessageToServer(new Message(MessageTypes.LOGIN,new ClientData(email,password)));
+    }
+    //ConnectionManager will call this method when the login is successful
+    public void loginSuccess(ClientData clientData){
+        fsm.login(clientData);
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
+
+    /*---------------------SIGN IN---------------------*/
+
+    //Changes state to signin and fires the property change to the view
     public void toSignin(){
         fsm.toSignin();
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
+    //Sends the SignIn message to the server
     public void submitSignIn(String name,String id,String email,String password){
-        fsm.submitSignIn(name,id,email,password);
+        connectionManager.sendMessageToServer(
+                createMessage(
+                        MessageTypes.SIGNING,
+                        name,
+                        id,
+                        email,
+                        password));
+    }
+    //ConnectionManager will call this method when the signin is successful
+    public void signinSuccess(ClientData clientData){
+        fsm.submitSignIn(clientData);
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
+
+    /*---------------------LOGOUT--------------------*/
+    public void sendLogoutMessage(){connectionManager.sendMessageToServer(createMessage(MessageTypes.LOGOUT));}
     public void logout(){
         fsm.logout();
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
 
+    /*---------------------START MENU---------------------*/
+    public void sendSubmitCodeMessage(String eventCode){connectionManager.sendMessageToServer(createMessage(MessageTypes.SUBMIT_CODE,eventCode));}
+    public void startMenu(){
+        fsm.toStartMenu();
+        pcs.firePropertyChange(PROP_STATE,null,null);
+    }
+
+    /*---------------------PROFILE---------------------*/
+    public void profile(){
+        fsm.profile();
+        pcs.firePropertyChange(PROP_STATE,null,null);
+    }
+    public void sendEditUserInformationMessage(String name,String email,String password,String id){
+        connectionManager.sendMessageToServer(createMessage(
+                MessageTypes.EDIT_LOG_INFO,
+                name,
+                id,
+                email,
+                password
+                ));
+    }
+    public void editUserInformation(ClientData clientData){
+        fsm.editUserInfo(clientData);
+        pcs.firePropertyChange(PROP_STATE,null,null);
+    }
+    public void editUserInformation(){
+        fsm.editUserInfo();
+        pcs.firePropertyChange(PROP_STATE,null,null);
+    }
+
+    /*---------------------MESSAGES FROM SERVER---------------------*/
+    public Message getUpdatedInfo(){return connectionManager.getLastMessageFromServer();}
+    public ClientData getClientInfo(){return connectionManager.getLastMessageFromServer().getClientData();}
+    public void fireUpdate(){pcs.firePropertyChange(PROP_UPDATE,null,null);}
+
+    /*---------------------END EXECUTION---------------------*/
+    public void closeConnection(){connectionManager.closeConnection();}
+
+    /*---------------------MESSAGES---------------------*/
+    private Message createMessage(MessageTypes type){return new Message(type);}
+    private Message createMessage(MessageTypes type,String code){return new Message(type,code);}
+    private Message createMessage(MessageTypes type,String name,String id,String email,String password){return new Message(type,new ClientData(name,id,email,password));}
+
+    /*---------------------STATE---------------------*/
     public ClientState getState(){return fsm.getState();}
 }

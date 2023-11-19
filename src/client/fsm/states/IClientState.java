@@ -1,16 +1,19 @@
 package client.fsm.states;
 
+import data.ClientData;
+
 public interface IClientState {
-    boolean toStartMenu();
-    boolean toStartMenu(String email,String password);
-    boolean toEditInfo();
+    boolean startMenu();
+    boolean profile();
+    boolean editUserInfo(ClientData clientData);
+    boolean editUserInfoMenu();
     boolean toCheckPresences();
     boolean toEvent();
     boolean toSignIn();
     boolean toAddPresences();
     boolean toCheckPresencesOfEvent();
-    boolean submitSignIn(String name,String id,String email,String password);
-    boolean login(String email, String password);
+    boolean submitSignIn(ClientData clientData);
+    boolean login(ClientData clientData);
     boolean logout();
 
 

@@ -46,6 +46,13 @@ public class ClientData implements Serializable {
         this.logged = clientData.isLogged();
         this.admin = clientData.isAdmin();
     }
+
+    public boolean hasInformationToDisplay(){
+        if(name != null && email != null && id != 0){
+            return true;
+        }
+        return false;
+    }
     
     
 
@@ -60,6 +67,7 @@ public class ClientData implements Serializable {
     public long getId() {
         return id;
     }
+    public String getIdString(){return Long.toString(id);}
 
     public void setId(long id) {
         this.id = id;

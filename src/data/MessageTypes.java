@@ -26,9 +26,11 @@ public enum MessageTypes {
     AUTHENTICATION,
     LOGIN,
     LOGOUT,
-    SIGNIN,
+    SIGNING,
 
     //Server Return Messages
     SUCCESS,
-    FAILED
+    FAILED,
+    LOGGED_IN,
+    ACC_CREATED
 }

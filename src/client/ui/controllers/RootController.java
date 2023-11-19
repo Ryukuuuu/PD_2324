@@ -27,6 +27,8 @@ public class RootController {
         createView(modelManager, "layout/LogInScreen.fxml");
         createView(modelManager, "layout/userStartMenu.fxml");
         createView(modelManager,"layout/signInScreen.fxml");
+        createView(modelManager,"layout/profile.fxml");
+        createView(modelManager,"layout/edit-user-info.fxml");
     }
 
     private void createView(ModelManager modelManager,String resourcePath) throws IOException{
@@ -34,7 +36,7 @@ public class RootController {
         Parent child = fxmlLoader.load();
         switch (resourcePath) {
             case "layout/LogInScreen.fxml"->{
-                LogIncontroller controller = fxmlLoader.getController();
+                LogInController controller = fxmlLoader.getController();
                 controller.init(modelManager);
             }
             case "layout/userStartMenu.fxml" -> {
@@ -43,6 +45,14 @@ public class RootController {
             }
             case "layout/signInScreen.fxml" -> {
                 SignInController controller = fxmlLoader.getController();
+                controller.init(modelManager);
+            }
+            case "layout/profile.fxml" -> {
+                ProfileController controller = fxmlLoader.getController();
+                controller.init(modelManager);
+            }
+            case "layout/edit-user-info.fxml" ->{
+                EditUserInfoController controller = fxmlLoader.getController();
                 controller.init(modelManager);
             }
         }

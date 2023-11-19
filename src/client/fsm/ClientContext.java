@@ -3,6 +3,7 @@ package client.fsm;
 import client.fsm.states.ClientState;
 import client.fsm.states.IClientState;
 import client.model.ClientManager;
+import data.ClientData;
 
 public class ClientContext {
 
@@ -10,8 +11,8 @@ public class ClientContext {
 
     private IClientState state;
 
-    public ClientContext(String ipServer, String portServer) {
-        clientManager = new ClientManager(ipServer, portServer);
+    public ClientContext() {
+        clientManager = new ClientManager();
         state = ClientState.LOGIN.createState(clientManager, this);
     }
 
@@ -21,12 +22,14 @@ public class ClientContext {
 
     public void changeState(IClientState state){this.state = state;}
 
-    public boolean toStartMenu(){return state.toStartMenu();}
+    public boolean toStartMenu(){return state.startMenu();}
 
-    public boolean login(String email,String password){return state.login(email,password);}
+    public boolean login(ClientData clientData){return state.login(clientData);}
     public boolean toSignin(){return state.toSignIn();}
 
-    public boolean submitSignIn(String name,String id,String email,String password){return state.submitSignIn(name, id, email, password);}
+    public boolean submitSignIn(ClientData clientData){return state.submitSignIn(clientData);}
+    public boolean profile(){return state.profile();}
+    public boolean editUserInfo(ClientData clientData){return state.editUserInfo(clientData);}
+    public boolean editUserInfo(){return state.editUserInfoMenu();}
     public boolean logout(){return state.logout();}
-
 }

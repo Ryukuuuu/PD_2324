@@ -8,7 +8,8 @@ public enum ClientState {
     LOGIN,
     SIGNIN,
     START_MENU,
-    EDIT_INFO,
+    PROFILE,
+    EDIT_LOG_INFO,
     CHECK_PRESENCES,
 
     START_MENU_ADMIN,
@@ -23,7 +24,8 @@ public enum ClientState {
             case SIGNIN -> new SignIn(clientManager,context);
             case START_MENU -> new StartMenu(clientManager,context);
             case START_MENU_ADMIN -> new StartMenuAdmin(clientManager,context);
-            case EDIT_INFO -> new EditInfo(clientManager,context);
+            case PROFILE -> new Profile(clientManager,context);
+            case EDIT_LOG_INFO -> new EditLogInfo(clientManager,context);
             case CHECK_PRESENCES -> new CheckPresences(clientManager,context);
             case EVENT_MENU -> new EventMenu(clientManager,context);
             case ADD_PRESENCE_TO_EVENT -> new AddPresenceToEvent(clientManager,context);

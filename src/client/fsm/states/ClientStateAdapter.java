@@ -2,6 +2,7 @@ package client.fsm.states;
 
 import client.fsm.ClientContext;
 import client.model.ClientManager;
+import data.ClientData;
 
 public class ClientStateAdapter implements IClientState{
 
@@ -17,11 +18,13 @@ public class ClientStateAdapter implements IClientState{
 
 
     @Override
-    public boolean toStartMenu(){return false;}
+    public boolean startMenu(){return false;}
     @Override
-    public boolean toStartMenu(String email,String password){return false;}
+    public boolean profile(){return false;}
     @Override
-    public boolean toEditInfo(){return false;}
+    public boolean editUserInfo(ClientData clientData){return false;}
+    @Override
+    public boolean editUserInfoMenu(){return false;}
     @Override
     public boolean toCheckPresences(){return false;}
     @Override
@@ -33,9 +36,9 @@ public class ClientStateAdapter implements IClientState{
     @Override
     public boolean toCheckPresencesOfEvent(){return false;}
     @Override
-    public boolean submitSignIn(String name,String id,String email,String password){return false;}
+    public boolean submitSignIn(ClientData clientData){return false;}
     @Override
-    public boolean login(String email,String password){return false;}
+    public boolean login(ClientData clientData){return false;}
     @Override
     public boolean logout(){return false;}
 

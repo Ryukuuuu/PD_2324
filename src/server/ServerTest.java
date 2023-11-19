@@ -1,7 +1,5 @@
 package server;
 
-import client.Client;
-import client.model.ClientManager;
 import data.ClientData;
 import data.Message;
 import data.MessageTypes;
@@ -30,57 +28,53 @@ public class ServerTest {
 
         try(ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]))){
 
-            while(!stop){
                 System.out.println("Waiting for client");
                 try(Socket clientSocket = serverSocket.accept();
-                ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
-                ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream())){
+                    ObjectOutputStream oos = new ObjectOutputStream(clientSocket.getOutputStream());
+                    ObjectInputStream ois = new ObjectInputStream(clientSocket.getInputStream())){
 
-                Message messageReceived = (Message) ois.readObject();
+                    while(!stop) {
+                        Message messageReceived = (Message) ois.readObject();
 
-                System.out.println("Object received choose success or error");
-                /*op = sc.nextInt();
-                switch (op){
-                    case 1 -> newMess = new Message(MessageTypes.SUCCESS);
-                    default -> newMess = new Message(MessageTypes.FAILED);
-                }*/
-                switch (messageReceived.getType()){
-                    case LOGIN -> {
-                        connectedClient = testLogin(messageReceived.getClientData(),testDatabase);
-                        if(connectedClient == null){
-                            System.out.println("Client not found in map");
-                            newMess = new Message(MessageTypes.FAILED);
+                        switch (messageReceived.getType()) {
+                            case LOGIN -> {
+                                connectedClient = testLogin(messageReceived.getClientData(), testDatabase);
+                                if (connectedClient == null) {
+                                    System.out.println("Client not found in map");
+                                    newMess = new Message(MessageTypes.FAILED);
+                                } else {
+                                    System.out.println("Log in successfull");
+                                    newMess = new Message(MessageTypes.LOGGED_IN, fillClientWithData(messageReceived.getClientData().getEmail(), messageReceived.getClientData().getPassword()));
+                                }
+                            }
+                            case SIGNING -> {
+                                if (testDatabase.addNewEntryToClients(messageReceived.getClientData())) {
+                                    newMess = new Message(MessageTypes.ACC_CREATED);
+                                } else
+                                    newMess = new Message(MessageTypes.FAILED);
+                            }
+                            default -> {
+                                newMess = new Message(MessageTypes.FAILED);
+                            }
+                            case LOGOUT -> {
+                                newMess = new Message(MessageTypes.LOGOUT);
+                            }
                         }
-                        else{
-                            System.out.println("Log in successfull");
-                            newMess = new Message(MessageTypes.SUCCESS,connectedClient);
-                        }
+
+                        //newMess.setClientData(fillClientWithData(messageReceived.getClientData().getEmail(), messageReceived.getClientData().getPassword()));
+
+
+                        oos.writeObject(newMess);
+                        oos.flush();
+                        System.out.println("Message sent: " + newMess.getType());
+
                     }
-                    case SIGNIN -> {
-                        if(testDatabase.addNewEntryToClients(messageReceived.getClientData())){
-                            newMess = new Message(MessageTypes.SUCCESS);
-                        }
-                        else
-                            newMess = new Message(MessageTypes.FAILED);
-                    }
-                    default -> {
-                        newMess = new Message(MessageTypes.FAILED);
-                    }
-                }
-
-                //newMess.setClientData(fillClientWithData(messageReceived.getClientData().getEmail(), messageReceived.getClientData().getPassword()));
-
-
-                oos.writeObject(newMess);
-                oos.flush();
-
                 }catch (IOException ioe){
                     System.out.println("Error client socket");
                 }catch (ClassNotFoundException cnfe){
                     System.out.println("Class not found exception");
                 }
-            }
-        }catch (IOException ioe){
+            } catch (IOException ioe){
             System.out.println("IOE");
         }
     }

@@ -10,7 +10,7 @@ import javafx.scene.layout.BorderPane;
 
 import java.io.IOException;
 
-public class LogIncontroller {
+public class LogInController {
 
     public TextField tfEmail;
     public TextField tfPassword;
@@ -33,7 +33,7 @@ public class LogIncontroller {
 
     private void update(){
         borderPane.setVisible(modelManager.getState() == ClientState.LOGIN);
-        System.out.println("Login visibility " + borderPane.isVisible());
+        //System.out.println("Login visibility " + borderPane.isVisible());
     }
     @FXML
     private void login() {
@@ -44,5 +44,8 @@ public class LogIncontroller {
         modelManager.toSignin();
     }
     @FXML
-    private void exit(){Platform.exit();}
+    private void exit(){
+        modelManager.closeConnection();
+        Platform.exit();
+    }
 }
