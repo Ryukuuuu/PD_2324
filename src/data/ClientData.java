@@ -22,9 +22,9 @@ public class ClientData implements Serializable {
         this.password = password;
     }
 
-    public ClientData(String name,String id,String email,String password){
+    public ClientData(String name,long id,String email,String password){
         this.name = name;
-        this.id = Long.parseLong(id);
+        this.id = id;
         this.email = email;
         this.password = password;
     }
@@ -37,8 +37,14 @@ public class ClientData implements Serializable {
         this.logged = logged;
         this.admin = admin;
     }
-    
-    
+
+    public ClientData(String name, long id, String password) {
+        this.name = name;
+        this.id = id;
+        this.password = password;
+    }
+
+
     //Called if login is successful to fill the object with the info in the database
     public void fillClientDataAfterLogin(ClientData clientData){
         this.name = clientData.getName();
@@ -54,7 +60,20 @@ public class ClientData implements Serializable {
         return false;
     }
     
-    
+    public void updateData(ClientData clientData){
+        if(clientData.getName() != null){
+            this.name = clientData.getName();
+        }
+        if(clientData.getEmail() != null){
+            this.email = clientData.getEmail();
+        }
+        if(clientData.getPassword() != null){
+            this.password = clientData.getPassword();
+        }
+        if(clientData.getId() != 0){
+            this.id = clientData.getId();
+        }
+    }
 
     public String getName() {
         return name;

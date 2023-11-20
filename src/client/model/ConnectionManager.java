@@ -1,13 +1,10 @@
 package client.model;
 
-import client.thread.ListenToServerThread;
-import data.Message;
-import data.MessageTypes;
-import javafx.application.Platform;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import data.Message;
+
+
+import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
@@ -37,14 +34,15 @@ public class ConnectionManager {
                 return true;
             }catch (IOException e){
                 System.out.println("Error connecting to server");
+                e.printStackTrace();
             }
             return false;
         }
 
-        private void getSocketStreams(){
+       private void getSocketStreams(){
             try{
-                ois = new ObjectInputStream(socket.getInputStream());
                 oos = new ObjectOutputStream(socket.getOutputStream());
+                ois = new ObjectInputStream(socket.getInputStream());
             }catch (IOException e){
                 System.out.println("Error opening streams");
             }
@@ -53,7 +51,6 @@ public class ConnectionManager {
         /*---------------------THREAD---------------------*/
         private void listenToServer(){
             Thread listenForUpdates = new Thread(() -> {
-                //System.out.println("Thread Running");
                 while(keepListening) {
                     try {
                         messageFromServer = (Message) ois.readObject();
@@ -95,11 +92,11 @@ public class ConnectionManager {
         }
     }
         private void checkMessageReceived(){
-            if (messageFromServer.isMessageReaded()) return;
             switch (messageFromServer.getType()) {
                 case LOGGED_IN -> modelManager.loginSuccess(messageFromServer.getClientData());
                 case ACC_CREATED -> modelManager.signinSuccess(messageFromServer.getClientData());
                 case LOGOUT -> modelManager.logout();
+                case EDIT_LOG_INFO -> modelManager.editUserInformation(messageFromServer.getClientData());
                 //Received a message from server and notifies modelManager to update the view
                 default -> modelManager.fireUpdate();
             }

@@ -27,6 +27,7 @@ public enum MessageTypes {
     LOGIN,
     LOGOUT,
     SIGNING,
+    QUIT,
 
     //Server Return Messages
     SUCCESS,

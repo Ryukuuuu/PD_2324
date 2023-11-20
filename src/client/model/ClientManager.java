@@ -2,15 +2,7 @@ package client.model;
 
 
 import data.ClientData;
-import data.Message;
-import data.MessageTypes;
 
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.net.SocketTimeoutException;
 
 public class ClientManager {
     private ClientData clientData;

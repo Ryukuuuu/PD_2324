@@ -12,16 +12,21 @@ import java.io.IOException;
 
 public class LogInController {
 
-    public TextField tfEmail;
-    public TextField tfPassword;
-    public Button btnLogin;
-    public Button btnSignin;
-    public Button btnExit;
     private ModelManager modelManager;
+    @FXML
+    private TextField tfEmail;
+    @FXML
+    private TextField tfPassword;
+    @FXML
+    private Button btnLogin;
+    @FXML
+    private Button btnSignin;
+    @FXML
+    private Button btnExit;
     @FXML
     private BorderPane borderPane;
 
-    public void init(ModelManager modelManager) throws IOException {
+    public void init(ModelManager modelManager){
         this.modelManager = modelManager;
         registerHandlers();
         update();
@@ -33,6 +38,7 @@ public class LogInController {
 
     private void update(){
         borderPane.setVisible(modelManager.getState() == ClientState.LOGIN);
+        clearTextFields();
         //System.out.println("Login visibility " + borderPane.isVisible());
     }
     @FXML
@@ -47,5 +53,10 @@ public class LogInController {
     private void exit(){
         modelManager.closeConnection();
         Platform.exit();
+    }
+
+    private void clearTextFields(){
+        tfEmail.clear();
+        tfPassword.clear();
     }
 }

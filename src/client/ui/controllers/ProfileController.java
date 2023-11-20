@@ -10,9 +10,11 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
 
 public class ProfileController {
-    public Text tId;
     private ModelManager modelManager;
-    public Button btnBack;
+    @FXML
+    private Text tId;
+    @FXML
+    private Button btnBack;
     public Button btnLogOut;
     public Button btnEdit;
     public Text tEmail;
@@ -28,6 +30,7 @@ public class ProfileController {
 
     private void registerHandlers(){
         modelManager.addClient(ModelManager.PROP_STATE,evt -> Platform.runLater(this::update));
+        modelManager.addClient(ModelManager.PROP_UPDATE,evt -> Platform.runLater(this::update));
     }
 
     private void update(){
@@ -37,12 +40,14 @@ public class ProfileController {
         }
         else{
             borderPane.setVisible(false);
-
         }
     }
 
     private void fillTextsWithClientData(){
-        ClientData clientData = modelManager.getClientInfo();
+        ClientData clientData = modelManager.getClientData();
+        System.out.println(clientData);
+        if(clientData == null)
+            return;
         if(clientData.hasInformationToDisplay()){
             tName.setText(clientData.getName());
             tEmail.setText(clientData.getEmail());
@@ -58,7 +63,7 @@ public class ProfileController {
     }
     @FXML
     private void logOut(){
-        modelManager.logout();
+        modelManager.sendLogoutMessage();
     }
 
 }

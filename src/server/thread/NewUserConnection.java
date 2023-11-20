@@ -5,6 +5,7 @@ import data.Message;
 import data.MessageTypes;
 import testdatabase.TestDatabase;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -15,6 +16,7 @@ public class NewUserConnection implements Runnable{
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
     private TestDatabase testDatabase;
+    private ClientData clientData;
 
     public NewUserConnection(Socket toClientSocket, TestDatabase testDatabase) {
         this.toClientSocket = toClientSocket;
@@ -32,15 +34,28 @@ public class NewUserConnection implements Runnable{
             case LOGIN -> {
                 ClientData clientData = testDatabase.getClient(messageReceived.getClientData().getEmail(),messageReceived.getClientData().getPassword());
                 if(clientData != null){
+                    this.clientData = clientData;
                     return new Message(MessageTypes.LOGGED_IN,clientData);
                 }
             }
             case SIGNING -> {
                 if(testDatabase.addNewEntryToClients(messageReceived.getClientData())){
+                    this.clientData = messageReceived.getClientData();
                     return new Message(MessageTypes.ACC_CREATED,messageReceived.getClientData());
                 }
             }
-            case EDIT_LOG_INFO -> {}
+            case EDIT_LOG_INFO -> {
+                ClientData data = testDatabase.editUserInfo(messageReceived.getClientData());
+                if(data != null){
+                    this.clientData = data;
+                    return new Message(MessageTypes.EDIT_LOG_INFO,clientData);
+                }
+            }
+            case SUBMIT_CODE -> {
+                if(testDatabase.checkIfCodeExists(messageReceived.getEventCode()))
+                    return new Message(MessageTypes.SUBMIT_CODE);
+            }
+            case LOGOUT -> {return new Message(MessageTypes.LOGOUT);}
             default -> {
                 return new Message(MessageTypes.FAILED);
             }
@@ -53,16 +68,19 @@ public class NewUserConnection implements Runnable{
         Message requestMessage, responseMessage;
         while(true){
             try {
-                requestMessage = (Message)ois.readObject();
-                System.out.println("<PEDIDO> " + requestMessage.getType().name() + " de <" + requestMessage.getClientData().getEmail() + ">" );
+                requestMessage = (Message) ois.readObject();
+                try {
+                    System.out.println("<PEDIDO> " + requestMessage.getType().name() + " de <" + requestMessage.getClientData().getEmail() + ">");
+                } catch (NullPointerException e) {
+                    System.out.println("<PEDIDO> " + requestMessage.getType().name() + " de <" + clientData.getEmail() + ">");
+                }
+
 
                 responseMessage = handleRequestMessage(requestMessage);
-                System.out.println("<RESPOSTA> " + requestMessage.getType().name() + " de <" + requestMessage.getClientData().getEmail() + ">>> " + responseMessage.getType().name());
-
+                System.out.println("<RESPOSTA> " + requestMessage.getType().name() + " de <" + clientData.getEmail() + ">>> " + responseMessage.getType().name());
                 oos.writeObject(responseMessage);
                 oos.flush();
-
-            }catch (ClassNotFoundException | IOException e) {
+            } catch (ClassNotFoundException | IOException e){
                 throw new RuntimeException(e);
             }
         }

@@ -21,6 +21,7 @@ public class TestDatabase {
         clients = new HashMap<>();
         events = new ArrayList<>();
         fillClientsMap();
+        fillEventsList();
     }
 
     public void fillClientsMap(){
@@ -52,7 +53,7 @@ public class TestDatabase {
     }
 
     public void fillEventsList(){
-        events.add(new Event("Event1","Local1","11/11/2023","10AM","12AM"));
+        events.add(new Event("Event1","Local1","11/11/2023",1L,"10","10AM","12AM"));
         events.add(new Event("Event2","Local2","12/11/2023","10AM","12AM"));
         events.add(new Event("Event3","Local3","13/11/2023","10AM","12AM"));
     }
@@ -70,15 +71,32 @@ public class TestDatabase {
         return newClient;
     }
 
+    public ClientData getClient(String email){
+        return clients.getOrDefault(email, null);
+    }
+
     public boolean addNewEntryToClients(ClientData clientData){
-        try {
-            clients.put(clientData.getEmail(), clientData);
-            System.out.println(clients);
-        }catch (IllegalArgumentException e){
-            System.out.println("Error adding client: " + e.getMessage());
+        if(clients.containsKey(clientData.getEmail())){
             return false;
         }
+        clients.put(clientData.getEmail(),clientData);
         return true;
+    }
+
+    public ClientData editUserInfo(ClientData clientData){
+        ClientData client = clients.get(clientData.getEmail());
+        if(client == null){
+            return null;
+        }
+        if(!client.getName().equals(clientData.getName()))
+            client.setName(clientData.getName());
+        if(client.getId() != clientData.getId())
+            client.setId(clientData.getId());
+        if(!client.getPassword().equals(clientData.getPassword()))
+            client.setPassword(clientData.getPassword());
+
+        clients.put(client.getEmail(),client);
+        return client;
     }
 
     public void addNewEvent(Event event){
@@ -94,5 +112,14 @@ public class TestDatabase {
                 return;
             }
         }
+    }
+
+    public boolean checkIfCodeExists(long code){
+        for(Event event : events){
+            if(code == event.getActiveCode()){
+                return true;
+            }
+        }
+        return false;
     }
 }

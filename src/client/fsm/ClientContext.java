@@ -32,4 +32,6 @@ public class ClientContext {
     public boolean editUserInfo(ClientData clientData){return state.editUserInfo(clientData);}
     public boolean editUserInfo(){return state.editUserInfoMenu();}
     public boolean logout(){return state.logout();}
+
+    public ClientData getClientData(){return clientManager.getClientData();}
 }

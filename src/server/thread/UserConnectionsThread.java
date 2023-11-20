@@ -38,6 +38,7 @@ public class UserConnectionsThread extends Thread{
                     //crio Thread para efetuar comunicação com o cliente e arranco logo com ela
                     Thread t = new Thread(new NewUserConnection(toClientSocket, new TestDatabase()), "Thread " + nCreatedThreads);
                     t.start();
+                    System.out.println(ss.isClosed());
                 }
             }catch (IOException e){
                 throw new RuntimeException(e);

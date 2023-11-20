@@ -10,7 +10,7 @@ public class Message implements Serializable {
 
     private MessageTypes type;
     //User who sent the message
-    private ClientData clientData;
+    private ClientData clientData = null;
     private long eventCode;
     private boolean messageReaded = false;
 
@@ -28,9 +28,9 @@ public class Message implements Serializable {
         this.clientData = clientData;
         this.eventCode = eventCode;
     }
-    public Message(MessageTypes type, String eventCode){
+    public Message(MessageTypes type, long eventCode){
         this.type = type;
-        this.eventCode = Long.parseLong(eventCode);
+        this.eventCode = eventCode;
     }
 
     public MessageTypes getType() {

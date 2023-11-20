@@ -4,13 +4,14 @@ import client.fsm.states.ClientState;
 import client.model.ModelManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 
 public class EditUserInfoController {
     private ModelManager modelManager;
-    public TextField tfEmail;
     public TextField tfPassword;
     public TextField tfId;
     public Button btnCancel;
@@ -33,15 +34,31 @@ public class EditUserInfoController {
         borderPane.setVisible(modelManager.getState() == ClientState.EDIT_LOG_INFO);
     }
 
+    private boolean checkId(){
+        try{
+            Long.parseLong(tfId.getText());
+            return true;
+        }catch (NumberFormatException e){
+            return false;
+        }
+    }
+
     @FXML
     private void submitNewUserInformation(){
-        modelManager.sendEditUserInformationMessage(
-                tfName.getText(),
-                tfEmail.getText(),
-                tfPassword.getText(),
-                tfId.getText()
-        );
-        clearTextFields();
+        if(checkId()) {
+            modelManager.sendEditUserInformationMessage(
+                    tfName.getText(),
+                    tfPassword.getText(),
+                    Long.parseLong(tfId.getText()),
+                    modelManager.getClientData().getEmail()
+            );
+            //clearTextFields();
+        }
+        else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("Id must be a number");
+            alert.show();
+        }
     }
     @FXML
     private void cancel(){
@@ -50,7 +67,6 @@ public class EditUserInfoController {
     }
     private void clearTextFields(){
         tfName.clear();
-        tfEmail.clear();
         tfPassword.clear();
         tfId.clear();
     }
