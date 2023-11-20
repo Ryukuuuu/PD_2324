@@ -43,14 +43,14 @@ public class NewUserConnection implements Runnable{
                 }
             }
             case EDIT_LOG_INFO -> {
-                ClientData data = testDatabase.editUserInfo(messageReceived.getClientData());
+                ClientData data = dbConnection.editUserInfo(messageReceived.getClientData());
                 if(data != null){
                     this.clientData = data;
                     return new Message(MessageTypes.EDIT_LOG_INFO,clientData);
                 }
             }
             case SUBMIT_CODE -> {
-                if(testDatabase.checkIfCodeExists(messageReceived.getEventCode()))
+                if(dbConnection.checkIfCodeExists(messageReceived.getEventCode()))
                     return new Message(MessageTypes.SUBMIT_CODE);
             }
             case LOGOUT -> {return new Message(MessageTypes.LOGOUT);}
