@@ -1,5 +1,6 @@
 package server.thread;
 
+import database.DatabaseConnection;
 import testdatabase.TestDatabase;
 
 import java.io.IOException;
@@ -11,11 +12,13 @@ import java.util.List;
 public class UserConnectionsThread extends Thread{
     // falta meter dados a receber no construtor
     private final int listening_port;
+    private DatabaseConnection dbConnection;
     private List<Socket> usersConnected;
     private int nCreatedThreads;
 
-    public UserConnectionsThread(int listening_port){
+    public UserConnectionsThread(int listening_port, DatabaseConnection dbConnection){
         this.listening_port = listening_port;
+        this.dbConnection = dbConnection;
 
         usersConnected = new ArrayList<>();
         nCreatedThreads = 0;
@@ -36,7 +39,7 @@ public class UserConnectionsThread extends Thread{
                     nCreatedThreads++;
                     System.out.println("<Conexao com User> Novo User a estabelecer ligacao -> #" + nCreatedThreads);
                     //crio Thread para efetuar comunicação com o cliente e arranco logo com ela
-                    Thread t = new Thread(new NewUserConnection(toClientSocket, new TestDatabase()), "Thread " + nCreatedThreads);
+                    Thread t = new Thread(new NewUserConnection(toClientSocket, dbConnection), "Thread " + nCreatedThreads);
                     t.start();
                 }
             }catch (IOException e){

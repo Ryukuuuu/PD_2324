@@ -3,7 +3,7 @@ package server.thread;
 import data.ClientData;
 import data.Message;
 import data.MessageTypes;
-import testdatabase.TestDatabase;
+import database.DatabaseConnection;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -14,12 +14,12 @@ public class NewUserConnection implements Runnable{
     Socket toClientSocket;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
-    private TestDatabase testDatabase;
+    private DatabaseConnection dbConnection;
     private ClientData clientData;
 
-    public NewUserConnection(Socket toClientSocket, TestDatabase testDatabase) {
+    public NewUserConnection(Socket toClientSocket, DatabaseConnection dbConnection) {
         this.toClientSocket = toClientSocket;
-        this.testDatabase = testDatabase;
+        this.dbConnection = dbConnection;
         try{
             oos = new ObjectOutputStream(toClientSocket.getOutputStream());
             ois = new ObjectInputStream(toClientSocket.getInputStream());
@@ -31,15 +31,14 @@ public class NewUserConnection implements Runnable{
     private Message handleRequestMessage(Message messageReceived){
         switch (messageReceived.getType()){
             case LOGIN -> {
-                ClientData clientData = testDatabase.getClient(messageReceived.getClientData().getEmail(),messageReceived.getClientData().getPassword());
+                ClientData clientData = dbConnection.getClient(messageReceived.getClientData().getEmail(),messageReceived.getClientData().getPassword());
                 if(clientData != null){
                     this.clientData = clientData;
                     return new Message(MessageTypes.LOGGED_IN,clientData);
                 }
             }
             case SIGNING -> {
-                if(testDatabase.addNewEntryToClients(messageReceived.getClientData())){
-                    this.clientData = messageReceived.getClientData();
+                if(dbConnection.addNewEntryToClients(messageReceived.getClientData())){
                     return new Message(MessageTypes.ACC_CREATED,messageReceived.getClientData());
                 }
             }
