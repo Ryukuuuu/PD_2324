@@ -44,6 +44,14 @@ public class ClientData implements Serializable {
         this.password = password;
     }
 
+    public ClientData(String name, long id, String email, String password, boolean admin) {
+        this.name = name;
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.admin = admin;
+    }
+
 
     //Called if login is successful to fill the object with the info in the database
     public void fillClientDataAfterLogin(ClientData clientData){

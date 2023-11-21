@@ -104,6 +104,27 @@ public class DatabaseConnection {
     }
 
     public ClientData getClient(String email, String password) {
+        Statement statement;
+        ResultSet result;
+        try {
+            statement = conn.createStatement();
+            String selectUser = "SELECT *\n" +
+                                "FROM Users\n" +
+                                "WHERE email='" + email + "' AND password='" + password + "'\n";
+            result = statement.executeQuery(selectUser);
+            if (result.next()){
+                return new ClientData(
+                        result.getString("name"),
+                        result.getLong("clientID"),
+                        result.getString("email"),
+                        result.getString("password"),
+                        result.getBoolean("administrator"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro em algum statement de criacao de tabelas: ");
+            e.printStackTrace();
+        }
+
         return null;
     }
     public boolean addNewEntryToClients(ClientData clientData) {
