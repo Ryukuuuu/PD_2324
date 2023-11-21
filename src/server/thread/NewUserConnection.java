@@ -16,10 +16,12 @@ public class NewUserConnection implements Runnable{
     private ObjectOutputStream oos;
     private DatabaseConnection dbConnection;
     private ClientData clientData;
+    private Boolean keepRunning;
 
     public NewUserConnection(Socket toClientSocket, DatabaseConnection dbConnection) {
         this.toClientSocket = toClientSocket;
         this.dbConnection = dbConnection;
+        keepRunning = true;
         try{
             oos = new ObjectOutputStream(toClientSocket.getOutputStream());
             ois = new ObjectInputStream(toClientSocket.getInputStream());
@@ -44,17 +46,22 @@ public class NewUserConnection implements Runnable{
                 }
             }
             case EDIT_LOG_INFO -> {
-                ClientData data = dbConnection.editUserInfo(messageReceived.getClientData());
+                ClientData data = dbConnection.editClientInfo(messageReceived.getClientData());
                 if(data != null){
                     this.clientData = data;
                     return new Message(MessageTypes.EDIT_LOG_INFO,clientData);
                 }
             }
             case SUBMIT_CODE -> {
-                if(dbConnection.checkIfCodeExists(messageReceived.getEventCode()))
+                if(dbConnection.checkIfCodeExists(messageReceived.getEventCode(), messageReceived.getClientData().getEmail()))
                     return new Message(MessageTypes.SUBMIT_CODE);
             }
             case LOGOUT -> {return new Message(MessageTypes.LOGOUT);}
+
+            case QUIT -> {
+                keepRunning = false;
+                return new Message(MessageTypes.QUIT);
+            }
             default -> {
                 return new Message(MessageTypes.FAILED);
             }
@@ -65,7 +72,7 @@ public class NewUserConnection implements Runnable{
     @Override
     public void run() {
         Message requestMessage, responseMessage;
-        while(true){
+        while(keepRunning){
             try {
                 requestMessage = (Message) ois.readObject();
                 try {
