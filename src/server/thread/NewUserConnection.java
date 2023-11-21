@@ -39,6 +39,7 @@ public class NewUserConnection implements Runnable{
             }
             case SIGNING -> {
                 if(dbConnection.addNewEntryToClients(messageReceived.getClientData())){
+                    this.clientData = messageReceived.getClientData();
                     return new Message(MessageTypes.ACC_CREATED,messageReceived.getClientData());
                 }
             }
@@ -72,7 +73,6 @@ public class NewUserConnection implements Runnable{
                 } catch (NullPointerException e) {
                     System.out.println("<PEDIDO> " + requestMessage.getType().name() + " de <" + clientData.getEmail() + ">");
                 }
-
 
                 responseMessage = handleRequestMessage(requestMessage);
                 System.out.println("<RESPOSTA> " + requestMessage.getType().name() + " de <" + clientData.getEmail() + ">>> " + responseMessage.getType().name());

@@ -6,6 +6,7 @@ import server.thread.UserConnectionsThread;
 public class MainServer {
     static final int MULTICAST_PORT = 4444;
     static final String MULTICAST_ADDRESS = "230.44.44.44";
+
     public static void main(String[] args) {
         int client_port, registry_port;
         String local_DB_Directory, service_name, url;
@@ -29,7 +30,9 @@ public class MainServer {
             System.out.println("<ERRO> O porto de escuta para os clientes ou para o lancamento do registry introduzido, nao e um numero valido!\n");
             return;
         }
+
         dbConnection = new DatabaseConnection(url);
+
         UserConnectionsThread userConnectionsThread = new UserConnectionsThread(client_port, dbConnection);
         System.out.println("<Servidor> Thread para criacao de Conexoes com Users criada!");
         userConnectionsThread.start();
