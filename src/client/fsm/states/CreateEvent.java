@@ -14,6 +14,11 @@ public class CreateEvent extends ClientStateAdapter{
         changeState(ClientState.START_MENU_ADMIN);
         return true;
     }
+    @Override
+    public boolean createEvent(){
+        changeState(ClientState.START_MENU_ADMIN);
+        return true;
+    }
 
      @Override
     public ClientState getState(){return ClientState.CREATE_EVENT;}

@@ -33,7 +33,10 @@ public class AdminMenuController {
     private void setBtnCreateEvent(){
         modelManager.createEventMenu();
     }
-
+    @FXML
+    private void setBtnEditEvent(){
+        modelManager.editEventMenu();
+    }
     @FXML
     private void setBtnLogout(){
         modelManager.sendLogoutMessage();

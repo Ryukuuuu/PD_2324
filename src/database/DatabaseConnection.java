@@ -218,7 +218,6 @@ public class DatabaseConnection {
                 }
             } catch (SQLException e) {
                 System.out.println("Erro no statement de insercao de um novo Evento: ");
-                System.out.println(event);
                 e.printStackTrace();
             }
         }
@@ -281,7 +280,7 @@ public class DatabaseConnection {
                 String updateEventStatement = "UPDATE Events SET local='" + event.getLocal() +
                         "', date='" + event.getDate() + "', startingTime='" + event.getStartingTime() +
                         "', endingTime='" + event.getEndingTime() + "'\n" +
-                        "WHERE name=" + event.getName() + ";";
+                        "WHERE name='" + event.getName() + "';";
                 result = updateStatement.executeUpdate(updateEventStatement);
 
                 if (result != 0){

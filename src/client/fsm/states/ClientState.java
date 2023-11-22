@@ -15,6 +15,7 @@ public enum ClientState {
     START_MENU_ADMIN,
     EVENT_MENU,
     CREATE_EVENT,
+    EDIT_EVENT,
     CHECK_PRESENCES_EVENT,
     ADD_PRESENCE_TO_EVENT;
 
@@ -31,6 +32,7 @@ public enum ClientState {
             case ADD_PRESENCE_TO_EVENT -> new AddPresenceToEvent(clientManager,context);
             case CHECK_PRESENCES_EVENT -> new CheckPresencesOfEvent(clientManager,context);
             case CREATE_EVENT -> new CreateEvent(clientManager,context);
+            case EDIT_EVENT -> new EditEvent(clientManager,context);
         };
     }
 }

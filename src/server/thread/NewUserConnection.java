@@ -63,11 +63,12 @@ public class NewUserConnection implements Runnable{
                     return new Message(MessageTypes.CREATE_EVENT);
                 }
             }
-
-            /*Adicionar case events*/
-
+            case EDIT_EVENT -> {
+                if(dbConnection.editEventInfo(messageReceived.getEvent())!=null){
+                    return new Message(MessageTypes.EDIT_EVENT);
+                }
+            }
             case LOGOUT -> {return new Message(MessageTypes.LOGOUT);}
-
             case QUIT -> {
                 keepRunning = false;
                 return new Message(MessageTypes.QUIT);

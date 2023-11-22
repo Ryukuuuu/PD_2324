@@ -16,7 +16,7 @@
                   <Font size="20.0" />
                </font>
             </Button>
-            <Button fx:id="btnEditEvent" alignment="CENTER" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Edit Event">
+            <Button fx:id="btnEditEvent" onAction="#setBtnEditEvent" alignment="CENTER" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Edit Event">
                <font>
                   <Font size="20.0" />
                </font>

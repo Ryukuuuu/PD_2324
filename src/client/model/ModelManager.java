@@ -138,6 +138,11 @@ public class ModelManager {
         fsm.createEvent();
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
+    public void sendEditEventMessage(String name,String local,String date,String startingTime,String endingTime){connectionManager.sendMessageToServer(createMessage(MessageTypes.EDIT_EVENT,new Event(name,local,date,startingTime,endingTime)));}
+    public void editEventMenu(){
+        fsm.editEvent();
+        pcs.firePropertyChange(PROP_STATE,null,null);
+    }
     /*---------------------END EXECUTION---------------------*/
     public void closeConnection(){
         connectionManager.sendMessageToServer(createMessage(MessageTypes.QUIT,fsm.getClientData()));
