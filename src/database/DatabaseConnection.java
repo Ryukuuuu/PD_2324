@@ -3,13 +3,13 @@ import data.ClientData;
 import data.Event;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseConnection {
-    private String DATABASE_URL;
     private Connection conn;
     private long versionDB;
     public DatabaseConnection(String DATABASE_URL) {
-        this.DATABASE_URL = DATABASE_URL;
         versionDB = 0L;
         try {
             conn = DriverManager.getConnection(DATABASE_URL);
@@ -50,8 +50,8 @@ public class DatabaseConnection {
                                                     "name TEXT PRIMARY KEY NOT NULL,\n" +
                                                     "local TEXT NOT NULL,\n" +
                                                     "date DATE NOT NULL,\n" +
-                                                    "activeCode INTEGER UNIQUE NOT NULL,\n" +
-                                                    "codeValidityEnding TIME NOT NULL,\n" +
+                                                    "activeCode INTEGER UNIQUE,\n" +
+                                                    "codeValidityEnding TIME,\n" +
                                                     "startingTime TIME NOT NULL,\n" +
                                                     "endingTime TIME NOT NULL\n" +
                                                     ");";
@@ -150,7 +150,6 @@ public class DatabaseConnection {
 
         return false;
     }
-
     public ClientData editClientInfo(ClientData clientData) {
         Statement statement;
         int result;
@@ -202,17 +201,15 @@ public class DatabaseConnection {
 
         return null;
     }
-
     public boolean addNewEntryToEvent(Event event){
         Statement statement;
         int result;
         synchronized (conn){
             try {
                 statement = conn.createStatement();
-                String insertEvent = "INSERT INTO Events (name,local,date,activeCode,codeValidityEnding,startingTime,endingTime) VALUES\n" +
+                String insertEvent = "INSERT INTO Events (name,local,date,startingTime,endingTime) VALUES\n" +
                         "('" + event.getName() + "','" + event.getLocal() + "','" + event.getDate() +
-                        "'," + event.getActiveCode() + ",'" + event.getCodeValidityEnding() + "','" +
-                        event.getStartingTime() + "','" + event.getEndingTime() + "');";
+                        "','" + event.getStartingTime() + "','" + event.getEndingTime() + "');";
                 result = statement.executeUpdate(insertEvent);
 
                 if (result != 0) {
@@ -226,26 +223,63 @@ public class DatabaseConnection {
         }
         return false;
     }
-
-    public Event editEventInfo(Event event){
-        Statement selectStatement, updateStatement;
+    public List<String> checkPresences(Event event){
+        Statement statement;
         ResultSet resultSet;
+        List<String> list = new ArrayList<>();
+        synchronized (conn){
+            try {
+                statement = conn.createStatement();
+                String selectClientsEventsStatement = "SELECT clientEmail\n" +
+                                                      "FROM ClientsEvents\n" +
+                                                      "WHERE eventName='" + event.getName() + "';";
+                resultSet = statement.executeQuery(selectClientsEventsStatement);
+
+                while (resultSet.next()){
+                    list.add(resultSet.getString("clientEmail"));
+                }
+            } catch (SQLException e) {
+                System.out.println("Erro a obter todas as presenças para um determinado evento");
+                e.printStackTrace();
+            }
+        }
+
+        return list;
+    }
+
+    public Event editActiveCode (String name, long code, String codeValidityEnding){
+        Statement statement;
         int result;
         synchronized (conn){
             try {
-                selectStatement = conn.createStatement();
-                String selectClientsEventsStatement = "SELECT *\n" +
-                                                      "FROM ClientsEvents\n" +
-                                                      "WHERE eventName='" + event.getName() + "';";
-                resultSet = selectStatement.executeQuery(selectClientsEventsStatement);
-                if(resultSet.next())
-                    return null;
+                statement = conn.createStatement();
+                String updateNewCodeStatement = "UPDATE Events SET activeCode=" + code + ", codeValidityEnding='" +
+                                                codeValidityEnding + "'\n" +
+                                                "WHERE name='" + name + "';";
+                result = statement.executeUpdate(updateNewCodeStatement);
+                if (result != 0){
+                    updateDBVersion();
+                    return getEvent(name);
+                }
 
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return null;
+    }
+    public Event editEventInfo(Event event){
+        Statement updateStatement;
+        int result;
+        synchronized (conn){
+            List<String> list = checkPresences(event);
+            if(!list.isEmpty())
+                return null;
+            try {
                 updateStatement = conn.createStatement();
-                String updateEventStatement = "UPDATE Events SET name='" + event.getName() +
-                        "', local='" + event.getLocal() + "', date='" + event.getDate() + "', activeCode=" +
-                        event.getActiveCode() + ", codeValidityEnding='" + event.getCodeValidityEnding() + "', startingTime='" +
-                        event.getStartingTime() + "', endingTime='" + event.getEndingTime() + "'\n" +
+                String updateEventStatement = "UPDATE Events SET local='" + event.getLocal() +
+                        "', date='" + event.getDate() + "', startingTime='" + event.getStartingTime() +
+                        "', endingTime='" + event.getEndingTime() + "'\n" +
                         "WHERE name=" + event.getName() + ";";
                 result = updateStatement.executeUpdate(updateEventStatement);
 
