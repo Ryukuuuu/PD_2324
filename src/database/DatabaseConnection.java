@@ -46,8 +46,7 @@ public class DatabaseConnection {
                                                     ");";
             statement.execute(createClientsTableStatement);
             String createEventsTableStatement = "CREATE TABLE IF NOT EXISTS Events (\n" +
-                                                    "id INTEGER NOT NULL PRIMARY KEY,\n" +
-                                                    "name TEXT NOT NULL,\n" +
+                                                    "name TEXT PRIMARY KEY NOT NULL,\n" +
                                                     "local TEXT NOT NULL,\n" +
                                                     "date DATE NOT NULL,\n" +
                                                     "activeCode INTEGER UNIQUE NOT NULL,\n" +
@@ -58,10 +57,10 @@ public class DatabaseConnection {
             statement.execute(createEventsTableStatement);
             String createClientsEventsTableStatement = "CREATE TABLE IF NOT EXISTS ClientsEvents (\n" +
                                                     "clientEmail TEXT NOT NULL,\n" +
-                                                    "eventID INTEGER NOT NULL,\n" +
-                                                    "PRIMARY KEY (clientEmail, event_id),\n" +
+                                                    "eventName TEXT NOT NULL,\n" +
+                                                    "PRIMARY KEY (clientEmail, eventName),\n" +
                                                     "FOREIGN KEY (clientEmail) REFERENCES Clients(email),\n" +
-                                                    "FOREIGN KEY (event_id) REFERENCES Events(id)\n" +
+                                                    "FOREIGN KEY (eventName) REFERENCES Events(name)\n" +
                                                     ");";
             statement.execute(createClientsEventsTableStatement);
             String createDatabaseVersionStatement = "CREATE TABLE IF NOT EXISTS DatabaseVersion (\n" +
@@ -175,18 +174,17 @@ public class DatabaseConnection {
         return null;
     }
 
-    public Event getEvent(int eventid){
+    public Event getEvent(String eventName){
         Statement statement;
         ResultSet result;
         try {
             statement = conn.createStatement();
             String selectEvent = "SELECT *\n" +
                                   "FROM Events\n" +
-                                  "WHERE id=" + eventid + ";";
+                                  "WHERE name=" + eventName + ";";
             result = statement.executeQuery(selectEvent);
             if (result.next()){
                 return new Event(
-                        result.getInt("id"),
                         result.getString("name"),
                         result.getString("local"),
                         result.getString("date"),
@@ -209,10 +207,10 @@ public class DatabaseConnection {
         synchronized (conn){
             try {
                 statement = conn.createStatement();
-                String insertEvent = "INSERT INTO Events (id,name,local,date,activeCode,codeValidityEnding,startingTime,endingTime) VALUES\n" +
-                        "(" + event.getId() + ",'" + event.getName() + "','" + event.getLocal() + "','" + event.getDate() +
-                        "'," + event.getActiveCode() + ",'" + event.getCodeValidityEnding() + "','" + event.getStartingTime() +
-                        "','" + event.getEndingTime() + "');";
+                String insertEvent = "INSERT INTO Events (name,local,date,activeCode,codeValidityEnding,startingTime,endingTime) VALUES\n" +
+                        "('" + event.getName() + "','" + event.getLocal() + "','" + event.getDate() +
+                        "'," + event.getActiveCode() + ",'" + event.getCodeValidityEnding() + "','" +
+                        event.getStartingTime() + "','" + event.getEndingTime() + "');";
                 result = statement.executeUpdate(insertEvent);
 
                 if (result != 0) {
@@ -228,37 +226,57 @@ public class DatabaseConnection {
     }
 
     public Event editEventInfo(Event event){
-        Statement statement;
+        Statement selectStatement, updateStatement;
+        ResultSet resultSet;
         int result;
         synchronized (conn){
             try {
-                statement = conn.createStatement();
-                String updateEventStatement = "UPDATE Events SET id=" + event.getId() + ", name='" + event.getName() +
+                selectStatement = conn.createStatement();
+                String selectClientsEventsStatement = "SELECT *\n" +
+                                                      "FROM ClientsEvents\n" +
+                                                      "WHERE eventName='" + event.getName() + "';";
+                resultSet = selectStatement.executeQuery(selectClientsEventsStatement);
+                if(resultSet.next())
+                    return null;
+
+                updateStatement = conn.createStatement();
+                String updateEventStatement = "UPDATE Events SET name='" + event.getName() +
                         "', local='" + event.getLocal() + "', date='" + event.getDate() + "', activeCode=" +
                         event.getActiveCode() + ", codeValidityEnding='" + event.getCodeValidityEnding() + "', startingTime='" +
                         event.getStartingTime() + "', endingTime='" + event.getEndingTime() + "'\n" +
-                        "WHERE id=" + event.getId() + ";";
-                result = statement.executeUpdate(updateEventStatement);
+                        "WHERE name=" + event.getName() + ";";
+                result = updateStatement.executeUpdate(updateEventStatement);
 
                 if (result != 0){
                     updateDBVersion();
                     return event;
                 }
             } catch (SQLException e) {
-                System.out.println("Erro no statement de atualizacao de um Evento: ");
+                System.out.println("Erro no statement de obtencao da relacao ou de atualizacao de um Evento: ");
                 e.printStackTrace();
             }
         }
         return null;
     }
 
+    // só verifico o código, se o email não estiver relacionado com eventos que estejam a decorrer na mesma altura
+    // que o evento ao qual possa corresponder o código digitado
+
+    /*
+    * 1) Select para ver se o código bate com algum evento (desde que esteja entre o começo e a hora validade)
+    * 2) Select para ver presenças registadas do email da pessoa que introduziu código
+    * 3.1) Se não houver, tudo ok e Insere
+    * 3.2) Se houver, verifica se todos os eventos já terminaram
+    * 4.1) Se já terminaram, tudo ok, Insere
+    * 4.2) Senão, não insere
+    * */
     public boolean checkIfCodeExists(long eventCode, String email) {
         Statement selectStatement, insertStatement;
         ResultSet resultSet;
         int result, idFoundEvent;
         try {
             selectStatement = conn.createStatement();
-            String selectEventsStatement = "SELECT id, activeCode" +
+            String selectEventsStatement = "SELECT name, activeCode" +
                                            "FROM Events" +
                                            "WHERE activeCode=" + eventCode + ";";
             resultSet = selectStatement.executeQuery(selectEventsStatement);
@@ -268,7 +286,7 @@ public class DatabaseConnection {
                 synchronized (conn){
                     insertStatement = conn.createStatement();
                     String insertClientEventStatement = "INSERT INTO ClientsEvents (clientEmail, eventID) VALUES " +
-                            "('" + email + "'," + idFoundEvent + ");";
+                                                     "('" + email + "'," + idFoundEvent + ");";
                     result = insertStatement.executeUpdate(insertClientEventStatement);
 
                     if(result != 0){

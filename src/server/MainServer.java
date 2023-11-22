@@ -4,8 +4,8 @@ import database.DatabaseConnection;
 import server.thread.UserConnectionsThread;
 
 public class MainServer {
-    static final int MULTICAST_PORT = 4444;
-    static final String MULTICAST_ADDRESS = "230.44.44.44";
+    private static final int MULTICAST_PORT = 4444;
+    private static final String MULTICAST_ADDRESS = "230.44.44.44";
 
     public static void main(String[] args) {
         int client_port, registry_port;
