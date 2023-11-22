@@ -101,7 +101,6 @@ public class ServerTest {
         newClient.setId(1);
         newClient.setName("John");
         newClient.setAdmin(false);
-        newClient.setLogged(true);
 
         return newClient;
     }

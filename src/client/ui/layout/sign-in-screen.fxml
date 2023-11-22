@@ -12,7 +12,7 @@
    <top>
       <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <items>
-          <Button fx:id="btnBack" alignment="TOP_LEFT" mnemonicParsing="false" text="Go Back" />
+          <Button fx:id="btnBack" onAction="#setBtnBack" alignment="TOP_LEFT" mnemonicParsing="false" text="Go Back" />
         </items>
       </ToolBar>
    </top>

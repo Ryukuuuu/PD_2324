@@ -70,4 +70,7 @@ public class SignInController {
             alert.show();
         }
     }
+
+    @FXML
+    private void setBtnBack(){modelManager.back();}
 }

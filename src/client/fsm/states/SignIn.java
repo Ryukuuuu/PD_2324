@@ -16,6 +16,11 @@ public class SignIn extends ClientStateAdapter{
         changeState(ClientState.START_MENU);
         return true;
     }
+    @Override
+    public boolean back(){
+        changeState(ClientState.LOGIN);
+        return true;
+    }
 
     @Override
     public ClientState getState(){

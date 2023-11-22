@@ -92,14 +92,16 @@ public class ConnectionManager {
         }
     }
         private void checkMessageReceived(){
+            System.out.println("Response from server: " + messageFromServer.getType());
             switch (messageFromServer.getType()) {
                 case LOGGED_IN -> modelManager.loginSuccess(messageFromServer.getClientData());
                 case ACC_CREATED -> modelManager.signinSuccess(messageFromServer.getClientData());
                 case LOGOUT -> modelManager.logout();
                 case EDIT_LOG_INFO -> modelManager.editUserInformation(messageFromServer.getClientData());
                 case SUBMIT_CODE -> modelManager.fireCodeUpdate();
+                //case SUBMIT_CODE -> modelManager.fireCodeUpdate();
                 //Received a message from server and notifies modelManager to update the view
-                default -> System.out.println("Not implemented(default of checkMessageReceived)");
+                default -> modelManager.fireUpdate();
             }
         }
         public Message getLastMessageFromServer(){return messageFromServer;}

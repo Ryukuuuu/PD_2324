@@ -50,17 +50,20 @@ public class AdminCreateEventController {
         }
     }
 
+    @FXML
     private void setBtnCancel(){modelManager.startMenu();}
 
     private boolean checkIfTextFieldIsEmpty(){
         if(tfName.getText().equals(""))
-            return false;
+            return true;
         if(tfLocal.getText().equals(""))
-            return false;
+            return true;
         if(tfDate.getText().equals(""))
-            return false;
+            return true;
         if(tfStartingTime.getText().equals(""))
-            return false;
-        return !tfEndingTime.getText().equals("");
+            return true;
+        if(tfEndingTime.getText().equals(""))
+            return true;
+        return false;
     }
 }

@@ -30,7 +30,6 @@ public class TestDatabase {
                 3894759,
                 "teste1@isec.pt",
                 "pass1",
-                true,
                 true
         ));
 
@@ -39,7 +38,6 @@ public class TestDatabase {
                 3,
                 "teste2@isec.pt",
                 "pass2",
-                true,
                 false
         ));
         clients.put("teste3@isec.pt",new ClientData(
@@ -47,7 +45,6 @@ public class TestDatabase {
                 384759,
                 "email3@isec.pt",
                 "pass3",
-                true,
                 false
         ));
     }

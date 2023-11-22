@@ -36,7 +36,7 @@ public class UserMenuController {
 
     private void registerHandlers(){
         modelManager.addClient(ModelManager.PROP_STATE,evt -> Platform.runLater(this::update));
-        modelManager.addClient(ModelManager.PROP_UPDATE_CODE,evt -> Platform.runLater(this::showResultOfCodeSubmitted));
+        modelManager.addClient(ModelManager.PROP_UPDATE,evt -> Platform.runLater(this::showResultOfCodeSubmitted));
     }
 
     @FXML
@@ -72,13 +72,14 @@ public class UserMenuController {
     }
 
     private void showResultOfCodeSubmitted(){
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        if(modelManager.checkLastMessageFromServer().getType() != MessageTypes.FAILED){
-            alert.setHeaderText("Code submitted");
+        if(modelManager.getState() == ClientState.START_MENU) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            if (modelManager.checkLastMessageFromServer().getType() != MessageTypes.FAILED) {
+                alert.setHeaderText("Code submitted");
+            } else
+                alert.setHeaderText("Error submiting code");
+            alert.show();
+            tfCode.clear();
         }
-        else
-            alert.setHeaderText("Error submiting code");
-        alert.show();
-        tfCode.clear();
     }
 }

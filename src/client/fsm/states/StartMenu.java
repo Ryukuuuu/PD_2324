@@ -25,7 +25,7 @@ public class StartMenu extends ClientStateAdapter{
 
     @Override
     public boolean toEvent(){
-        changeState(ClientState.CHECK_PRESENCES);
+        changeState(ClientState.EVENT_MENU);
         return true;
     }
 

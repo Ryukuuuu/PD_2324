@@ -33,6 +33,7 @@ public class ClientContext {
     public boolean events(){return state.toEvent();}
     public boolean editUserInfo(ClientData clientData){return state.editUserInfo(clientData);}
     public boolean editUserInfo(){return state.editUserInfoMenu();}
+    public boolean back(){return state.back();}
     public boolean logout(){return state.logout();}
 
     public ClientData getClientData(){return clientManager.getClientData();}

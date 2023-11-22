@@ -15,6 +15,7 @@ public interface IClientState {
     boolean toCheckPresencesOfEvent();
     boolean submitSignIn(ClientData clientData);
     boolean login(ClientData clientData);
+    boolean back();
     boolean logout();
 
 

@@ -12,7 +12,6 @@ public class ClientData implements Serializable {
     private long id;
     private String email;
     private String password;
-    private boolean logged;
     private boolean admin;
 
     public ClientData(){}
@@ -29,12 +28,11 @@ public class ClientData implements Serializable {
         this.password = password;
     }
 
-    public ClientData(String name, long id, String email, String password, boolean logged, boolean admin) {
+    public ClientData(String name, long id, String email, String password, boolean admin) {
         this.name = name;
         this.id = id;
         this.email = email;
         this.password = password;
-        this.logged = logged;
         this.admin = admin;
     }
 
@@ -44,20 +42,10 @@ public class ClientData implements Serializable {
         this.password = password;
     }
 
-    public ClientData(String name, long id, String email, String password, boolean admin) {
-        this.name = name;
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.admin = admin;
-    }
-
-
     //Called if login is successful to fill the object with the info in the database
     public void fillClientDataAfterLogin(ClientData clientData){
         this.name = clientData.getName();
         this.id = clientData.getId();
-        this.logged = clientData.isLogged();
         this.admin = clientData.isAdmin();
     }
 
@@ -116,14 +104,6 @@ public class ClientData implements Serializable {
         this.password = password;
     }
 
-    public boolean isLogged() {
-        return logged;
-    }
-
-    public void setLogged(boolean logged) {
-        this.logged = logged;
-    }
-
     public boolean isAdmin() {
         return admin;
     }
@@ -149,12 +129,11 @@ public class ClientData implements Serializable {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "Client{" +
                 "name='" + name + '\'' +
                 ", id=" + id +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
-                ", logged=" + logged +
                 ", admin=" + admin +
                 '}';
     }

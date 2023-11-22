@@ -36,6 +36,6 @@ public class AdminMenuController {
 
     @FXML
     private void setBtnLogout(){
-        modelManager.logout();
+        modelManager.sendLogoutMessage();
     }
 }

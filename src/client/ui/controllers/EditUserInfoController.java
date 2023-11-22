@@ -60,7 +60,7 @@ public class EditUserInfoController {
     }
     @FXML
     private void cancel(){
-        modelManager.profile();
+        modelManager.back();
         clearTextFields();
     }
     private void clearTextFields(){

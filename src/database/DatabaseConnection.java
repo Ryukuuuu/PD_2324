@@ -144,7 +144,7 @@ public class DatabaseConnection {
                 }
             } catch (SQLException e) {
                 System.out.println("Erro no statement de insercao de um novo Cliente: ");
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
 
@@ -157,13 +157,13 @@ public class DatabaseConnection {
             try {
                 statement = conn.createStatement();
                 String updateClientStatement = "UPDATE Clients SET name='" + clientData.getName() + "', clientID=" +
-                        clientData.getId() + ", email='" + clientData.getEmail() + "', password='" +
+                        clientData.getId() + ", password='" +
                         clientData.getPassword() + "', admin=" + clientData.isAdmin() + "\n" +
-                        "WHERE clientID=" + clientData.getId() + ";";
+                        "WHERE email='" + clientData.getEmail() + "';";
                 result = statement.executeUpdate(updateClientStatement);
-
                 if (result != 0){
                     updateDBVersion();
+                    System.out.println("Client data sent: "+ clientData);
                     return clientData;
                 }
             } catch (SQLException e) {
@@ -218,6 +218,7 @@ public class DatabaseConnection {
                 }
             } catch (SQLException e) {
                 System.out.println("Erro no statement de insercao de um novo Evento: ");
+                System.out.println(event);
                 e.printStackTrace();
             }
         }

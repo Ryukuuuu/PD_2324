@@ -12,6 +12,7 @@ import java.beans.PropertyChangeSupport;
 
 public class ModelManager {
 
+    public static final String PROP_UPDATE = "_update_";
     public static final String PROP_UPDATE_CODE = "_updateCode_";
     public static final String PROP_UPDATE_EVENT = "_updateEvent_";
     public static final String PROP_STATE = "_state_";
@@ -38,11 +39,14 @@ public class ModelManager {
     }
     //ConnectionManager will call this method when the login is successful
     public void loginSuccess(ClientData clientData){
-        System.out.println("HERE");
         fsm.login(clientData);
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
 
+    public void logInScreen(){
+        fsm.logout();
+        pcs.firePropertyChange(PROP_STATE,null,null);
+    }
     /*---------------------SIGN IN---------------------*/
 
     //Changes state to signin and fires the property change to the view
@@ -80,6 +84,10 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
 
+    public void back(){
+        fsm.back();
+        pcs.firePropertyChange(PROP_STATE,null,null);
+    }
     /*---------------------PROFILE---------------------*/
 
     public void profile(){
@@ -109,6 +117,7 @@ public class ModelManager {
     public ClientData getClientInfo(){return connectionManager.getLastMessageFromServer().getClientData();}
     public void fireCodeUpdate(){pcs.firePropertyChange(PROP_UPDATE_CODE,null,null);}
     public void fireEventUpdate(){pcs.firePropertyChange(PROP_UPDATE_EVENT,null,null);}
+    public void fireUpdate(){pcs.firePropertyChange(PROP_UPDATE,null,null);}
     //Method called by the ui to check if the last operation was a success
     public Message checkLastMessageFromServer(){return connectionManager.getLastMessageFromServer();}
 

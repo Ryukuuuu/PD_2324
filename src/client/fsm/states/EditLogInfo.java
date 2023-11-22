@@ -18,7 +18,7 @@ public class EditLogInfo extends ClientStateAdapter{
     }
 
     @Override
-    public boolean profile(){
+    public boolean back(){
         changeState(ClientState.PROFILE);
         return true;
     }

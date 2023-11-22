@@ -31,6 +31,7 @@ public class RootController {
         createView(modelManager,"layout/edit-user-info.fxml");
         createView(modelManager,"layout/events-menu.fxml");
         createView(modelManager,"layout/admin-start-menu.fxml");
+        createView(modelManager,"layout/admin-create-event.fxml");
     }
 
     private void createView(ModelManager modelManager,String resourcePath) throws IOException{

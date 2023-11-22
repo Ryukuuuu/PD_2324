@@ -42,6 +42,8 @@ public class ClientStateAdapter implements IClientState{
     @Override
     public boolean login(ClientData clientData){return false;}
     @Override
+    public boolean back(){return false;}
+    @Override
     public boolean logout(){return false;}
 
     @Override
