@@ -9,6 +9,12 @@ public class CreateEvent extends ClientStateAdapter{
         super(clientManager, clientContext);
     }
 
+    @Override
+    public boolean startMenu(){
+        changeState(ClientState.START_MENU_ADMIN);
+        return true;
+    }
+
      @Override
     public ClientState getState(){return ClientState.CREATE_EVENT;}
 }

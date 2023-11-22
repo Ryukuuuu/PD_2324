@@ -9,6 +9,7 @@ public interface IClientState {
     boolean editUserInfoMenu();
     boolean toCheckPresences();
     boolean toEvent();
+    boolean createEvent();
     boolean toSignIn();
     boolean toAddPresences();
     boolean toCheckPresencesOfEvent();

@@ -25,6 +25,7 @@ public class Event implements Serializable {
         this.endingTime = endingTime;
     }
 
+
     public Event(String name, String local, String date, String startingTime, String endingTime) {
         this.name = name;
         this.local = local;
@@ -88,7 +89,6 @@ public class Event implements Serializable {
     public void setCodeValidityEnding(String codeValidityEnding) {
         this.codeValidityEnding = codeValidityEnding;
     }
-
     @Override
     public String toString() {
         return "Event{" +

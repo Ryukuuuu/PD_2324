@@ -30,7 +30,7 @@ public class ProfileController {
 
     private void registerHandlers(){
         modelManager.addClient(ModelManager.PROP_STATE,evt -> Platform.runLater(this::update));
-        modelManager.addClient(ModelManager.PROP_UPDATE,evt -> Platform.runLater(this::update));
+        //modelManager.addClient(ModelManager.PROP_UPDATE,evt -> Platform.runLater(this::update));
     }
 
     private void update(){

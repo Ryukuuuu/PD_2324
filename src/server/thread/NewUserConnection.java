@@ -46,16 +46,26 @@ public class NewUserConnection implements Runnable{
                 }
             }
             case EDIT_LOG_INFO -> {
+                System.out.println("Client received: " + messageReceived.getClientData());
                 ClientData data = dbConnection.editClientInfo(messageReceived.getClientData());
+
                 if(data != null){
                     this.clientData = data;
                     return new Message(MessageTypes.EDIT_LOG_INFO,clientData);
                 }
             }
             case SUBMIT_CODE -> {
-                if(dbConnection.checkIfCodeExists(messageReceived.getEventCode(), messageReceived.getClientData().getEmail()))
+                if(dbConnection.checkIfCodeExists(messageReceived.getEventCode(), clientData.getEmail()))
                     return new Message(MessageTypes.SUBMIT_CODE);
             }
+            case CREATE_EVENT -> {
+                if(dbConnection.addNewEntryToEvent(messageReceived.getEvent())){
+                    return new Message(MessageTypes.CREATE_EVENT);
+                }
+            }
+
+            /*Adicionar case events*/
+
             case LOGOUT -> {return new Message(MessageTypes.LOGOUT);}
 
             case QUIT -> {
@@ -82,7 +92,12 @@ public class NewUserConnection implements Runnable{
                 }
 
                 responseMessage = handleRequestMessage(requestMessage);
-                System.out.println("<RESPOSTA> " + requestMessage.getType().name() + " de <" + clientData.getEmail() + ">>> " + responseMessage.getType().name());
+                try {
+                    System.out.println("<RESPOSTA> " + requestMessage.getType().name() + " de <" + requestMessage.getClientData().getEmail() + ">");
+                } catch (NullPointerException e) {
+                    System.out.println("<RESPOSTA> " + requestMessage.getType().name() + " de <" + clientData.getEmail() + ">>> " + responseMessage.getType().name());
+                }
+
                 oos.writeObject(responseMessage);
                 oos.flush();
             } catch (ClassNotFoundException | IOException e){

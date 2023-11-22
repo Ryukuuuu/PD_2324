@@ -24,6 +24,12 @@ public class StartMenu extends ClientStateAdapter{
     }
 
     @Override
+    public boolean toEvent(){
+        changeState(ClientState.CHECK_PRESENCES);
+        return true;
+    }
+
+    @Override
     public boolean logout() {
         changeState(ClientState.LOGIN);
         return true;

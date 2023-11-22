@@ -97,8 +97,9 @@ public class ConnectionManager {
                 case ACC_CREATED -> modelManager.signinSuccess(messageFromServer.getClientData());
                 case LOGOUT -> modelManager.logout();
                 case EDIT_LOG_INFO -> modelManager.editUserInformation(messageFromServer.getClientData());
+                case SUBMIT_CODE -> modelManager.fireCodeUpdate();
                 //Received a message from server and notifies modelManager to update the view
-                default -> modelManager.fireUpdate();
+                default -> System.out.println("Not implemented(default of checkMessageReceived)");
             }
         }
         public Message getLastMessageFromServer(){return messageFromServer;}

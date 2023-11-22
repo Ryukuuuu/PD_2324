@@ -6,7 +6,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 
@@ -52,7 +51,6 @@ public class EditUserInfoController {
                     Long.parseLong(tfId.getText()),
                     modelManager.getClientData().getEmail()
             );
-            //clearTextFields();
         }
         else {
             Alert alert = new Alert(Alert.AlertType.ERROR);

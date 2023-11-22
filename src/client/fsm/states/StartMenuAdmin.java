@@ -10,5 +10,16 @@ public class StartMenuAdmin extends ClientStateAdapter{
     }
 
     @Override
+    public boolean createEvent(){
+        changeState(ClientState.CREATE_EVENT);
+        return true;
+    }
+    @Override
+    public boolean logout(){
+        changeState(ClientState.LOGIN);
+        return true;
+    }
+
+    @Override
     public ClientState getState(){return ClientState.START_MENU_ADMIN;}
 }

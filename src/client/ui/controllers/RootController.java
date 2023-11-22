@@ -24,26 +24,28 @@ public class RootController {
         createViews();
     }
     private void createViews() throws IOException {
-        createView(modelManager, "layout/LogInScreen.fxml");
-        createView(modelManager, "layout/userStartMenu.fxml");
-        createView(modelManager,"layout/signInScreen.fxml");
+        createView(modelManager, "layout/log-in-screen.fxml");
+        createView(modelManager, "layout/client-start-menu.fxml");
+        createView(modelManager,"layout/sign-in-screen.fxml");
         createView(modelManager,"layout/profile.fxml");
         createView(modelManager,"layout/edit-user-info.fxml");
+        createView(modelManager,"layout/events-menu.fxml");
+        createView(modelManager,"layout/admin-start-menu.fxml");
     }
 
     private void createView(ModelManager modelManager,String resourcePath) throws IOException{
         FXMLLoader fxmlLoader = new FXMLLoader(MainJFX.class.getResource(resourcePath));
         Parent child = fxmlLoader.load();
         switch (resourcePath) {
-            case "layout/LogInScreen.fxml"->{
+            case "layout/log-in-screen.fxml"->{
                 LogInController controller = fxmlLoader.getController();
                 controller.init(modelManager);
             }
-            case "layout/userStartMenu.fxml" -> {
+            case "layout/client-start-menu.fxml" -> {
                 UserMenuController controller = fxmlLoader.getController();
                 controller.init(modelManager);
             }
-            case "layout/signInScreen.fxml" -> {
+            case "layout/sign-in-screen.fxml" -> {
                 SignInController controller = fxmlLoader.getController();
                 controller.init(modelManager);
             }
@@ -51,8 +53,20 @@ public class RootController {
                 ProfileController controller = fxmlLoader.getController();
                 controller.init(modelManager);
             }
-            case "layout/edit-user-info.fxml" ->{
+            case "layout/edit-user-info.fxml" -> {
                 EditUserInfoController controller = fxmlLoader.getController();
+                controller.init(modelManager);
+            }
+            case "layout/events-menu.fxml" -> {
+                EventsMenuController controller = fxmlLoader.getController();
+                controller.init(modelManager);
+            }
+            case "layout/admin-start-menu.fxml" -> {
+                AdminMenuController controller = fxmlLoader.getController();
+                controller.init(modelManager);
+            }
+            case "layout/admin-create-event.fxml" ->{
+                AdminCreateEventController controller = fxmlLoader.getController();
                 controller.init(modelManager);
             }
         }

@@ -2,6 +2,7 @@ package client.ui.controllers;
 
 import client.fsm.states.ClientState;
 import client.model.ModelManager;
+import data.MessageTypes;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -35,7 +36,7 @@ public class UserMenuController {
 
     private void registerHandlers(){
         modelManager.addClient(ModelManager.PROP_STATE,evt -> Platform.runLater(this::update));
-        modelManager.addClient(ModelManager.PROP_UPDATE,evt -> Platform.runLater(this::showResultOfCodeSubmitted));
+        modelManager.addClient(ModelManager.PROP_UPDATE_CODE,evt -> Platform.runLater(this::showResultOfCodeSubmitted));
     }
 
     @FXML
@@ -55,7 +56,7 @@ public class UserMenuController {
 
     @FXML
     private void events(){
-        /*TODO*/
+        modelManager.sendEventsMessage();
     }
 
     @FXML
@@ -72,7 +73,7 @@ public class UserMenuController {
 
     private void showResultOfCodeSubmitted(){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        if(modelManager.checkLastMessageFromServer()){
+        if(modelManager.checkLastMessageFromServer().getType() != MessageTypes.FAILED){
             alert.setHeaderText("Code submitted");
         }
         else

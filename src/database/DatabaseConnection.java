@@ -15,6 +15,7 @@ public class DatabaseConnection {
             conn = DriverManager.getConnection(DATABASE_URL);
         }catch (SQLException sqlE){
             System.out.println("<ERRO> Nao foi possivel estabelecer conexao com a DB!");
+            sqlE.printStackTrace();
         }
 
         createTables();
@@ -149,6 +150,7 @@ public class DatabaseConnection {
 
         return false;
     }
+
     public ClientData editClientInfo(ClientData clientData) {
         Statement statement;
         int result;

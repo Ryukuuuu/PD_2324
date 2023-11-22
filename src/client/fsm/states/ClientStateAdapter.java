@@ -30,6 +30,8 @@ public class ClientStateAdapter implements IClientState{
     @Override
     public boolean toEvent(){return false;}
     @Override
+    public boolean createEvent(){return false;}
+    @Override
     public boolean toSignIn(){return false;}
     @Override
     public boolean toAddPresences(){return false;}

@@ -14,7 +14,7 @@
       <AnchorPane prefHeight="61.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
          <children>
             <Button fx:id="btnProfile" onAction="#profile" layoutX="14.0" layoutY="9.0" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="44.0" prefWidth="128.0" text="Profile" />
-            <Button fx:id="btnEvents" alignment="CENTER" layoutX="155.0" layoutY="9.0" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="44.0" prefWidth="128.0" style="-fx-line-spacing: 5px;" text="Events" />
+            <Button fx:id="btnEvents" onAction="#events" alignment="CENTER" layoutX="155.0" layoutY="9.0" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="44.0" prefWidth="128.0" style="-fx-line-spacing: 5px;" text="Events" />
             <Button fx:id="btnLogOut" onAction="#logout" alignment="CENTER" layoutX="858.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="44.0" prefWidth="128.0" style="-fx-line-spacing: 5px;" text="Log Out"/>
          </children>
       </AnchorPane>

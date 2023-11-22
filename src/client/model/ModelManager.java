@@ -3,6 +3,7 @@ package client.model;
 import client.fsm.ClientContext;
 import client.fsm.states.ClientState;
 import data.ClientData;
+import data.Event;
 import data.Message;
 import data.MessageTypes;
 
@@ -11,7 +12,8 @@ import java.beans.PropertyChangeSupport;
 
 public class ModelManager {
 
-    public static final String PROP_UPDATE = "_update_";
+    public static final String PROP_UPDATE_CODE = "_updateCode_";
+    public static final String PROP_UPDATE_EVENT = "_updateEvent_";
     public static final String PROP_STATE = "_state_";
 
     private PropertyChangeSupport pcs;
@@ -36,6 +38,7 @@ public class ModelManager {
     }
     //ConnectionManager will call this method when the login is successful
     public void loginSuccess(ClientData clientData){
+        System.out.println("HERE");
         fsm.login(clientData);
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
@@ -104,12 +107,28 @@ public class ModelManager {
     /*---------------------MESSAGES FROM SERVER---------------------*/
     public Message getUpdatedInfo(){return connectionManager.getLastMessageFromServer();}
     public ClientData getClientInfo(){return connectionManager.getLastMessageFromServer().getClientData();}
-    public void fireUpdate(){pcs.firePropertyChange(PROP_UPDATE,null,null);}
+    public void fireCodeUpdate(){pcs.firePropertyChange(PROP_UPDATE_CODE,null,null);}
+    public void fireEventUpdate(){pcs.firePropertyChange(PROP_UPDATE_EVENT,null,null);}
     //Method called by the ui to check if the last operation was a success
-    public boolean checkLastMessageFromServer(){
-        return connectionManager.getLastMessageFromServer().getType() != MessageTypes.FAILED;
+    public Message checkLastMessageFromServer(){return connectionManager.getLastMessageFromServer();}
+
+    /*-------------------------Events------------------------*/
+    public void sendEventsMessage(){
+        connectionManager.sendMessageToServer(createMessage(MessageTypes.CHECK_PRESENCES));
+        fsm.events();
+        pcs.firePropertyChange(PROP_STATE,null,null);
     }
 
+    public void createEvent(String name,String local,String date,String startingTime,String endingTime){
+        connectionManager.sendMessageToServer(createMessage(MessageTypes.CREATE_EVENT,new Event(name,local,date,startingTime,endingTime)));
+        fsm.createEvent();
+        pcs.firePropertyChange(PROP_STATE,null,null);
+    }
+
+    public void createEventMenu(){
+        fsm.createEvent();
+        pcs.firePropertyChange(PROP_STATE,null,null);
+    }
     /*---------------------END EXECUTION---------------------*/
     public void closeConnection(){
         connectionManager.sendMessageToServer(createMessage(MessageTypes.QUIT,fsm.getClientData()));
@@ -121,6 +140,7 @@ public class ModelManager {
     private Message createMessage(MessageTypes type,long code){return new Message(type,code);}
     private Message createMessage(MessageTypes type,ClientData clientData){return new Message(type,clientData);}
     private Message createMessage(MessageTypes type,String name,long id,String email,String password){return new Message(type,new ClientData(name,id,email,password));}
+    private Message createMessage(MessageTypes type,Event event){return new Message(type, event);}
 
     /*---------------------STATE---------------------*/
     public ClientState getState(){return fsm.getState();}
