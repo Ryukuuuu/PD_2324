@@ -14,6 +14,11 @@ public class StartMenuAdmin extends ClientStateAdapter{
         changeState(ClientState.CREATE_EVENT);
         return true;
     }
+    @Override
+    public boolean deleteEvent(){
+        changeState(ClientState.DELETE_EVENT);
+        return true;
+    }
 
     @Override
     public boolean editEvent(){

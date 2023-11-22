@@ -2,24 +2,22 @@ package client.ui.controllers;
 
 import client.fsm.states.ClientState;
 import client.model.ModelManager;
-import com.sun.webkit.Timer;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 
-public class AdminMenuController {
+public class AdminDeleteEventController {
+    public TextField tfName;
+    public Button btnSubmit;
+    public Button btnCancel;
     public BorderPane borderPane;
-    public Button btnCreateEvent;
-    public Button btnEditEvent;
-    public Button btnLogout;
-    public Button btnDeleteEvent;
     private ModelManager modelManager;
 
     public void init(ModelManager modelManager){
         this.modelManager = modelManager;
         registerHandlers();
-        update();
     }
 
     private void registerHandlers(){
@@ -27,19 +25,15 @@ public class AdminMenuController {
     }
 
     private void update(){
-        borderPane.setVisible(modelManager.getState() == ClientState.START_MENU_ADMIN);
+        borderPane.setVisible(modelManager.getState() == ClientState.DELETE_EVENT);
     }
 
     @FXML
-    private void setBtnCreateEvent(){
-        modelManager.createEventMenu();
+    private void setBtnSubmit(){
+
     }
     @FXML
-    private void setBtnEditEvent(){
-        modelManager.editEventMenu();
-    }
-    @FXML
-    private void setBtnLogout(){
-        modelManager.sendLogoutMessage();
+    private void setBtnCancel(){
+        modelManager.startMenu();
     }
 }

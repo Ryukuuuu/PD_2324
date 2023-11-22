@@ -1,6 +1,7 @@
 package database;
 import data.ClientData;
 import data.Event;
+import javafx.stage.Stage;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -247,6 +248,30 @@ public class DatabaseConnection {
         return list;
     }
 
+    /*NAO LIGUES*/
+    public ArrayList<Event> getAllEvents(){
+        ArrayList<Event> events = new ArrayList<>();
+        try{
+            Statement statement = conn.createStatement();
+            ResultSet res = statement.executeQuery("SELECT * FROM Events");
+
+            while(res.next()){
+                events.add(new Event(
+                        res.getString("name"),
+                        res.getString("local"),
+                        res.getString("date"),
+                        res.getLong("activeCode"),
+                        res.getString("codeValidityEnding"),
+                        res.getString("startingTime"),
+                        res.getString("endingTime")));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return events;
+    }
+
     public Event editActiveCode (String name, long code, String codeValidityEnding){
         Statement statement;
         int result;
@@ -293,6 +318,10 @@ public class DatabaseConnection {
             }
         }
         return null;
+    }
+
+    public boolean removeEvent(Event event){
+        return false;
     }
 
     // só verifico o código, se o email não estiver relacionado com eventos que estejam a decorrer na mesma altura

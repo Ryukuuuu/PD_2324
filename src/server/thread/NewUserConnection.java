@@ -68,6 +68,10 @@ public class NewUserConnection implements Runnable{
                     return new Message(MessageTypes.EDIT_EVENT);
                 }
             }
+            case CHECK_PRESENCES -> {
+                System.out.println(dbConnection.getAllEvents());
+                return new Message(MessageTypes.CHECK_PRESENCES, dbConnection.getAllEvents());
+            }
             case LOGOUT -> {return new Message(MessageTypes.LOGOUT);}
             case QUIT -> {
                 keepRunning = false;

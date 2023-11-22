@@ -99,6 +99,7 @@ public class ConnectionManager {
                 case LOGOUT -> modelManager.logout();
                 case EDIT_LOG_INFO -> modelManager.editUserInformation(messageFromServer.getClientData());
                 case SUBMIT_CODE -> modelManager.fireCodeUpdate();
+                case CHECK_PRESENCES -> modelManager.fireEventUpdate();
                 //case SUBMIT_CODE -> modelManager.fireCodeUpdate();
                 //Received a message from server and notifies modelManager to update the view
                 default -> modelManager.fireUpdate();

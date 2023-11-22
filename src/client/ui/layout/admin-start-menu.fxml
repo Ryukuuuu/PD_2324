@@ -7,16 +7,16 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="client.ui.controllers.AdminMenuController">
+<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.ui.controllers.AdminMenuController">
    <center>
       <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="TOP_CENTER">
          <children>
-            <Button fx:id="btnCreateEvent" onAction="#setBtnCreateEvent" alignment="CENTER" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Create Event" VBox.vgrow="ALWAYS">
+            <Button fx:id="btnCreateEvent" alignment="CENTER" mnemonicParsing="false" onAction="#setBtnCreateEvent" prefHeight="50.0" prefWidth="200.0" text="Create Event" VBox.vgrow="ALWAYS">
                <font>
                   <Font size="20.0" />
                </font>
             </Button>
-            <Button fx:id="btnEditEvent" onAction="#setBtnEditEvent" alignment="CENTER" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Edit Event">
+            <Button fx:id="btnEditEvent" alignment="CENTER" mnemonicParsing="false" onAction="#setBtnEditEvent" prefHeight="50.0" prefWidth="200.0" text="Edit Event">
                <font>
                   <Font size="20.0" />
                </font>
@@ -24,7 +24,15 @@
                   <Insets top="20.0" />
                </VBox.margin>
             </Button>
-            <Button fx:id="btnLogout" onAction="#setBtnLogout" alignment="CENTER" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Log Out">
+            <Button fx:id="btnDeleteEvent" alignment="CENTER" mnemonicParsing="false" onAction="#setBtnLogout" prefHeight="50.0" prefWidth="200.0" text="Delete Event">
+               <font>
+                  <Font size="20.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin>
+            </Button>
+            <Button fx:id="btnLogout" alignment="CENTER" mnemonicParsing="false" onAction="#setBtnLogout" prefHeight="50.0" prefWidth="200.0" text="Log Out">
                <font>
                   <Font size="20.0" />
                </font>

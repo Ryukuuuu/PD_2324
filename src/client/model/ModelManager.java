@@ -143,6 +143,8 @@ public class ModelManager {
         fsm.editEvent();
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
+
+    public void sendDeleteEventMessage(){}
     /*---------------------END EXECUTION---------------------*/
     public void closeConnection(){
         connectionManager.sendMessageToServer(createMessage(MessageTypes.QUIT,fsm.getClientData()));

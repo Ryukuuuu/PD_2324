@@ -43,6 +43,7 @@ public class Message implements Serializable {
         this.event = event;
     }
 
+
     public MessageTypes getType() {
         return type;
     }
