@@ -10,5 +10,11 @@ public class EventMenu extends ClientStateAdapter{
     }
 
     @Override
+    public boolean startMenu(){
+        changeState(ClientState.START_MENU);
+        return true;
+    }
+
+    @Override
     public ClientState getState(){return ClientState.EVENT_MENU;}
 }
