@@ -55,11 +55,11 @@ public class NewUserConnection implements Runnable{
                 }
             }
             case SUBMIT_CODE -> {
-                if(dbConnection.checkIfCodeExists(messageReceived.getEventCode(), clientData.getEmail()))
+                if(dbConnection.checkCodeToAssignPresence(messageReceived.getEventCode(), clientData.getEmail()))
                     return new Message(MessageTypes.SUBMIT_CODE);
             }
             case CREATE_EVENT -> {
-                if(dbConnection.addNewEntryToEvent(messageReceived.getEvent())){
+                if(dbConnection.addNewEntryToEvents(messageReceived.getEvent())){
                     return new Message(MessageTypes.CREATE_EVENT);
                 }
             }
