@@ -158,8 +158,8 @@ public class DatabaseConnection {
             try {
                 statement = conn.createStatement();
                 String updateClientStatement = "UPDATE Clients SET name='" + clientData.getName() + "', clientID=" +
-                        clientData.getId() + ", password='" +
-                        clientData.getPassword() + "', admin=" + clientData.isAdmin() + "\n" +
+                        clientData.getId() + ", password='" + clientData.getPassword() + "', admin=" +
+                        clientData.isAdmin() + "\n" +
                         "WHERE email='" + clientData.getEmail() + "';";
                 result = statement.executeUpdate(updateClientStatement);
                 if (result != 0){
@@ -183,7 +183,7 @@ public class DatabaseConnection {
             statement = conn.createStatement();
             String selectEvent = "SELECT *\n" +
                                   "FROM Events\n" +
-                                  "WHERE name=" + eventName + ";";
+                                  "WHERE name='" + eventName + "';";
             result = statement.executeQuery(selectEvent);
             if (result.next()){
                 return new Event(
@@ -288,7 +288,7 @@ public class DatabaseConnection {
                 }
 
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                System.out.println("Erro a gravar um novo código de presenças!");
             }
         }
         return null;
