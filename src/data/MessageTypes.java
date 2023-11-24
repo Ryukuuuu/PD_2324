@@ -2,7 +2,6 @@ package data;
 
 public enum MessageTypes {
     //Normal user types
-    REGISTER,
     SUBMIT_CODE,
     EDIT_LOG_INFO,
     CHECK_PRESENCES,
@@ -22,17 +21,14 @@ public enum MessageTypes {
     GET_USER_REGISTERED_PRESENCES_CSV,
     REMOVE_PRESENCE,
     ADD_PRESENCE,
-    UPDATE_INFO,
 
     //Common types
-    AUTHENTICATION,
     LOGIN,
     LOGOUT,
     SIGNING,
     QUIT,
 
     //Server Return Messages
-    SUCCESS,
     FAILED,
     LOGGED_IN,
     ACC_CREATED

@@ -67,9 +67,7 @@ public class Event implements Serializable {
         this.startingTime = startingTime;
     }
 
-    public String getEndingTime() {
-        return endingTime;
-    }
+    public String getEndingTime() {return endingTime;}
 
     public void setEndingTime(String endingTime) {
         this.endingTime = endingTime;
