@@ -1,15 +1,13 @@
 package server.thread;
 
-import data.ClientData;
-import data.Message;
-import data.MessageTypes;
+import data.*;
 import database.DatabaseConnection;
 import server.thread.multicast.SendHeartBeats;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class NewUserConnection implements Runnable{
     Socket toClientSocket;
@@ -20,7 +18,8 @@ public class NewUserConnection implements Runnable{
     private UserConnectionsThread userConnectionsThread;
     private SendHeartBeats sendHeartBeats;
     private Boolean keepRunning;
-
+    private static final String FILENAME_FROM_TEMPLATE = "/ficheiros_csv/presences_in_events_from_%s";
+    private static final String FILENAME_AT_TEMPLATE = "/ficheiros_csv/presences_at_%s";
 
     public NewUserConnection(Socket toClientSocket, DatabaseConnection dbConnection, UserConnectionsThread userConnectionsThread, SendHeartBeats sendHeartBeats) {
         this.toClientSocket = toClientSocket;
@@ -95,10 +94,55 @@ public class NewUserConnection implements Runnable{
                     return new Message(MessageTypes.EDIT_EVENT);
                 }
             }
+            case REMOVE_EVENT -> {
+                if(dbConnection.removeEvent(messageReceived.getEvent().getName())){
+                    userConnectionsThread.notifyAllClientsEventsUpdate();
+                    return new Message(MessageTypes.REMOVE_EVENT);
+                }
+            }
             case CHECK_PRESENCES -> {
-                return new Message(MessageTypes.CHECK_PRESENCES, dbConnection.getEvents(null,null));
+                userConnectionsThread.notifyAllClientsEventsUpdate();
+                return new Message(MessageTypes.CHECK_PRESENCES, dbConnection.getEvents(null, clientData.getEmail()));
+            }
+            case GET_PRESENCES_CSV -> {
+                ArrayList<Event> eventsList= dbConnection.getEvents(null, clientData.getEmail());
+                String filename = String.format(FILENAME_FROM_TEMPLATE, clientData.getEmail());
+                createClientsPresencesCSVFile(clientData, eventsList, filename);
+            }
+            case CHECK_CREATED_EVENTS -> {
+                userConnectionsThread.notifyAllClientsEventsUpdate();
+                return new Message(MessageTypes.CHECK_CREATED_EVENTS, dbConnection.getEvents(messageReceived.getEvent(), null));
+            }
+            case GENERATE_EVENT_CODE -> {
+                Event editedEvent = null;
+                do{
+                    long newCode = generateCode();
+                    editedEvent = dbConnection.editActiveCode(messageReceived.getEvent().getName(), newCode, messageReceived.getEvent().getCodeValidityEnding());
+                }while (editedEvent == null);
+                return new Message(MessageTypes.GENERATE_EVENT_CODE, editedEvent);
+            }
+            case CHECK_REGISTERED_PRESENCES -> {
+                return new Message(dbConnection.getPresences(messageReceived.getEvent().getName()), MessageTypes.CHECK_REGISTERED_PRESENCES);
+            }
+            case GET_REGISTERED_PRESENCES_CSV -> {
+                ArrayList<ClientData> clientDataList = dbConnection.getPresences(messageReceived.getEvent().getName());
+                String filename = String.format(FILENAME_AT_TEMPLATE, messageReceived.getEvent().getName());
+                createEventsPresencesCSVFile(messageReceived.getEvent(), clientDataList, filename);
+            }
+            case CHECK_USER_REGISTERED_PRESENCES -> {
+                userConnectionsThread.notifyAllClientsEventsUpdate();
+                return new Message(MessageTypes.CHECK_PRESENCES, dbConnection.getEvents(null, messageReceived.getClientData().getEmail()));
+            }
+            case GET_USER_REGISTERED_PRESENCES_CSV -> {
+                ArrayList<Event> eventsList = dbConnection.getEvents(null, messageReceived.getClientData().getEmail());
+                String filename = String.format(FILENAME_FROM_TEMPLATE, messageReceived.getClientData().getEmail());
+                createClientsPresencesCSVFile(clientData, eventsList, filename);
+            }
+            case REMOVE_PRESENCE -> {
+                return new Message(dbConnection.removePresencesFromEvent(messageReceived.getEvent().getName()), MessageTypes.REMOVE_PRESENCE);
             }
             case LOGOUT -> {return new Message(MessageTypes.LOGOUT);}
+
             case QUIT -> {
                 keepRunning = false;
                 return new Message(MessageTypes.QUIT);
@@ -106,6 +150,71 @@ public class NewUserConnection implements Runnable{
             default -> {return new Message(MessageTypes.FAILED);}
         }
         return new Message(MessageTypes.FAILED);
+    }
+
+    private void createEventsPresencesCSVFile(Event event, ArrayList<ClientData> clientDataList, String filename) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            // Write event header
+            writer.write("\"Designação\";\"Local\";\"Data\";\"Horainício\";\"Hora fim\"");
+            writer.newLine();
+
+            // Write event data
+            writer.write('"' + event.getName() + "\";\"" + event.getLocal() + "\";\"" +
+                    event.getDate() + "\";\"" + event.getStartingTime() + "\";\"" + event.getEndingTime() + "\"");
+            writer.newLine();
+            writer.newLine();
+
+            // Write clients header
+            writer.write("\"Nome\";\"Número identificação\";\"Email\"");
+            writer.newLine();
+
+            // Write each client
+            for (ClientData client : clientDataList) {
+                writer.write('"' + client.getName() + "\";\"" + client.getId() + "\";\"" + client.getEmail() + "\"");
+                writer.newLine();
+            }
+
+            System.out.println("Dados das presenças no evento '" + event.getName() + "' enviadas para o ficheiro '" + filename + "'!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createClientsPresencesCSVFile(ClientData clientData, ArrayList<Event> eventsList, String filename) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            // Write header
+            writer.write("\"Nome\";\"Número identificação\";\"Email\"");
+            writer.newLine();
+
+            // Write client data
+            writer.write('"' + clientData.getName() + "\";\"" + clientData.getId() + "\";\"" + clientData.getEmail() + "\"");
+            writer.newLine();
+            writer.newLine();
+
+            // Write events header
+            writer.write("\"Designação\";\"Local\";\"Data\";\"Horainício\"");
+            writer.newLine();
+
+            // Write each event
+            for (Event event : eventsList) {
+                writer.write('"' + event.getName() + "\";\"" + event.getLocal() + "\";\"" + event.getDate() + "\";\"" + event.getStartingTime() + "\"");
+                writer.newLine();
+            }
+
+            System.out.println("Dados das presenças de '" + clientData.getEmail() + "' enviados para o ficheiro '" + filename + "'!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private long generateCode() {
+        Random random = new Random();
+
+        // Generate a random number between 1000 and 9999
+        int randomInt = random.nextInt(9000) + 1000;
+
+        // Convert the int to long and return
+        return (long) randomInt;
     }
 
     @Override

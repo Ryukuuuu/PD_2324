@@ -4,7 +4,6 @@ import data.Event;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
 
 public class DatabaseConnection {
     private Connection conn;
@@ -207,7 +206,7 @@ public class DatabaseConnection {
         StringBuilder sql = new StringBuilder("SELECT * FROM Events");
         if (event != null) {
             if (event.getName() != null) {
-                sql.append(" WHERE name='").append(event.getName()).append("'");
+                sql.append(" WHERE name LIKE '%").append(event.getName()).append("%'");
                 first = false;
             }
             if (event.getLocal() != null) {
@@ -228,22 +227,14 @@ public class DatabaseConnection {
             }
             if (event.getStartingTime() != null) {
                 if (first) {
-                    sql.append(" WHERE startingTime='").append(event.getStartingTime()).append("'");
+                    sql.append(" WHERE '").append(event.getStartingTime()).append("' BETWEEN startingTime AND endingTime");
                     first = false;
                 } else {
-                    sql.append(" AND startingTime='").append(event.getStartingTime()).append("'");
-                }
-            }
-            if (event.getEndingTime() != null) {
-                if (first) {
-                    sql.append(" WHERE endingTime='").append(event.getEndingTime()).append("'");
-                    first = false;
-                } else {
-                    sql.append(" AND endingTime='").append(event.getEndingTime()).append("'");
+                    sql.append(" AND '").append(event.getStartingTime()).append("' BETWEEN startingTime AND endingTime");
                 }
             }
         }
-        if (email != null) {
+        if (email != null) { // para quando saber os eventos que uma determinada pessoa presenciou
             if (first) {
                 sql.append(" WHERE name IN (SELECT eventName FROM ClientsEvents WHERE clientEmail='").append(email).append("')");
             } else {
@@ -274,98 +265,7 @@ public class DatabaseConnection {
         }
     }
 
-    public ArrayList<Event> getEventsByLocal(String local){
-        Statement statement;
-        ResultSet result;
-        ArrayList<Event> list = new ArrayList<>();
-        try {
-            statement = conn.createStatement();
-            String selectEvent = "SELECT *\n" +
-                                 "FROM Events\n" +
-                                 "WHERE local='" + local + "';";
-            result = statement.executeQuery(selectEvent);
-            while (result.next()){
-                list.add(new Event(
-                                    result.getString("name"),
-                                    result.getString("local"),
-                                    result.getString("date"),
-                                    result.getLong("activeCode"),
-                                    result.getString("codeValidityEnding"),
-                                    result.getString("startingTime"),
-                                    result.getString("endingTime")
-                        )
-                );
-            }
-        } catch (SQLException e) {
-            System.out.println("Erro no statement de obtencao de Events: ");
-            e.printStackTrace();
-        }
-
-        return !list.isEmpty() ? list : null;
-    }
-
-    public ArrayList<Event> getEventsByDate(String date){
-        Statement statement;
-        ResultSet result;
-        ArrayList<Event> list = new ArrayList<>();
-        try {
-            statement = conn.createStatement();
-            String selectEvent = "SELECT *\n" +
-                    "FROM Events\n" +
-                    "WHERE date='" + date + "';";
-            result = statement.executeQuery(selectEvent);
-            while (result.next()){
-                list.add(new Event(
-                                result.getString("name"),
-                                result.getString("local"),
-                                result.getString("date"),
-                                result.getLong("activeCode"),
-                                result.getString("codeValidityEnding"),
-                                result.getString("startingTime"),
-                                result.getString("endingTime")
-                        )
-                );
-            }
-        } catch (SQLException e) {
-            System.out.println("Erro no statement de obtencao de Events: ");
-            e.printStackTrace();
-        }
-
-        return !list.isEmpty() ? list : null;
-    }
-
-    // falta aqui a condição
-    public ArrayList<Event> getEventsByPeriod(String begin, String finish){
-        Statement statement;
-        ResultSet result;
-        ArrayList<Event> list = new ArrayList<>();
-        try {
-            statement = conn.createStatement();
-            String selectEvent = "SELECT *\n" +
-                                 "FROM Events\n" +
-                                 "WHERE startingTime='" + begin + "';";
-            result = statement.executeQuery(selectEvent);
-            while (result.next()){
-                list.add(new Event(
-                                result.getString("name"),
-                                result.getString("local"),
-                                result.getString("date"),
-                                result.getLong("activeCode"),
-                                result.getString("codeValidityEnding"),
-                                result.getString("startingTime"),
-                                result.getString("endingTime")
-                        )
-                );
-            }
-        } catch (SQLException e) {
-            System.out.println("Erro no statement de obtencao de Events: ");
-            e.printStackTrace();
-        }
-
-        return !list.isEmpty() ? list : null;
-    }
-
-    public boolean addNewEntryToEvents(Event event){
+    public synchronized boolean addNewEntryToEvents(Event event){
         Statement statement;
         int result;
         synchronized (conn){
@@ -388,20 +288,27 @@ public class DatabaseConnection {
         return false;
     }
 
-    public ArrayList<String> getPresences(String eventName){
+    public ArrayList<ClientData> getPresences(String eventName){
         Statement statement;
         ResultSet resultSet;
-        ArrayList<String> list = new ArrayList<>();
+        ArrayList<ClientData> list = new ArrayList<>();
         synchronized (conn){
             try {
                 statement = conn.createStatement();
-                String selectClientsEventsStatement = "SELECT clientEmail\n" +
-                                                      "FROM ClientsEvents\n" +
-                                                      "WHERE eventName='" + eventName + "';";
+                String selectClientsEventsStatement = "SELECT * FROM Clients\n"+
+                                                      "WHERE email IN (SELECT clientEmail\n" +
+                                                                      "FROM ClientsEvents\n" +
+                                                                      "WHERE eventName='" + eventName + "';";
                 resultSet = statement.executeQuery(selectClientsEventsStatement);
 
                 while (resultSet.next()){
-                    list.add(resultSet.getString("clientEmail"));
+                    list.add(
+                            new ClientData(
+                                    resultSet.getString("name"),
+                                    resultSet.getLong("clientID"),
+                                    resultSet.getString("email")
+                            )
+                    );
                 }
             } catch (SQLException e) {
                 System.out.println("Erro a obter todas as presenças para um determinado evento");
@@ -433,15 +340,15 @@ public class DatabaseConnection {
         return !list.isEmpty() ? list : null;
     }
 
-    public synchronized ArrayList<String> removePresencesFromEvent(String eventName){
+    public synchronized ArrayList<ClientData> removePresencesFromEvent(String eventName){
         Statement statement;
         int result = 0;
-        ArrayList<String> clientsList = getPresences(eventName);
+        ArrayList<ClientData> clientsList = getPresences(eventName);
         try {
             statement = conn.createStatement();
-            for (String clientEmail : clientsList) {
+            for (ClientData clientData : clientsList) {
                 String selectEvent = "DELETE FROM ClientsEvents\n" +
-                                     "WHERE clientEmail='" + clientEmail + "';";
+                                     "WHERE clientEmail='" + clientData.getEmail() + "';";
                 result += statement.executeUpdate(selectEvent);
             }
             if(result != 0)
@@ -454,56 +361,53 @@ public class DatabaseConnection {
 
         return !clientsList.isEmpty() ? clientsList : null;
     }
-
-    public Event editActiveCode (String eventName, long code, String codeValidityEnding){
+    public synchronized Event editActiveCode (String eventName, long code, String codeValidityEnding){
         Statement statement;
         int result;
-        synchronized (conn){
-            try {
-                statement = conn.createStatement();
-                String updateNewCodeStatement = "UPDATE Events SET activeCode=" + code + ", codeValidityEnding='" +
-                                                codeValidityEnding + "'\n" +
-                                                "WHERE name='" + eventName + "';";
-                result = statement.executeUpdate(updateNewCodeStatement);
-                if (result != 0){
-                    updateDBVersion();
-                    return getEventByName(eventName);
-                }
-
-            } catch (SQLException e) {
-                System.out.println("Erro a gravar um novo código de presenças!");
+        try {
+            statement = conn.createStatement();
+            String updateNewCodeStatement = "UPDATE Events SET activeCode=" + code + ", codeValidityEnding='" +
+                                            codeValidityEnding + "'\n" +
+                                            "WHERE name='" + eventName + "';";
+            result = statement.executeUpdate(updateNewCodeStatement);
+            if (result != 0){
+                updateDBVersion();
+                return getEventByName(eventName);
             }
+
+        } catch (SQLException e) {
+            System.out.println("Erro a gravar um novo código de presenças!");
         }
+
         return null;
     }
-    public Event editEventInfo(Event event){
+    public synchronized Event editEventInfo(Event event){
         Statement updateStatement;
         int result;
-        synchronized (conn){
-            ArrayList<String> list = getPresences(event.getName());
-            if(!list.isEmpty())
-                return null;
-            try {
-                updateStatement = conn.createStatement();
-                String updateEventStatement = "UPDATE Events SET local='" + event.getLocal() +
-                        "', date='" + event.getDate() + "', startingTime='" + event.getStartingTime() +
-                        "', endingTime='" + event.getEndingTime() + "'\n" +
-                        "WHERE name='" + event.getName() + "';";
-                result = updateStatement.executeUpdate(updateEventStatement);
+        ArrayList<ClientData> list = getPresences(event.getName());
+        if(!list.isEmpty())
+            return null;
+        try {
+            updateStatement = conn.createStatement();
+            String updateEventStatement = "UPDATE Events SET local='" + event.getLocal() +
+                    "', date='" + event.getDate() + "', startingTime='" + event.getStartingTime() +
+                    "', endingTime='" + event.getEndingTime() + "'\n" +
+                    "WHERE name='" + event.getName() + "';";
+            result = updateStatement.executeUpdate(updateEventStatement);
 
-                if (result != 0){
-                    updateDBVersion();
-                    return event;
-                }
-            } catch (SQLException e) {
-                System.out.println("Erro no statement de obtencao da relacao ou de atualizacao de um Evento: ");
-                e.printStackTrace();
+            if (result != 0){
+                updateDBVersion();
+                return event;
             }
+        } catch (SQLException e) {
+            System.out.println("Erro no statement de obtencao da relacao ou de atualizacao de um Evento: ");
+            e.printStackTrace();
         }
+
         return null;
     }
 
-    public boolean removeEvent(String eventName){
+    public synchronized boolean removeEvent(String eventName){
         Statement statement;
         int result;
         try {
@@ -536,10 +440,11 @@ public class DatabaseConnection {
     * 4.1) Se já terminaram, tudo ok, Insere
     * 4.2) Senão, não insere
     * */
-    public boolean checkCodeToAssignPresence(long eventCode, String email) {
+    public synchronized boolean checkCodeToAssignPresence(long eventCode, String email) {
         Statement selectStatement, insertStatement;
         ResultSet resultSet;
-        int result, idFoundEvent;
+        int result;
+        String eventNameFound;
         try {
             selectStatement = conn.createStatement();
             String selectEventsStatement = "SELECT name, activeCode" +
@@ -548,17 +453,15 @@ public class DatabaseConnection {
             resultSet = selectStatement.executeQuery(selectEventsStatement);
 
             if(resultSet.next()){
-                idFoundEvent = resultSet.getInt("id");
-                synchronized (conn){
-                    insertStatement = conn.createStatement();
-                    String insertClientEventStatement = "INSERT INTO ClientsEvents (clientEmail, eventID) VALUES " +
-                                                     "('" + email + "'," + idFoundEvent + ");";
-                    result = insertStatement.executeUpdate(insertClientEventStatement);
+                eventNameFound = resultSet.getString("name");
+                insertStatement = conn.createStatement();
+                String insertClientEventStatement = "INSERT INTO ClientsEvents (clientEmail, eventName) VALUES " +
+                                                 "('" + email + "'," + eventNameFound + ");";
+                result = insertStatement.executeUpdate(insertClientEventStatement);
 
-                    if(result != 0){
-                        updateDBVersion();
-                        return true;
-                    }
+                if(result != 0){
+                    updateDBVersion();
+                    return true;
                 }
             }
         }catch (SQLException e){
