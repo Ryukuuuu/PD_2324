@@ -16,17 +16,38 @@ public class NewUserConnection implements Runnable{
     private ObjectOutputStream oos;
     private DatabaseConnection dbConnection;
     private ClientData clientData;
+    private UserConnectionsThread userConnectionsThread;
     private Boolean keepRunning;
 
-    public NewUserConnection(Socket toClientSocket, DatabaseConnection dbConnection) {
+
+    public NewUserConnection(Socket toClientSocket, DatabaseConnection dbConnection,UserConnectionsThread userConnectionsThread) {
         this.toClientSocket = toClientSocket;
         this.dbConnection = dbConnection;
+        this.userConnectionsThread = userConnectionsThread;
         keepRunning = true;
         try{
             oos = new ObjectOutputStream(toClientSocket.getOutputStream());
             ois = new ObjectInputStream(toClientSocket.getInputStream());
         } catch (IOException e) {
             System.out.println("<ERRO> Nao foi possivel obter as streams associadas a um Socket conectado ao cliente.");
+        }
+    }
+
+    public synchronized void notifyEventUpdate(){
+        try{
+            oos.writeObject(new Message(MessageTypes.EVENT_UPDATE));
+            oos.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public synchronized void notifyClientUpdate(){
+        try{
+            oos.writeObject(new Message(MessageTypes.CLIENT_UPDATE));
+            oos.flush();
+        }catch (IOException e){
+            throw new RuntimeException(e);
         }
     }
 
@@ -42,15 +63,15 @@ public class NewUserConnection implements Runnable{
             case SIGNING -> {
                 if(dbConnection.addNewEntryToClients(messageReceived.getClientData())){
                     this.clientData = messageReceived.getClientData();
+                    userConnectionsThread.notifyAllClientsUpdate();
                     return new Message(MessageTypes.ACC_CREATED,messageReceived.getClientData());
                 }
             }
             case EDIT_LOG_INFO -> {
-                System.out.println("Client received: " + messageReceived.getClientData());
                 ClientData data = dbConnection.editClientInfo(messageReceived.getClientData());
-
                 if(data != null){
                     this.clientData = data;
+                    userConnectionsThread.notifyAllClientsUpdate();
                     return new Message(MessageTypes.EDIT_LOG_INFO,clientData);
                 }
             }
@@ -60,26 +81,25 @@ public class NewUserConnection implements Runnable{
             }
             case CREATE_EVENT -> {
                 if(dbConnection.addNewEntryToEvents(messageReceived.getEvent())){
+                    userConnectionsThread.notifyAllClientsEventsUpdate();
                     return new Message(MessageTypes.CREATE_EVENT);
                 }
             }
             case EDIT_EVENT -> {
                 if(dbConnection.editEventInfo(messageReceived.getEvent())!=null){
+                    userConnectionsThread.notifyAllClientsEventsUpdate();
                     return new Message(MessageTypes.EDIT_EVENT);
                 }
             }
             case CHECK_PRESENCES -> {
-                System.out.println(dbConnection.getAllEvents());
-                return new Message(MessageTypes.CHECK_PRESENCES, dbConnection.getAllEvents());
+                return new Message(MessageTypes.CHECK_PRESENCES, dbConnection.getEvents(null,null));
             }
             case LOGOUT -> {return new Message(MessageTypes.LOGOUT);}
             case QUIT -> {
                 keepRunning = false;
                 return new Message(MessageTypes.QUIT);
             }
-            default -> {
-                return new Message(MessageTypes.FAILED);
-            }
+            default -> {return new Message(MessageTypes.FAILED);}
         }
         return new Message(MessageTypes.FAILED);
     }
@@ -105,6 +125,7 @@ public class NewUserConnection implements Runnable{
 
                 oos.writeObject(responseMessage);
                 oos.flush();
+
             } catch (ClassNotFoundException | IOException e){
                 throw new RuntimeException(e);
             }

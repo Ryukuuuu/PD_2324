@@ -14,6 +14,7 @@ public class UserConnectionsThread extends Thread{
     private final int listening_port;
     private DatabaseConnection dbConnection;
     private List<Socket> usersConnected;
+    private List<NewUserConnection> userConnections;
     private int nCreatedThreads;
 
     public UserConnectionsThread(int listening_port, DatabaseConnection dbConnection){
@@ -22,6 +23,22 @@ public class UserConnectionsThread extends Thread{
 
         usersConnected = new ArrayList<>();
         nCreatedThreads = 0;
+    }
+
+    private synchronized void addNewClients(NewUserConnection newUserConnection){
+        userConnections.add(newUserConnection);
+    }
+
+    public void notifyAllClientsEventsUpdate(){
+        for(NewUserConnection newUserConnection : userConnections){
+            newUserConnection.notifyEventUpdate();
+        }
+    }
+
+    public void notifyAllClientsUpdate(){
+        for(NewUserConnection newUserConnection : userConnections){
+            newUserConnection.notifyClientUpdate();
+        }
     }
 
     @Override
@@ -39,8 +56,10 @@ public class UserConnectionsThread extends Thread{
                     nCreatedThreads++;
                     System.out.println("<Conexao com User> Novo User a estabelecer ligacao -> #" + nCreatedThreads);
                     //crio Thread para efetuar comunicação com o cliente e arranco logo com ela
-                    Thread t = new Thread(new NewUserConnection(toClientSocket, dbConnection), "Thread " + nCreatedThreads);
+                    NewUserConnection newUserConnection = new NewUserConnection(toClientSocket, dbConnection,this);
+                    Thread t = new Thread(newUserConnection, "Thread " + nCreatedThreads);
                     t.start();
+                    addNewClients(newUserConnection);
                 }
             }catch (IOException e){
                 throw new RuntimeException(e);
