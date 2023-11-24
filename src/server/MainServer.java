@@ -2,6 +2,7 @@ package server;
 
 import database.DatabaseConnection;
 import server.thread.UserConnectionsThread;
+import server.thread.multicast.SendHeartBeats;
 
 public class MainServer {
     private static final int MULTICAST_PORT = 4444;
@@ -32,9 +33,10 @@ public class MainServer {
         }
 
         dbConnection = new DatabaseConnection(url);
-
-        UserConnectionsThread userConnectionsThread = new UserConnectionsThread(client_port, dbConnection);
+        SendHeartBeats sendHeartBeats = new SendHeartBeats(registry_port,service_name,dbConnection.getDBVersion());
+        UserConnectionsThread userConnectionsThread = new UserConnectionsThread(client_port, dbConnection,sendHeartBeats);
         System.out.println("<Servidor> Thread para criacao de Conexoes com Users criada!");
         userConnectionsThread.start();
+        sendHeartBeats.start();
     }
 }

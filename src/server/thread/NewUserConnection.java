@@ -4,6 +4,7 @@ import data.ClientData;
 import data.Message;
 import data.MessageTypes;
 import database.DatabaseConnection;
+import server.thread.multicast.SendHeartBeats;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -17,13 +18,15 @@ public class NewUserConnection implements Runnable{
     private DatabaseConnection dbConnection;
     private ClientData clientData;
     private UserConnectionsThread userConnectionsThread;
+    private SendHeartBeats sendHeartBeats;
     private Boolean keepRunning;
 
 
-    public NewUserConnection(Socket toClientSocket, DatabaseConnection dbConnection,UserConnectionsThread userConnectionsThread) {
+    public NewUserConnection(Socket toClientSocket, DatabaseConnection dbConnection, UserConnectionsThread userConnectionsThread, SendHeartBeats sendHeartBeats) {
         this.toClientSocket = toClientSocket;
         this.dbConnection = dbConnection;
         this.userConnectionsThread = userConnectionsThread;
+        this.sendHeartBeats = sendHeartBeats;
         keepRunning = true;
         try{
             oos = new ObjectOutputStream(toClientSocket.getOutputStream());
@@ -64,6 +67,7 @@ public class NewUserConnection implements Runnable{
                 if(dbConnection.addNewEntryToClients(messageReceived.getClientData())){
                     this.clientData = messageReceived.getClientData();
                     userConnectionsThread.notifyAllClientsUpdate();
+                    sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
                     return new Message(MessageTypes.ACC_CREATED,messageReceived.getClientData());
                 }
             }
