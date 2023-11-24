@@ -202,6 +202,78 @@ public class DatabaseConnection {
         return null;
     }
 
+    public String generateSQL(Event event,String email) {
+        boolean first = true;
+        StringBuilder sql = new StringBuilder("SELECT * FROM Events");
+        if (event != null) {
+            if (event.getName() != null) {
+                sql.append(" WHERE name='").append(event.getName()).append("'");
+                first = false;
+            }
+            if (event.getLocal() != null) {
+                if (first) {
+                    sql.append(" WHERE local='").append(event.getLocal()).append("'");
+                    first = false;
+                } else {
+                    sql.append(" AND local='").append(event.getLocal()).append("'");
+                }
+            }
+            if (event.getDate() != null) {
+                if (first) {
+                    sql.append(" WHERE date='").append(event.getDate()).append("'");
+                    first = false;
+                } else {
+                    sql.append(" AND date='").append(event.getDate()).append("'");
+                }
+            }
+            if (event.getStartingTime() != null) {
+                if (first) {
+                    sql.append(" WHERE startingTime='").append(event.getStartingTime()).append("'");
+                    first = false;
+                } else {
+                    sql.append(" AND startingTime='").append(event.getStartingTime()).append("'");
+                }
+            }
+            if (event.getEndingTime() != null) {
+                if (first) {
+                    sql.append(" WHERE endingTime='").append(event.getEndingTime()).append("'");
+                    first = false;
+                } else {
+                    sql.append(" AND endingTime='").append(event.getEndingTime()).append("'");
+                }
+            }
+        }
+        if (email != null) {
+            if (first) {
+                sql.append(" WHERE name IN (SELECT eventName FROM ClientsEvents WHERE clientEmail='").append(email).append("')");
+            } else {
+                sql.append(" AND name IN (SELECT eventName FROM ClientsEvents WHERE clientEmail='").append(email).append("')");
+            }
+        }
+        return sql.toString();
+    }
+
+    public synchronized ArrayList<Event> getEvents(Event event,String email) {
+        try {
+            Statement statement = conn.createStatement();
+            ResultSet res = statement.executeQuery(generateSQL(event,email));
+            ArrayList<Event> events = new ArrayList<>();
+            while (res.next()) {
+                events.add(new Event(
+                        res.getString("name"),
+                        res.getString("local"),
+                        res.getString("date"),
+                        res.getLong("activeCode"),
+                        res.getString("codeValidityEnding"),
+                        res.getString("startingTime"),
+                        res.getString("endingTime")));
+            }
+            return events;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public ArrayList<Event> getEventsByLocal(String local){
         Statement statement;
         ResultSet result;
@@ -361,7 +433,7 @@ public class DatabaseConnection {
         return !list.isEmpty() ? list : null;
     }
 
-    public ArrayList<String> removePresencesFromEvent(String eventName){
+    public synchronized ArrayList<String> removePresencesFromEvent(String eventName){
         Statement statement;
         int result = 0;
         ArrayList<String> clientsList = getPresences(eventName);
@@ -381,30 +453,6 @@ public class DatabaseConnection {
         }
 
         return !clientsList.isEmpty() ? clientsList : null;
-    }
-
-    /*NAO LIGUES*/
-    public ArrayList<Event> getAllEvents(){
-        ArrayList<Event> events = new ArrayList<>();
-        try{
-            Statement statement = conn.createStatement();
-            ResultSet res = statement.executeQuery("SELECT * FROM Events");
-
-            while(res.next()){
-                events.add(new Event(
-                        res.getString("name"),
-                        res.getString("local"),
-                        res.getString("date"),
-                        res.getLong("activeCode"),
-                        res.getString("codeValidityEnding"),
-                        res.getString("startingTime"),
-                        res.getString("endingTime")));
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return events;
     }
 
     public Event editActiveCode (String eventName, long code, String codeValidityEnding){
