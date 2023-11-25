@@ -14,8 +14,7 @@ public class ClientData implements Serializable {
     private String password;
     private boolean admin;
 
-    public ClientData(){}
-
+    public ClientData() {}
     public ClientData(String email,String password){
         this.email = email;
         this.password = password;
@@ -40,6 +39,8 @@ public class ClientData implements Serializable {
         this.id = id;
         this.email = email;
     }
+
+
 
     //Called if login is successful to fill the object with the info in the database
     public void fillClientDataAfterLogin(ClientData clientData){

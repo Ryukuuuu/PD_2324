@@ -9,6 +9,10 @@ import data.MessageTypes;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class ModelManager {
 
@@ -115,9 +119,18 @@ public class ModelManager {
     /*---------------------MESSAGES FROM SERVER---------------------*/
     public Message getUpdatedInfo(){return connectionManager.getLastMessageFromServer();}
     public ClientData getClientInfo(){return connectionManager.getLastMessageFromServer().getClientData();}
-    public void fireCodeUpdate(){pcs.firePropertyChange(PROP_UPDATE_CODE,null,null);}
-    public void fireEventUpdate(){pcs.firePropertyChange(PROP_UPDATE_EVENT,null,null);}
-    public void fireUpdate(){pcs.firePropertyChange(PROP_UPDATE,null,null);}
+    public void fireCodeUpdate(){
+        System.out.println("Fire code update");
+        pcs.firePropertyChange(PROP_UPDATE_CODE,null,null);
+    }
+    public void fireEventUpdate(){
+        System.out.println("Fire event update");
+        pcs.firePropertyChange(PROP_UPDATE_EVENT,null,null);
+    }
+    public void fireUpdate(){
+        System.out.println("Fire update");
+        pcs.firePropertyChange(PROP_UPDATE,null,null);
+    }
     //Method called by the ui to check if the last operation was a success
     public Message checkLastMessageFromServer(){return connectionManager.getLastMessageFromServer();}
 
@@ -143,8 +156,11 @@ public class ModelManager {
         fsm.editEvent();
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
-
-    public void sendDeleteEventMessage(){}
+    public void deleteEvent(){
+        fsm.deleteEvent();
+        pcs.firePropertyChange(PROP_STATE,null,null);
+    }
+    public void sendDeleteEventMessage(String name){connectionManager.sendMessageToServer(createMessage(MessageTypes.REMOVE_EVENT,new Event(name)));}
     /*---------------------END EXECUTION---------------------*/
     public void closeConnection(){
         connectionManager.sendMessageToServer(createMessage(MessageTypes.QUIT,fsm.getClientData()));
@@ -157,6 +173,62 @@ public class ModelManager {
     private Message createMessage(MessageTypes type,ClientData clientData){return new Message(type,clientData);}
     private Message createMessage(MessageTypes type,String name,long id,String email,String password){return new Message(type,new ClientData(name,id,email,password));}
     private Message createMessage(MessageTypes type,Event event){return new Message(type, event);}
+
+    /*----------------------CSV----------------------*/
+    private void createEventsPresencesCSVFile(Event event, ArrayList<ClientData> clientDataList, String filename) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            // Write event header
+            writer.write("\"Designação\";\"Local\";\"Data\";\"Horainício\";\"Hora fim\"");
+            writer.newLine();
+
+            // Write event data
+            writer.write('"' + event.getName() + "\";\"" + event.getLocal() + "\";\"" +
+                    event.getDate() + "\";\"" + event.getStartingTime() + "\";\"" + event.getEndingTime() + "\"");
+            writer.newLine();
+            writer.newLine();
+
+            // Write clients header
+            writer.write("\"Nome\";\"Número identificação\";\"Email\"");
+            writer.newLine();
+
+            // Write each client
+            for (ClientData client : clientDataList) {
+                writer.write('"' + client.getName() + "\";\"" + client.getId() + "\";\"" + client.getEmail() + "\"");
+                writer.newLine();
+            }
+
+            System.out.println("Dados das presenças no evento '" + event.getName() + "' enviadas para o ficheiro '" + filename + "'!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createClientsPresencesCSVFile(ClientData clientData, ArrayList<Event> eventsList, String filename) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            // Write header
+            writer.write("\"Nome\";\"Número identificação\";\"Email\"");
+            writer.newLine();
+
+            // Write client data
+            writer.write('"' + clientData.getName() + "\";\"" + clientData.getId() + "\";\"" + clientData.getEmail() + "\"");
+            writer.newLine();
+            writer.newLine();
+
+            // Write events header
+            writer.write("\"Designação\";\"Local\";\"Data\";\"Horainício\"");
+            writer.newLine();
+
+            // Write each event
+            for (Event event : eventsList) {
+                writer.write('"' + event.getName() + "\";\"" + event.getLocal() + "\";\"" + event.getDate() + "\";\"" + event.getStartingTime() + "\"");
+                writer.newLine();
+            }
+
+            System.out.println("Dados das presenças de '" + clientData.getEmail() + "' enviados para o ficheiro '" + filename + "'!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /*---------------------STATE---------------------*/
     public ClientState getState(){return fsm.getState();}

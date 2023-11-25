@@ -9,10 +9,19 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="client.ui.controllers.AdminDeleteEventController">
+<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="client.ui.controllers.AdminGenerateEventCodeController">
    <center>
-      <VBox fx:id="vbox" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="282.0" prefWidth="459.0" spacing="10.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="vbox" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="406.0" prefWidth="459.0" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Text fx:id="tCode" strokeType="OUTSIDE" strokeWidth="0.0">
+                     <font>
+                        <Font size="25.0" />
+                     </font>
+                  </Text>
+               </children>
+            </HBox>
             <HBox alignment="CENTER" prefHeight="24.0" prefWidth="200.0" spacing="10.0">
                <children>
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Name" wrappingWidth="105.822265625">
@@ -25,14 +34,24 @@
                   <Insets top="30.0" />
                </VBox.margin>
             </HBox>
+            <HBox alignment="CENTER" prefHeight="24.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Duration" wrappingWidth="105.822265625">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Text>
+                  <TextField fx:id="tfDuration" alignment="TOP_LEFT" maxWidth="-Infinity" prefHeight="25.0" prefWidth="250.0" HBox.hgrow="ALWAYS" />
+               </children>
+            </HBox>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
-                  <Button fx:id="btnSubmit" mnemonicParsing="false" onAction="#setBtnSubmit" prefHeight="44.0" prefWidth="200.0" text="Submit">
+                  <Button fx:id="btnGenerate" mnemonicParsing="false" prefHeight="44.0" prefWidth="200.0" text="Generate">
                      <font>
                         <Font size="20.0" />
                      </font>
                   </Button>
-                  <Button fx:id="btnBack" onAction="#setBtnBack" mnemonicParsing="false"  prefHeight="44.0" prefWidth="200.0" text="Back">
+                  <Button fx:id="btnBack" mnemonicParsing="false"  prefHeight="44.0" prefWidth="200.0" text="Back">
                      <font>
                         <Font size="20.0" />
                      </font>
@@ -45,7 +64,7 @@
    <top>
       <HBox alignment="CENTER" prefHeight="100.0" prefWidth="809.0" BorderPane.alignment="CENTER">
          <children>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Delete Event">
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Generate event code">
                <font>
                   <Font size="30.0" />
                </font>

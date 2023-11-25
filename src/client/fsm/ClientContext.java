@@ -27,6 +27,7 @@ public class ClientContext {
     public boolean login(ClientData clientData){return state.login(clientData);}
     public boolean createEvent(){return state.createEvent();}
     public boolean editEvent(){return state.editEvent();}
+    public boolean deleteEvent(){return state.deleteEvent();}
     public boolean toSignin(){return state.toSignIn();}
 
     public boolean submitSignIn(ClientData clientData){return state.submitSignIn(clientData);}

@@ -4,16 +4,31 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<?import javafx.scene.control.cell.PropertyValueFactory?>
 <BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="client.ui.controllers.EventsMenuController">
    <top>
       <AnchorPane prefHeight="60.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="btnBack" layoutX="14.0" layoutY="9.0" mnemonicParsing="false" onAction="#back" prefHeight="45.0" prefWidth="130.0" text="Back" />
+            <Button fx:id="btnBack" layoutX="14.0" layoutY="9.0" mnemonicParsing="false" onAction="#back" prefHeight="45.0" prefWidth="130.0" text="Back">
+               <font>
+                  <Font size="15.0" />
+               </font></Button>
+            <Button fx:id="btnCsv" layoutX="859.0" layoutY="8.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="130.0" text="CSV">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </Button>
+            <TextField fx:id="tfFileName" layoutX="664.0" layoutY="16.0" promptText="FileName">
+               <font>
+                  <Font size="15.0" />
+               </font>
+            </TextField>
          </children>
       </AnchorPane>
    </top>
@@ -24,29 +39,29 @@
                <content>
                   <TableView fx:id="table" prefHeight="800.0" prefWidth="1000.0">
                     <columns>
-                      <TableColumn fx:id="name" prefWidth="200.0" text="Name" >
+                      <TableColumn fx:id="name" prefWidth="200.0" text="Name">
                           <cellValueFactory>
-                          <PropertyValueFactory property="name"/>
+                          <PropertyValueFactory property="name" />
                         </cellValueFactory>
                       </TableColumn>
-                      <TableColumn fx:id="local" minWidth="0.0" prefWidth="200.0" text="Local" >
+                      <TableColumn fx:id="local" minWidth="0.0" prefWidth="200.0" text="Local">
                           <cellValueFactory>
-                              <PropertyValueFactory property="local"/>
+                              <PropertyValueFactory property="local" />
                           </cellValueFactory>
                       </TableColumn>
-                        <TableColumn fx:id="date" prefWidth="200.0" text="Date" >
+                        <TableColumn fx:id="date" prefWidth="200.0" text="Date">
                             <cellValueFactory>
-                                <PropertyValueFactory property="date"/>
+                                <PropertyValueFactory property="date" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="start" prefWidth="200.0" text="Starting Time" >
+                        <TableColumn fx:id="start" prefWidth="200.0" text="Starting Time">
                             <cellValueFactory>
-                                <PropertyValueFactory property="startingTime"/>
+                                <PropertyValueFactory property="startingTime" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn fx:id="end" prefWidth="200.0" text="Ending Time" >
+                        <TableColumn fx:id="end" prefWidth="200.0" text="Ending Time">
                             <cellValueFactory>
-                                <PropertyValueFactory property="endingTime"/>
+                                <PropertyValueFactory property="endingTime" />
                             </cellValueFactory>
                         </TableColumn>
                     </columns>

@@ -5,10 +5,7 @@ import client.model.ModelManager;
 import data.Event;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 
 public class EventsMenuController {
@@ -20,6 +17,8 @@ public class EventsMenuController {
     public TableColumn<Event,Event> date;
     public TableColumn<Event,Event> start;
     public TableColumn<Event,Event> end;
+    public Button btnCsv;
+    public TextField tfFileName;
     private ModelManager modelManager;
     public BorderPane borderPane;
     public Button btnBack;
@@ -40,7 +39,11 @@ public class EventsMenuController {
     }
 
     private void update(){
-        borderPane.setVisible(modelManager.getState() == ClientState.EVENT_MENU);
+            borderPane.setVisible(modelManager.getState() == ClientState.EVENT_MENU);
+        if(modelManager.getState() == ClientState.EVENT_MENU) {
+            updateEvents();
+            checkFileName();
+        }
     }
 
     private void updateEvents(){
@@ -52,8 +55,16 @@ public class EventsMenuController {
         table.getItems().addAll(res);
     }
 
+    private void checkFileName(){
+        System.out.println(tfFileName.getText());
+        btnCsv.setDisable(tfFileName.getText().equals("") && table.getItems().isEmpty());
+    }
     @FXML
     private void back(){
         modelManager.startMenu();
+    }
+    @FXML
+    private void csv(){
+
     }
 }
