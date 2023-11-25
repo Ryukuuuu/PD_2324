@@ -182,28 +182,33 @@ public class DatabaseConnection {
         try {
             statement = conn.createStatement();
             StringBuilder sql = new StringBuilder("UPDATE Clients SET ");
-            if(clientData != null){
-                if (!clientData.getName().isEmpty())
-                    sql.append("name='" + clientData.getName() + "'");
-                if (clientData.getId() != 0L)
+
+            if (clientData != null) {
+                if (!clientData.getName().isEmpty()) {
+                    sql.append("name='" + clientData.getName() + "', ");
+                }
+                if (clientData.getId() != 0L) {
                     if (first) {
                         sql.append("clientID=" + clientData.getId());
                         first = false;
-                    }
-                    else
+                    } else {
                         sql.append(", clientID=" + clientData.getId());
-                if (!clientData.getPassword().isEmpty())
-                    if (first)
-                        sql.append("password='" + clientData.getPassword() + "'");
-                    else
-                        sql.append(", password='" + clientData.getPassword() + "'");
+                    }
+                }
+                if (!clientData.getPassword().isEmpty()) {
+                    if (!first) {
+                        sql.append(", ");
+                    }
+                    sql.append("password='" + clientData.getPassword() + "'");
+                }
 
-                sql.append("\nWHERE email='" + clientData.getEmail() + "';");
+                sql.append(" WHERE email='" + clientData.getEmail() + "';");
+
                 result = statement.executeUpdate(sql.toString());
 
-                if (result != 0){
+                if (result != 0) {
                     updateDBVersion();
-                    System.out.println("Client data sent: "+ clientData);
+                    System.out.println("Client data sent: " + clientData);
                     return getClientWithoutPass(clientData.getEmail());
                 }
             }
