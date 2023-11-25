@@ -24,6 +24,7 @@ public class UserConnectionsThread extends Thread{
         this.dbConnection = dbConnection;
         this.sendHeartBeats = sendHeartBeats;
         usersConnected = new ArrayList<>();
+        userConnections = new ArrayList<>();
         nCreatedThreads = 0;
     }
 

@@ -115,9 +115,18 @@ public class ModelManager {
     /*---------------------MESSAGES FROM SERVER---------------------*/
     public Message getUpdatedInfo(){return connectionManager.getLastMessageFromServer();}
     public ClientData getClientInfo(){return connectionManager.getLastMessageFromServer().getClientData();}
-    public void fireCodeUpdate(){pcs.firePropertyChange(PROP_UPDATE_CODE,null,null);}
-    public void fireEventUpdate(){pcs.firePropertyChange(PROP_UPDATE_EVENT,null,null);}
-    public void fireUpdate(){pcs.firePropertyChange(PROP_UPDATE,null,null);}
+    public void fireCodeUpdate(){
+        System.out.println("Fire code update");
+        pcs.firePropertyChange(PROP_UPDATE_CODE,null,null);
+    }
+    public void fireEventUpdate(){
+        System.out.println("Fire event update");
+        pcs.firePropertyChange(PROP_UPDATE_EVENT,null,null);
+    }
+    public void fireUpdate(){
+        System.out.println("Fire update");
+        pcs.firePropertyChange(PROP_UPDATE,null,null);
+    }
     //Method called by the ui to check if the last operation was a success
     public Message checkLastMessageFromServer(){return connectionManager.getLastMessageFromServer();}
 
@@ -143,8 +152,11 @@ public class ModelManager {
         fsm.editEvent();
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
-
-    public void sendDeleteEventMessage(){}
+    public void deleteEvent(){
+        fsm.deleteEvent();
+        pcs.firePropertyChange(PROP_STATE,null,null);
+    }
+    public void sendDeleteEventMessage(String name){connectionManager.sendMessageToServer(createMessage(MessageTypes.REMOVE_EVENT,new Event(name)));}
     /*---------------------END EXECUTION---------------------*/
     public void closeConnection(){
         connectionManager.sendMessageToServer(createMessage(MessageTypes.QUIT,fsm.getClientData()));

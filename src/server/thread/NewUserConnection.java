@@ -83,24 +83,29 @@ public class NewUserConnection implements Runnable{
             }
             case SUBMIT_CODE -> {
                 String formattedTimeNow = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-                if(dbConnection.checkCodeToAssignPresence(messageReceived.getEventCode(), clientData.getEmail(), formattedTimeNow))
+                if(dbConnection.checkCodeToAssignPresence(messageReceived.getEventCode(), clientData.getEmail(), formattedTimeNow)) {
+                    sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
                     return new Message(MessageTypes.SUBMIT_CODE);
+                }
             }
             case CREATE_EVENT -> {
                 if(dbConnection.addNewEntryToEvents(messageReceived.getEvent())){
                     userConnectionsThread.notifyAllClientsEventsUpdate();
+                    sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
                     return new Message(MessageTypes.CREATE_EVENT);
                 }
             }
             case EDIT_EVENT -> {
                 if(dbConnection.editEventInfo(messageReceived.getEvent())!=null){
                     userConnectionsThread.notifyAllClientsEventsUpdate();
+                    sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
                     return new Message(MessageTypes.EDIT_EVENT);
                 }
             }
             case REMOVE_EVENT -> {
                 if(dbConnection.removeEvent(messageReceived.getEvent().getName())){
                     userConnectionsThread.notifyAllClientsEventsUpdate();
+                    sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
                     return new Message(MessageTypes.REMOVE_EVENT);
                 }
             }
@@ -139,7 +144,7 @@ public class NewUserConnection implements Runnable{
             }
             case GET_USER_REGISTERED_PRESENCES_CSV -> {
                 ArrayList<Event> eventsList = dbConnection.getEvents(null, messageReceived.getClientData().getEmail());
-                String filename = String.format(FILENAME_FROM_TEMPLATE, messageReceived.getClientData().getEmail());
+                String filename = String.format(FILENAME_FROM_TEMPLATE, messageReceived.getClientData().getEmail()) + ".csv";
                 createClientsPresencesCSVFile(clientData, eventsList, filename);
             }
             case REMOVE_PRESENCE -> {
