@@ -39,8 +39,11 @@ public class EventsMenuController {
     }
 
     private void update(){
-        borderPane.setVisible(modelManager.getState() == ClientState.EVENT_MENU);
-        checkFileName();
+            borderPane.setVisible(modelManager.getState() == ClientState.EVENT_MENU);
+        if(modelManager.getState() == ClientState.EVENT_MENU) {
+            updateEvents();
+            checkFileName();
+        }
     }
 
     private void updateEvents(){
@@ -54,10 +57,14 @@ public class EventsMenuController {
 
     private void checkFileName(){
         System.out.println(tfFileName.getText());
-        btnCsv.setDisable(!(tfFileName.getText().equals("") && table.getItems().isEmpty()));
+        btnCsv.setDisable(tfFileName.getText().equals("") && table.getItems().isEmpty());
     }
     @FXML
     private void back(){
         modelManager.startMenu();
+    }
+    @FXML
+    private void csv(){
+
     }
 }

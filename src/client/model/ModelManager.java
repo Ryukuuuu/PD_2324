@@ -9,6 +9,10 @@ import data.MessageTypes;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class ModelManager {
 
@@ -169,6 +173,62 @@ public class ModelManager {
     private Message createMessage(MessageTypes type,ClientData clientData){return new Message(type,clientData);}
     private Message createMessage(MessageTypes type,String name,long id,String email,String password){return new Message(type,new ClientData(name,id,email,password));}
     private Message createMessage(MessageTypes type,Event event){return new Message(type, event);}
+
+    /*----------------------CSV----------------------*/
+    private void createEventsPresencesCSVFile(Event event, ArrayList<ClientData> clientDataList, String filename) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            // Write event header
+            writer.write("\"Designação\";\"Local\";\"Data\";\"Horainício\";\"Hora fim\"");
+            writer.newLine();
+
+            // Write event data
+            writer.write('"' + event.getName() + "\";\"" + event.getLocal() + "\";\"" +
+                    event.getDate() + "\";\"" + event.getStartingTime() + "\";\"" + event.getEndingTime() + "\"");
+            writer.newLine();
+            writer.newLine();
+
+            // Write clients header
+            writer.write("\"Nome\";\"Número identificação\";\"Email\"");
+            writer.newLine();
+
+            // Write each client
+            for (ClientData client : clientDataList) {
+                writer.write('"' + client.getName() + "\";\"" + client.getId() + "\";\"" + client.getEmail() + "\"");
+                writer.newLine();
+            }
+
+            System.out.println("Dados das presenças no evento '" + event.getName() + "' enviadas para o ficheiro '" + filename + "'!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void createClientsPresencesCSVFile(ClientData clientData, ArrayList<Event> eventsList, String filename) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            // Write header
+            writer.write("\"Nome\";\"Número identificação\";\"Email\"");
+            writer.newLine();
+
+            // Write client data
+            writer.write('"' + clientData.getName() + "\";\"" + clientData.getId() + "\";\"" + clientData.getEmail() + "\"");
+            writer.newLine();
+            writer.newLine();
+
+            // Write events header
+            writer.write("\"Designação\";\"Local\";\"Data\";\"Horainício\"");
+            writer.newLine();
+
+            // Write each event
+            for (Event event : eventsList) {
+                writer.write('"' + event.getName() + "\";\"" + event.getLocal() + "\";\"" + event.getDate() + "\";\"" + event.getStartingTime() + "\"");
+                writer.newLine();
+            }
+
+            System.out.println("Dados das presenças de '" + clientData.getEmail() + "' enviados para o ficheiro '" + filename + "'!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     /*---------------------STATE---------------------*/
     public ClientState getState(){return fsm.getState();}

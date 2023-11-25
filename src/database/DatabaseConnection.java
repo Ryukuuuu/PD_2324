@@ -46,7 +46,7 @@ public class DatabaseConnection {
             statement = conn.createStatement();
             String createClientsTableStatement = "CREATE TABLE IF NOT EXISTS Clients (\n" +
                                                     "name TEXT NOT NULL,\n" +
-                                                    "clientID INTEGER NOT NULL,\n" +
+                                                    "clientID BIGINT NOT NULL,\n" +
                                                     "email TEXT PRIMARY KEY NOT NULL,\n" +
                                                     "password TEXT NOT NULL,\n" +
                                                     "admin BOOLEAN NOT NULL DEFAULT(0)\n" +

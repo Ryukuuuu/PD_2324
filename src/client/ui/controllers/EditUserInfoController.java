@@ -34,23 +34,35 @@ public class EditUserInfoController {
     }
 
     private boolean checkId(){
-        try{
-            Long.parseLong(tfId.getText());
-            return true;
-        }catch (NumberFormatException e){
-            return false;
+        if(!tfId.getText().equals("")) {
+            try {
+                Long.parseLong(tfId.getText());
+                return true;
+            } catch (NumberFormatException e) {
+                return false;
+            }
         }
+        return true;
     }
 
     @FXML
     private void submitNewUserInformation(){
         if(checkId()) {
-            modelManager.sendEditUserInformationMessage(
-                    tfName.getText(),
-                    tfPassword.getText(),
-                    Long.parseLong(tfId.getText()),
-                    modelManager.getClientData().getEmail()
+            if(!tfId.getText().equals(""))
+                modelManager.sendEditUserInformationMessage(
+                        tfName.getText(),
+                        tfPassword.getText(),
+                        Long.parseLong(tfId.getText()),
+                        modelManager.getClientData().getEmail()
             );
+            else {
+                modelManager.sendEditUserInformationMessage(
+                        tfName.getText(),
+                        tfPassword.getText(),
+                        0,
+                        modelManager.getClientData().getEmail()
+                );
+            }
         }
         else {
             Alert alert = new Alert(Alert.AlertType.ERROR);
