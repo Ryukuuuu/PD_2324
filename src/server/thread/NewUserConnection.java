@@ -6,6 +6,9 @@ import server.thread.multicast.SendHeartBeats;
 
 import java.io.*;
 import java.net.Socket;
+import java.sql.Time;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -79,7 +82,8 @@ public class NewUserConnection implements Runnable{
                 }
             }
             case SUBMIT_CODE -> {
-                if(dbConnection.checkCodeToAssignPresence(messageReceived.getEventCode(), clientData.getEmail()))
+                String formattedTimeNow = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+                if(dbConnection.checkCodeToAssignPresence(messageReceived.getEventCode(), clientData.getEmail(), formattedTimeNow))
                     return new Message(MessageTypes.SUBMIT_CODE);
             }
             case CREATE_EVENT -> {
@@ -114,7 +118,7 @@ public class NewUserConnection implements Runnable{
                 return new Message(MessageTypes.CHECK_CREATED_EVENTS, dbConnection.getEvents(messageReceived.getEvent(), null));
             }
             case GENERATE_EVENT_CODE -> {
-                Event editedEvent = null;
+                Event editedEvent;
                 do{
                     long newCode = generateCode();
                     editedEvent = dbConnection.editActiveCode(messageReceived.getEvent().getName(), newCode, messageReceived.getEvent().getCodeValidityEnding());
@@ -140,6 +144,13 @@ public class NewUserConnection implements Runnable{
             }
             case REMOVE_PRESENCE -> {
                 return new Message(dbConnection.removePresencesFromEvent(messageReceived.getEvent().getName()), MessageTypes.REMOVE_PRESENCE);
+            }
+            case ADD_PRESENCE -> {
+                String formattedTimeNow = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+                if(dbConnection.addPresence(messageReceived.getClientData().getEmail(),
+                                            messageReceived.getEvent().getName(),
+                                            formattedTimeNow))
+                    return new Message(MessageTypes.ADD_PRESENCE);
             }
             case LOGOUT -> {return new Message(MessageTypes.LOGOUT);}
 
