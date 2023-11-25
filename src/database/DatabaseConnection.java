@@ -185,7 +185,8 @@ public class DatabaseConnection {
 
             if (clientData != null) {
                 if (!clientData.getName().isEmpty()) {
-                    sql.append("name='" + clientData.getName() + "', ");
+                    sql.append("name='" + clientData.getName() + "'");
+                    first = false;
                 }
                 if (clientData.getId() != 0L) {
                     if (first) {
