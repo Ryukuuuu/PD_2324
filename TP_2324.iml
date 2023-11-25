@@ -10,5 +10,6 @@
     <orderEntry type="library" name="javafx-20" level="project" />
     <orderEntry type="library" name="JavaFX" level="project" />
     <orderEntry type="library" name="sqlite-jdbc-3.39.3.0" level="project" />
+    <orderEntry type="library" name="JavaFX20.0.1" level="application" />
   </component>
 </module>

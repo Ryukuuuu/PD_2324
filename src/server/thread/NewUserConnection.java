@@ -36,6 +36,7 @@ public class NewUserConnection implements Runnable{
         } catch (IOException e) {
             System.out.println("<ERRO> Nao foi possivel obter as streams associadas a um Socket conectado ao cliente.");
         }
+        // ref
     }
 
     public synchronized void notifyEventUpdate(){
