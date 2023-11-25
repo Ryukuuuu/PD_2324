@@ -34,6 +34,7 @@ public class RootController {
         createView(modelManager,"layout/admin-create-event.fxml");
         createView(modelManager,"layout/admin-edit-event.fxml");
         createView(modelManager,"layout/admin-delete-event.fxml");
+        createView(modelManager,"layout/admin-generate-event-code.fxml");
     }
 
     private void createView(ModelManager modelManager,String resourcePath) throws IOException{
@@ -78,6 +79,10 @@ public class RootController {
             }
             case "layout/admin-delete-event.fxml" -> {
                 AdminDeleteEventController controller = fxmlLoader.getController();
+                controller.init(modelManager);
+            }
+            case "layout/admin-generate-event-code.fxml" ->{
+                AdminGenerateEventCodeController controller = fxmlLoader.getController();
                 controller.init(modelManager);
             }
         }
