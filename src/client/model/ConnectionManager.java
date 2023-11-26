@@ -2,10 +2,12 @@ package client.model;
 
 
 import data.Message;
+import data.MessageTypes;
 
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 public class ConnectionManager {
@@ -55,14 +57,10 @@ public class ConnectionManager {
                     try {
                         messageFromServer = (Message) ois.readObject();
                         checkMessageReceived();
-                        //modelManager.fireUpdate();
-                    }catch (SocketTimeoutException e) {
-                        System.out.println("Socket timeout Exception");
-                    }catch (ClassNotFoundException e){
-                        System.out.println("Class not found Exception");
+                    } catch (SocketTimeoutException e) {
+                        modelManager.fireUpdate();
                         keepListening=false;
-                    }catch (IOException e) {
-                        System.out.println("Error reading from server");
+                    } catch (ClassNotFoundException | IOException e){
                         keepListening=false;
                     }
                 }
