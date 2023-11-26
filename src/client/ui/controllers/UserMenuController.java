@@ -2,6 +2,7 @@ package client.ui.controllers;
 
 import client.fsm.states.ClientState;
 import client.model.ModelManager;
+import data.Message;
 import data.MessageTypes;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -36,7 +37,9 @@ public class UserMenuController {
 
     private void registerHandlers(){
         modelManager.addClient(ModelManager.PROP_STATE,evt -> Platform.runLater(this::update));
-        modelManager.addClient(ModelManager.PROP_UPDATE,evt -> Platform.runLater(this::showResultOfCodeSubmitted));
+        modelManager.addClient(ModelManager.PROP_UPDATE_CODE,evt -> Platform.runLater(this::showResultOfCodeSubmitted));
+        modelManager.addClient(ModelManager.PROP_ADD_PRESENCE_UPDATE,evt -> Platform.runLater(this::showUpdate));
+        modelManager.addClient(ModelManager.PROP_UPDATE_DELETE_PRESENCE,evt -> Platform.runLater(this::notifyDeletedPresence));
     }
 
     @FXML
@@ -46,6 +49,7 @@ public class UserMenuController {
     private void submitCode(){
         if(checkCode()){
             modelManager.sendSubmitCodeMessage(Long.parseLong(tfCode.getText()));
+            tfCode.clear();
         }
         else{
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -81,5 +85,22 @@ public class UserMenuController {
             alert.show();
             tfCode.clear();
         }
+    }
+
+    private void showUpdate(){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        if(modelManager.checkLastMessageFromServer().getType() == MessageTypes.ADD_PRESENCE)
+            alert.setHeaderText("Presence added by an administrator");
+        else
+            alert.setHeaderText("Presence deleted by an administrator");
+        alert.show();
+    }
+
+    private void notifyDeletedPresence(){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText("Presences from the event: "
+                + modelManager.checkLastMessageFromServer().getEvent().getName()
+                +" were removed");
+        alert.show();
     }
 }

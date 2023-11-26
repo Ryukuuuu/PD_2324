@@ -30,6 +30,8 @@ public class ClientStateAdapter implements IClientState{
     @Override
     public boolean toEvent(){return false;}
     @Override
+    public boolean toEventsByUser(){return false;}
+    @Override
     public boolean createEvent(){return false;}
     @Override
     public boolean editEvent(){return false;}
@@ -40,7 +42,7 @@ public class ClientStateAdapter implements IClientState{
     @Override
     public boolean toSignIn(){return false;}
     @Override
-    public boolean toAddPresences(){return false;}
+    public boolean addDeletePresences(){return false;}
     @Override
     public boolean toCheckPresencesOfEvent(){return false;}
     @Override

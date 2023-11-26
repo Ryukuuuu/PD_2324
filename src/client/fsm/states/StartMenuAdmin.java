@@ -33,6 +33,24 @@ public class StartMenuAdmin extends ClientStateAdapter{
     }
 
     @Override
+    public boolean toEvent(){
+        changeState(ClientState.ADMIN_EVENT_MENU_BY_EVENTS);
+        return true;
+    }
+
+    @Override
+    public boolean toEventsByUser(){
+        changeState(ClientState.ADMIN_EVENT_MENU_BY_USERS);
+        return true;
+    }
+
+    @Override
+    public boolean addDeletePresences(){
+        changeState(ClientState.ADD_DELETE_PRESENCE_TO_EVENT);
+        return true;
+    }
+
+    @Override
     public boolean logout(){
         changeState(ClientState.LOGIN);
         return true;

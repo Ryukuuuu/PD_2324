@@ -9,12 +9,13 @@ public interface IClientState {
     boolean editUserInfoMenu();
     boolean toCheckPresences();
     boolean toEvent();
+    boolean toEventsByUser();
     boolean createEvent();
     boolean editEvent();
     boolean deleteEvent();
     boolean generateEventCode();
     boolean toSignIn();
-    boolean toAddPresences();
+    boolean addDeletePresences();
     boolean toCheckPresencesOfEvent();
     boolean submitSignIn(ClientData clientData);
     boolean login(ClientData clientData);

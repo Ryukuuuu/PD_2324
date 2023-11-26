@@ -17,6 +17,7 @@ public class ConnectionManager {
         private ObjectOutputStream oos;
         private ObjectInputStream ois;
         private Message messageFromServer;
+        private Message lastMessageSent;
         private boolean keepListening = true;
 
 
@@ -80,15 +81,23 @@ public class ConnectionManager {
         }
 
         /*---------------------MESSAGES---------------------*/
-        public void sendMessageToServer(Message message){
-        try{
-            oos.writeObject(message);
-            oos.flush();
-        }catch (IOException e){
-            System.out.println("Error sending message to server");
-            e.printStackTrace();
+        public void sendMessageToServer(Message message) {
+            try {
+                oos.writeObject(message);
+                oos.flush();
+                lastMessageSent = message;
+            }catch (SocketException e){
+                System.out.println("Socket Exception");
+            }catch (IOException e){
+                System.out.println("Error sending message to server");
+                e.printStackTrace();
+            }
         }
-    }
+        public void resendLastMessage(){
+            sendMessageToServer(lastMessageSent);
+            System.out.println("ResendLastMessage: " + lastMessageSent.getType());
+        }
+
         private void checkMessageReceived(){
             System.out.println("Response from server: " + messageFromServer.getType());
             switch (messageFromServer.getType()) {
@@ -96,9 +105,13 @@ public class ConnectionManager {
                 case ACC_CREATED -> modelManager.signinSuccess(messageFromServer.getClientData());
                 case LOGOUT -> modelManager.logout();
                 case EDIT_LOG_INFO -> modelManager.editUserInformation(messageFromServer.getClientData());
-                case SUBMIT_CODE -> modelManager.fireCodeUpdate();
-                case CHECK_PRESENCES, EVENT_UPDATE, REMOVE_EVENT -> modelManager.fireEventUpdate();
-                case CLIENT_UPDATE -> modelManager.fireUpdate();
+                case SUBMIT_CODE, GENERATE_EVENT_CODE -> modelManager.fireCodeUpdate();
+                case REMOVE_EVENT,CHECK_USER_REGISTERED_PRESENCES -> modelManager.fireEventUpdate();
+                case CLIENT_UPDATE-> modelManager.fireUpdate();
+                case ADD_PRESENCE -> modelManager.fireAddPresenceUpdate();
+                case REMOVE_PRESENCE -> modelManager.fireDeletePresenceUpdate();
+                case CHECK_PRESENCES -> modelManager.events();
+                case EVENT_UPDATE -> modelManager.fireEventRefreshUpdate();
                 //Received a message from server and notifies modelManager to update the view
                 default -> modelManager.fireUpdate();
             }

@@ -15,6 +15,9 @@ public class AdminMenuController {
     public Button btnLogout;
     public Button btnDeleteEvent;
     public Button btnGenerateCode;
+    public Button btnCheckEvent;
+    public Button btnAddDeletePresence;
+    public Button btnCheckUserPresences;
     private ModelManager modelManager;
 
     public void init(ModelManager modelManager){
@@ -32,6 +35,8 @@ public class AdminMenuController {
     }
 
     @FXML
+    private void setBtnCheckUserPresences(){modelManager.toEvents();}
+    @FXML
     private void setBtnCreateEvent(){
         modelManager.createEventMenu();
     }
@@ -43,6 +48,8 @@ public class AdminMenuController {
     private void setBtnDeleteEvent(){modelManager.deleteEvent();}
     @FXML
     private void setBtnGenerateCode(){modelManager.generateEventCode();}
+    @FXML
+    private void setBtnAddDeletePresence(){modelManager.addDeletePresence();}
     @FXML
     private void setBtnLogout(){modelManager.sendLogoutMessage();}
 }

@@ -19,7 +19,12 @@ public class ModelManager {
     public static final String PROP_UPDATE = "_update_";
     public static final String PROP_UPDATE_CODE = "_updateCode_";
     public static final String PROP_UPDATE_EVENT = "_updateEvent_";
+    public static final String PROP_UPDATE_REFRESH_EVENT = "_refreshEvent_";
+    public static final String PROP_ADD_PRESENCE_UPDATE = "_addPresenceUpdate_";
+    public static final String PROP_UPDATE_DELETE_PRESENCE = "_deletePrecenseUpdate_";
+
     public static final String PROP_STATE = "_state_";
+
 
     private PropertyChangeSupport pcs;
     private ClientContext fsm;
@@ -47,10 +52,7 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
 
-    public void logInScreen(){
-        fsm.logout();
-        pcs.firePropertyChange(PROP_STATE,null,null);
-    }
+
     /*---------------------SIGN IN---------------------*/
 
     //Changes state to signin and fires the property change to the view
@@ -84,6 +86,7 @@ public class ModelManager {
     /*---------------------START MENU---------------------*/
     public void sendSubmitCodeMessage(long eventCode){connectionManager.sendMessageToServer(createMessage(MessageTypes.SUBMIT_CODE,eventCode));}
     public void sendGenerateCodeMessage(String eventName,String codeDuration){connectionManager.sendMessageToServer(createMessage(MessageTypes.GENERATE_EVENT_CODE,new Event(eventName,codeDuration)));}
+    public long getGeneratedCode(){return connectionManager.getLastMessageFromServer().getEvent().getActiveCode();}
     public void generateEventCode(){
         fsm.generateEventCode();
         pcs.firePropertyChange(PROP_STATE,null,null);
@@ -121,25 +124,49 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
 
+    /*----------------------ADD/DELETE PRESENCES---------------------*/
+    public void addDeletePresence(){
+        fsm.addDeletePresence();
+        pcs.firePropertyChange(PROP_STATE,null,null);
+    }
+    public void sendAddPresenceMessage(String email,String eventName){
+        connectionManager.sendMessageToServer(createMessage(MessageTypes.ADD_PRESENCE,new ClientData(email),new Event(eventName)));
+    }
+    public void sendDeletePresencesMessage(String eventName){connectionManager.sendMessageToServer(createMessage(MessageTypes.REMOVE_PRESENCE,new Event(eventName)));}
+
     /*---------------------MESSAGES FROM SERVER---------------------*/
     public Message getUpdatedInfo(){return connectionManager.getLastMessageFromServer();}
     public ClientData getClientInfo(){return connectionManager.getLastMessageFromServer().getClientData();}
     public void fireCodeUpdate(){
         pcs.firePropertyChange(PROP_UPDATE_CODE,null,null);
     }
-    public void fireEventUpdate(){
-        pcs.firePropertyChange(PROP_UPDATE_EVENT,null,null);
+    public void fireEventUpdate(){pcs.firePropertyChange(PROP_UPDATE_EVENT,null,null);}
+    public void fireAddPresenceUpdate(){
+        pcs.firePropertyChange(PROP_ADD_PRESENCE_UPDATE,null,null);
     }
+    public void fireDeletePresenceUpdate(){pcs.firePropertyChange(PROP_UPDATE_DELETE_PRESENCE,null,null);}
+    public void fireEventRefreshUpdate(){pcs.firePropertyChange(PROP_UPDATE_REFRESH_EVENT,null,null);}
     public void fireUpdate(){
         pcs.firePropertyChange(PROP_UPDATE,null,null);
     }
     //Method called by the ui to check if the last operation was a success
     public Message checkLastMessageFromServer(){return connectionManager.getLastMessageFromServer();}
+    public void resendLastMessageToServer(){connectionManager.resendLastMessage();}
 
     /*-------------------------Events------------------------*/
     public void sendEventsMessage(){
         connectionManager.sendMessageToServer(createMessage(MessageTypes.CHECK_PRESENCES));
+    }
+
+    public void events(){
         fsm.events();
+        pcs.firePropertyChange(PROP_STATE,null,null);
+    }
+
+    public void sendEventsMessageWithFilters(Event eventFilter){connectionManager.sendMessageToServer(createMessage(MessageTypes.CHECK_PRESENCES,eventFilter));}
+
+    public void toEvents(){
+        fsm.adminEvents();
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
 
@@ -163,6 +190,8 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
     public void sendDeleteEventMessage(String name){connectionManager.sendMessageToServer(createMessage(MessageTypes.REMOVE_EVENT,new Event(name)));}
+
+    public void getEventsByUser(String email){connectionManager.sendMessageToServer(createMessage(MessageTypes.CHECK_USER_REGISTERED_PRESENCES,new ClientData(email)));}
     /*---------------------END EXECUTION---------------------*/
     public void closeConnection(){
         connectionManager.sendMessageToServer(createMessage(MessageTypes.QUIT,fsm.getClientData()));
@@ -173,11 +202,11 @@ public class ModelManager {
     private Message createMessage(MessageTypes type){return new Message(type);}
     private Message createMessage(MessageTypes type,long code){return new Message(type,code);}
     private Message createMessage(MessageTypes type,ClientData clientData){return new Message(type,clientData);}
+    private Message createMessage(MessageTypes type,ClientData clientData,Event event){return new Message(type,clientData,event);}
     private Message createMessage(MessageTypes type,String name,long id,String email,String password){return new Message(type,new ClientData(name,id,email,password));}
     private Message createMessage(MessageTypes type,Event event){return new Message(type, event);}
-
     /*----------------------CSV----------------------*/
-    private void createEventsPresencesCSVFile(Event event, ArrayList<ClientData> clientDataList, String filename) {
+    public void createEventsPresencesCSVFile(Event event, ArrayList<ClientData> clientDataList, String filename) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
             // Write event header
             writer.write("\"Designação\";\"Local\";\"Data\";\"Horainício\";\"Hora fim\"");
@@ -205,8 +234,11 @@ public class ModelManager {
         }
     }
 
-    private void createClientsPresencesCSVFile(ClientData clientData, ArrayList<Event> eventsList, String filename) {
+    public void createClientsPresencesCSVFile(ArrayList<Event> eventsList, String filename) {
+        ClientData clientData = getClientData();
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+
             // Write header
             writer.write("\"Nome\";\"Número identificação\";\"Email\"");
             writer.newLine();

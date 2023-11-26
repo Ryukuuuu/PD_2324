@@ -47,6 +47,12 @@ public class Message implements Serializable {
         this.clients = clients;
     }
 
+    public Message(MessageTypes type, ClientData clientData, Event event) {
+        this.type = type;
+        this.clientData = clientData;
+        this.event = event;
+    }
+
     public MessageTypes getType() {
         return type;
     }

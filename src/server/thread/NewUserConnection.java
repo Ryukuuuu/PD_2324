@@ -62,6 +62,24 @@ public class NewUserConnection implements Runnable{
         }
     }
 
+    public synchronized void notifyAddPresenceToClient(MessageTypes type){
+        try{
+            oos.writeObject(new Message(type));
+            oos.flush();
+        }catch (IOException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    public synchronized void notifyDeleteEventPresences(MessageTypes type,String eventName){
+        try{
+            oos.writeObject(new Message(type,new Event(eventName)));
+            oos.flush();
+        }catch (IOException e){
+            throw new RuntimeException(e);
+        }
+    }
+
     private Message handleRequestMessage(Message messageReceived){
         switch (messageReceived.getType()){
             case LOGIN -> {
@@ -133,11 +151,9 @@ public class NewUserConnection implements Runnable{
                 }
             }
             case CHECK_PRESENCES -> {
-                userConnectionsThread.notifyAllClientsEventsUpdate();
                 return new Message(MessageTypes.CHECK_PRESENCES, dbConnection.getEvents(messageReceived.getEvent(), clientData.getEmail()));
             }
             case CHECK_CREATED_EVENTS -> {
-                userConnectionsThread.notifyAllClientsEventsUpdate();
                 return new Message(MessageTypes.CHECK_CREATED_EVENTS, dbConnection.getEvents(messageReceived.getEvent(), null));
             }
             case GENERATE_EVENT_CODE -> {
@@ -158,15 +174,16 @@ public class NewUserConnection implements Runnable{
             }
 
             case CHECK_USER_REGISTERED_PRESENCES -> {
-                userConnectionsThread.notifyAllClientsEventsUpdate();
-                return new Message(MessageTypes.CHECK_PRESENCES, dbConnection.getEvents(null, messageReceived.getClientData().getEmail()));
+                return new Message(MessageTypes.CHECK_USER_REGISTERED_PRESENCES, dbConnection.getEvents(null, messageReceived.getClientData().getEmail()));
             }
             case REMOVE_PRESENCE -> {
                 ArrayList<ClientData> data = dbConnection.removePresencesFromEvent(messageReceived.getEvent().getName());
                 if(data != null) {
                     mainDBService.notifyObservers();
                     sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
-                    return new Message(data, MessageTypes.REMOVE_PRESENCE);
+                    userConnectionsThread.notifyDeletePresenceToClients(MessageTypes.REMOVE_PRESENCE,messageReceived.getEvent().getName());
+                    //return new Message(data, MessageTypes.REMOVE_PRESENCE);
+                    return new Message(MessageTypes.REMOVE_PRESENCE,messageReceived.getEvent());
                 }
             }
             case ADD_PRESENCE -> {
@@ -177,6 +194,7 @@ public class NewUserConnection implements Runnable{
                 {
                     mainDBService.notifyObservers();
                     sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
+                    userConnectionsThread.notifyAddPresenceToClients(MessageTypes.ADD_PRESENCE,messageReceived.getClientData().getEmail());
                     return new Message(MessageTypes.ADD_PRESENCE);
                 }
             }
@@ -199,6 +217,16 @@ public class NewUserConnection implements Runnable{
 
         // Convert the int to long and return
         return (long) randomInt;
+    }
+
+    public ClientData getClientData(){return clientData;}
+
+    private void endClientConnection(){
+        try {
+            oos.writeObject(new Message(MessageTypes.QUIT));
+        } catch (IOException e) {
+            System.out.println("IOException");
+        }
     }
 
     @Override

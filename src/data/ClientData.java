@@ -40,6 +40,9 @@ public class ClientData implements Serializable {
         this.email = email;
     }
 
+    public ClientData(String email) {
+        this.email = email;
+    }
 
 
     //Called if login is successful to fill the object with the info in the database

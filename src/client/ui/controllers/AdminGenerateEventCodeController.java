@@ -28,6 +28,7 @@ public class AdminGenerateEventCodeController {
 
     private void registerHandlers(){
         modelManager.addClient(ModelManager.PROP_STATE,evt -> Platform.runLater(this::update));
+        modelManager.addClient(ModelManager.PROP_UPDATE_CODE,evt -> Platform.runLater(this::getGeneratedCode));
     }
 
     private void update(){
@@ -39,9 +40,12 @@ public class AdminGenerateEventCodeController {
     private void setBtnGenerate(){
         if(checkForEmptyFields())
             modelManager.sendGenerateCodeMessage(tfName.getText(),tfDuration.getText());
+        tfName.clear();
+        tfDuration.clear();
     }
     @FXML
     private void setBtnBack(){
+        tCode.setText("");
         modelManager.startMenu();
     }
 
@@ -55,4 +59,15 @@ public class AdminGenerateEventCodeController {
         return true;
     }
 
+    private void getGeneratedCode(){
+        try{
+            long code = modelManager.getGeneratedCode();
+            if(code != 0){
+                tCode.setText(Long.toString(code));
+            }
+        }catch (NullPointerException e){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText("Error generating code");
+        }
+    }
 }
