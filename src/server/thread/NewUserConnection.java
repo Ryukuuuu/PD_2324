@@ -124,7 +124,7 @@ public class NewUserConnection implements Runnable{
             }
             case CHECK_PRESENCES -> {
                 userConnectionsThread.notifyAllClientsEventsUpdate();
-                return new Message(MessageTypes.CHECK_PRESENCES, dbConnection.getEvents(null, clientData.getEmail()));
+                return new Message(MessageTypes.CHECK_PRESENCES, dbConnection.getEvents(messageReceived.getEvent(), clientData.getEmail()));
             }
             /*case GET_PRESENCES_CSV -> {
                 ArrayList<Event> eventsList= dbConnection.getEvents(null, clientData.getEmail());
@@ -283,8 +283,15 @@ public class NewUserConnection implements Runnable{
                 oos.flush();
 
             } catch (ClassNotFoundException | IOException e){
-                throw new RuntimeException(e);
+                System.out.println("<ClientConnection|ERRO> Leitura/Escrita do socket comprometida");
             }
+        }
+
+        try {
+            if (!toClientSocket.isClosed())
+                    toClientSocket.close();
+        } catch (IOException e) {
+            System.out.println("<ClientConnection|ERRO> Erro a fechar o socket.");
         }
     }
 }

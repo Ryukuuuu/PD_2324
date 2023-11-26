@@ -160,46 +160,45 @@ public class MainServer extends UnicastRemoteObject implements GetRemoteDatabase
 
         service_name = args[2].trim();
 
-        System.out.println("<Servidor> A iniciar servidor principal ...");
+        System.out.println("<Servidor|Arranque> A iniciar servidor principal ...");
 
         try{
             client_port = Integer.parseInt(args[0]);
             registry_port = Integer.parseInt(args[3]);
         }catch (NumberFormatException e){
-            System.out.println("<ERRO> O porto de escuta para os clientes ou para o lancamento do registry introduzido, nao e um numero valido!\n");
+            System.out.println("<Servidor|ERRO> O porto de escuta para os clientes ou para o lancamento do registry introduzido, nao e um numero valido!\n");
             return;
         }
 
         try {
             try {
                 LocateRegistry.createRegistry(registry_port);
-                System.out.println("<Servidor> Lancado o RMI registry no porto: " + registry_port);
+                System.out.println("<Servidor|Registry> Lancado o RMI registry no porto: " + registry_port);
             } catch (RemoteException e) {
-                System.out.println("<Servidor> Registry provavelmente ja em execucao na maquina local!");
+                System.out.println("<Servidor|ERRO> Registry provavelmente ja em execucao na maquina local!");
             }
             // serviço criado
             mainDBService = new MainServer(local_DB_Path, dbConnection);
-            System.out.println("<Servidor> Servico GetRemoteDatabase criado e em execucao (" + mainDBService.getRef().remoteToString() + "...");
+            System.out.println("<Servidor|Servico> Servico GetRemoteDatabase criado e em execucao.");
 
             // Regista o servico no rmiregistry
             Naming.bind("rmi://localhost/" + service_name, mainDBService);
-            System.out.println("<Servidor> Servico " + service_name + " registado no registry...");
+            System.out.println("<Servidor|Registry> Servico " + service_name + " registado no registry...");
 
 
         }catch(RemoteException e){
-            System.out.println("Erro remoto - " + e);
+            System.out.println("<Servidor|ERRO> Erro remoto - " + e.getMessage());
             return;
-            //System.exit(1);
         }catch(Exception e){
-            System.out.println("Erro - " + e);
+            System.out.println("<Servidor|ERRO> - " + e.getMessage());
             return;
-            //System.exit(1);
         }
 
         SendHeartBeats sendHeartBeats = new SendHeartBeats(registry_port,service_name,dbConnection.getDBVersion());
         UserConnectionsThread userConnectionsThread = new UserConnectionsThread(client_port, dbConnection, sendHeartBeats,mainDBService);
         
-        System.out.println("<Servidor> Thread para criacao de Conexoes com Users criada!");
+        System.out.println("<Servidor|Threads> Thread para criacao de Conexoes com Clients criada!");
+        System.out.println("<Servidor|Threads> Thread para envio de heartbeats aos BackupServers criada!");
         userConnectionsThread.start();
         sendHeartBeats.start();
     }

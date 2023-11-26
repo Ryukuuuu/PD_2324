@@ -13,8 +13,8 @@ public class DatabaseConnection {
         try {
             conn = DriverManager.getConnection(DATABASE_URL);
         }catch (SQLException sqlE){
-            System.out.println("<ERRO> Nao foi possivel estabelecer conexao com a DB!" + DATABASE_URL);
-            sqlE.printStackTrace();
+            System.out.println("<Database|ERRO> Nao foi possivel estabelecer conexao com a DB.");
+            System.out.println("Url: " + DATABASE_URL);
         }
 
         createTables();
@@ -26,18 +26,21 @@ public class DatabaseConnection {
                 String insertFirstVersionStatement = "INSERT INTO DatabaseVersion (version) VALUES (0);";
                 statement.executeUpdate(insertFirstVersionStatement);
             } catch (SQLException e) {
-                System.out.println("Erro na insercao da versao a 0: ");
-                e.printStackTrace();
+                System.out.println("<Database|Erro> Insercao da versao a 0.");
             }
-            addNewEntryToClients(new ClientData("admin", 0L, "admin", "admin", true));
+            ClientData newAdmin = new ClientData("admin", 0L, "admin", "admin", true);
+            if (getClient(newAdmin.getEmail(), newAdmin.getPassword()) == null) {
+                addNewEntryToClients(newAdmin);
+                System.out.println("<Database|NewAdmin> email: 'admin', password: 'admin'");
+            }
             try{
                 statement = conn.createStatement();
                 statement.executeUpdate("UPDATE DatabaseVersion SET version=0 WHERE version=1;");
             }catch (SQLException e){
-                System.out.println("Erro na alteracao da versao de 1 » 0");
-                e.printStackTrace();
+                System.out.println("<Database|Erro> Alteracao da versao de 1 » 0.");
             }
         }
+        System.out.println("<Database|Arranque> Versao da base de dados: v" + versionDB);
     }
 
     private void createTables() {
@@ -76,8 +79,7 @@ public class DatabaseConnection {
                                                     ");";
             statement.execute(createDatabaseVersionStatement);
         } catch (SQLException e) {
-            System.out.println("Erro em algum statement de criacao de tabelas: ");
-            e.printStackTrace();
+            System.out.println("<Database|Erro> Criacao de tabelas.");
         }
     }
     public long getDBVersion(){
@@ -91,8 +93,7 @@ public class DatabaseConnection {
                 return result.getLong("version");
 
         } catch (SQLException e) {
-            System.out.println("Erro no statement de obtencao da versao da base de dados: ");
-            e.printStackTrace();
+            System.out.println("<Database|Erro>Obtencao da versao da base de dados.");
         }
         return 0L;
     }
@@ -103,8 +104,7 @@ public class DatabaseConnection {
             String updateVersionStatement = "UPDATE DatabaseVersion SET version=" + ++versionDB + " WHERE version=" + (versionDB-1) + ";";
             statement.executeUpdate(updateVersionStatement);
         } catch (SQLException e) {
-            System.out.println("Erro na atualizacao da versao da base dados " + (versionDB - 1) + " » " + versionDB);
-            e.printStackTrace();
+            System.out.println("<Database|Erro> Atualizacao da versao da base dados " + (versionDB - 1) + " » " + versionDB + ".");
         }
     }
     public ClientData getClient(String email, String password) {
@@ -117,6 +117,8 @@ public class DatabaseConnection {
                                 "WHERE email='" + email + "' AND password='" + password + "';";
             result = statement.executeQuery(selectClient);
             if (result.next()){
+                System.out.println("<Database|Login> Client aceite.");
+                System.out.println("\tEmail: '" + email + "'");
                 return new ClientData(
                         result.getString("name"),
                         result.getLong("clientID"),
@@ -125,8 +127,7 @@ public class DatabaseConnection {
                         result.getBoolean("admin"));
             }
         } catch (SQLException e) {
-            System.out.println("Erro no statement de obtencao de Clients: ");
-            e.printStackTrace();
+            System.out.println("<Database|Erro> Login de um Client.");
         }
 
         return null;
@@ -149,7 +150,7 @@ public class DatabaseConnection {
                         result.getBoolean("admin"));
             }
         } catch (SQLException e) {
-            System.out.println("Erro no statement de obtencao de Clients: ");
+            System.out.println("<Database|Erro> Obtencao de um Client sem password. (Método Privado)");
         }
 
         return null;
@@ -166,11 +167,12 @@ public class DatabaseConnection {
 
             if (result != 0) {
                 updateDBVersion();
+                System.out.println("<Database|Insercao> Novo Client.");
+                System.out.println("\tEmail: '" + clientData.getEmail() + "'");
                 return true;
             }
         } catch (SQLException | RuntimeException e) {
-            System.out.println("Erro no statement de insercao de um novo Cliente: ");
-            e.printStackTrace();
+            System.out.println("<Database|Erro> Insercao de um novo Client.");
         }
         return false;
     }
@@ -208,13 +210,13 @@ public class DatabaseConnection {
 
                 if (result != 0) {
                     updateDBVersion();
-                    System.out.println("Client data sent: " + clientData);
+                    System.out.println("<Database|Atualizacao> Client info editado com sucesso.");
+                    System.out.println("\tEmail: '" + clientData.getEmail() + "'");
                     return getClientWithoutPass(clientData.getEmail());
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Erro no statement de atualizacao de um Cliente: ");
-            e.printStackTrace();
+            System.out.println("<Database|Erro> Atualizacao de um Client.");
         }
         return null;
     }
@@ -238,13 +240,12 @@ public class DatabaseConnection {
                         result.getString("endingTime"));
             }
         } catch (SQLException e) {
-            System.out.println("Erro no statement de obtencao de Events: ");
-            e.printStackTrace();
+            System.out.println("<Database|Erro> Obtencao de um Event.");
         }
 
         return null;
     }
-    public String generateSQL(Event event,String email) {
+    private String generateSQL(Event event,String email) {
         boolean first = true;
         StringBuilder sql = new StringBuilder("SELECT * FROM Events");
         if (event != null) {
@@ -287,10 +288,10 @@ public class DatabaseConnection {
         return sql.toString();
     }
     public synchronized ArrayList<Event> getEvents(Event event,String email) {
+        ArrayList<Event> events = new ArrayList<>();
         try {
             Statement statement = conn.createStatement();
             ResultSet res = statement.executeQuery(generateSQL(event,email));
-            ArrayList<Event> events = new ArrayList<>();
             while (res.next()) {
                 events.add(new Event(
                         res.getString("name"),
@@ -301,10 +302,11 @@ public class DatabaseConnection {
                         res.getString("startingTime"),
                         res.getString("endingTime")));
             }
-            return events;
+            System.out.println("<Database|Obtencao> " + events.size() + " Events obtidos com filtragem.");
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.out.println("<Database|Erro> Obtencao de lista de eventos com filtros.");
         }
+        return events;
     }
     public synchronized boolean addNewEntryToEvents(Event event){
         Statement statement;
@@ -319,11 +321,12 @@ public class DatabaseConnection {
 
                 if (result != 0) {
                     updateDBVersion();
+                    System.out.println("<Database|Insercao> Novo Event.");
+                    System.out.println("\tEvent: '" + event.getName() + "'");
                     return true;
                 }
             } catch (SQLException e) {
-                System.out.println("Erro no statement de insercao de um novo Evento: ");
-                e.printStackTrace();
+                System.out.println("<Database|Erro> Insercao de um novo Event.");
             }
         }
         return false;
@@ -367,12 +370,13 @@ public class DatabaseConnection {
 
                 if (result != 0){
                     updateDBVersion();
+                    System.out.println("<Database|Atualizacao> Dados editados com sucesso.");
+                    System.out.println("\tEvent: '" + event.getName() + "'");
                     return getEventByName(event.getName());
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Erro no statement de obtencao da relacao ou de atualizacao de um Evento: ");
-            e.printStackTrace();
+            System.out.println("<Database|Erro> Atualizacao de um Event.");
         }
         return null;
     }
@@ -397,9 +401,11 @@ public class DatabaseConnection {
                         )
                 );
             }
+            System.out.println("<Database|ListEvent> " + list.size() + " presencas obtidas.");
+            System.out.println("\tEvent: '" + eventName + "'");
         } catch (SQLException e) {
-            System.out.println("Erro a obter todas as presenças para um determinado evento");
-            e.printStackTrace();
+            System.out.println("<Database|Erro> Obtencao de todas as presencas para um determinado Event.");
+            System.out.println("\tEvent: '" + eventName + "'");
         }
         return list;
     }
@@ -416,10 +422,11 @@ public class DatabaseConnection {
             }
             if(result != 0)
                 updateDBVersion();
-            System.out.println(result + "presenças foram eliminadas a respeito do evento: '" + eventName + "'!");
+            System.out.println("<Database|Remove>" + result + " presencas foram eliminadas.");
+            System.out.println("\tEvent: '" + eventName + "'");
         } catch (SQLException e) {
-            System.out.println("Erro no statement de obtencao de Events: ");
-            e.printStackTrace();
+            System.out.println("<Database|Erro> Remocao de presencas.");
+            System.out.println("\tEvent: '" + eventName + "'");
         }
 
         return !clientsList.isEmpty() ? clientsList : null;
@@ -435,11 +442,14 @@ public class DatabaseConnection {
             result = statement.executeUpdate(updateNewCodeStatement);
             if (result != 0){
                 updateDBVersion();
+                System.out.println("<Database|Atualizacao> Novo codigo de presencas.");
+                System.out.println("\tEvent: '" + eventName + "' Validity: '" + codeValidityEnding + "'.");
                 return getEventByName(eventName);
             }
 
         } catch (SQLException e) {
-            System.out.println("Erro a gravar um novo código de presenças!");
+            System.out.println("<Database|Erro> Atualizacao de um novo codigo de presencas valido!");
+            System.out.println("\tEvent: '" + eventName + "'");
         }
 
         return null;
@@ -457,13 +467,13 @@ public class DatabaseConnection {
                 result = statement.executeUpdate(selectEvent);
 
                 if(result != 0) {
-                    System.out.println("Evento: '" + eventName + "' foi removido com sucesso!");
+                    System.out.println("<Database|Remocao> Event: '" + eventName + "'.");
                     updateDBVersion();
                     return true;
                 }
             } catch (SQLException e) {
-                System.out.println("Erro no statement de obtencao de Events: ");
-                e.printStackTrace();
+                System.out.println("<Database|Erro> Remocao de um Event");
+                System.out.println("\tEvent: '" + eventName + "'");
             }
         }
         return false;
@@ -478,10 +488,12 @@ public class DatabaseConnection {
             result = insertStatement.executeUpdate(insertClientEventStatement);
             if(result != 0){
                 updateDBVersion();
+                System.out.println("<Database|Insercao> Nova presenca.");
+                System.out.println("\tEmail: '" + clientEmail + "', Event: '" + eventName + "', Time: '" + atTime + "'");
                 return true;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.out.println("<Database|Erro> Insercao de uma nova presenca.");
         }
         return false;
     }
@@ -508,11 +520,12 @@ public class DatabaseConnection {
                                                                        "WHERE clientEmail='" + email + "')" +
                                                         "AND '" + atTime + "' BETWEEN startingTime AND endingTime;";
                 resultSetOfPresence = selectPresencesStatement.executeQuery(selectActivePresencesStatement);
-                if(!resultSetOfPresence.next())
+                if(!resultSetOfPresence.next()) {
                     return addPresence(email, eventNameFound, atTime);
+                }
             }
         }catch (SQLException e){
-            System.out.println("Erro ao ler informacao sobre eventos ou insercao na tabela relacional!");
+            System.out.println("<Database|Erro> Leitura de info sobre Events ou Insercao na tabela relacional!");
         }
         return false;
     }
