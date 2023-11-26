@@ -13,7 +13,7 @@ public class DatabaseConnection {
         try {
             conn = DriverManager.getConnection(DATABASE_URL);
         }catch (SQLException sqlE){
-            System.out.println("<ERRO> Nao foi possivel estabelecer conexao com a DB!");
+            System.out.println("<ERRO> Nao foi possivel estabelecer conexao com a DB!" + DATABASE_URL);
             sqlE.printStackTrace();
         }
 
@@ -32,7 +32,7 @@ public class DatabaseConnection {
             addNewEntryToClients(new ClientData("admin", 0L, "admin", "admin", true));
             try{
                 statement = conn.createStatement();
-                statement.executeUpdate("UPDATE DatabaseVersion SET version=0;");
+                statement.executeUpdate("UPDATE DatabaseVersion SET version=0 WHERE version=1;");
             }catch (SQLException e){
                 System.out.println("Erro na alteracao da versao de 1 » 0");
                 e.printStackTrace();
@@ -150,7 +150,6 @@ public class DatabaseConnection {
             }
         } catch (SQLException e) {
             System.out.println("Erro no statement de obtencao de Clients: ");
-            e.printStackTrace();
         }
 
         return null;

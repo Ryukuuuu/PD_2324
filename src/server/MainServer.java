@@ -17,6 +17,7 @@ import java.util.List;
 
 public class MainServer extends UnicastRemoteObject implements GetRemoteDatabaseService {
     public static final int MAX_CHUNK_SIZE = 1000;
+    public static final String DEFAULTDATABASE = "databaseDB.db";
 
     private final String databasePath;
     private DatabaseConnection dbConnection;
@@ -94,7 +95,7 @@ public class MainServer extends UnicastRemoteObject implements GetRemoteDatabase
         int client_port, registry_port;
         
         String service_name, local_DB_Path, url;
-        File local_DB_Directory;
+        File local_DB_File_or_Directory;
 
         DatabaseConnection dbConnection;
         MainServer mainDBService;
@@ -105,20 +106,50 @@ public class MainServer extends UnicastRemoteObject implements GetRemoteDatabase
         }
 
         local_DB_Path = args[1].trim();
-        local_DB_Directory = new File(local_DB_Path);
-        if (!local_DB_Directory.exists()) {
-            System.out.println("<Servidor> A diretoria " + local_DB_Directory + " nao existe!");
-            return;
-        }
-        if (!local_DB_Directory.isDirectory()) {
-            if(!(local_DB_Directory.isFile() && local_DB_Directory.getName().toLowerCase().endsWith(".db"))) {
-                System.out.println("<Servidor> O caminho " + local_DB_Directory + " nao corresponde a uma diretoria nem a um ficheiro de base de dados!");
-                return;
+        local_DB_File_or_Directory = new File(local_DB_Path);
+
+        if (local_DB_File_or_Directory.isDirectory()){
+            File[] list = local_DB_File_or_Directory.listFiles();
+            if (list.length == 0){
+                System.out.println("<Servidor|Arranque> Nao ha ficheiros nesta diretoria. Vamos criar um '" + DEFAULTDATABASE + "' por si!");
+                local_DB_Path += File.separator + DEFAULTDATABASE;
+            }
+            else{
+                for (File file : list){
+                    if (file.getName().toLowerCase().endsWith(".db")) {
+                        if (!(local_DB_File_or_Directory.canRead() && local_DB_File_or_Directory.canWrite())) {
+                            System.out.println("<Servidor|Arranque> Sem permissoes de leitura e/ou escrita do ficheiro '" + file.getName() + "'!");
+                            continue;
+                        }
+                        try {
+                            local_DB_Path = file.getCanonicalPath();
+                            break;
+                        } catch (IOException e) {
+                            System.out.println("<Servidor|ERRO> Nao foi possivel aceder ao sistema de ficheiros!");
+                        }
+                    }
+                }
+                if (!local_DB_Path.toLowerCase().endsWith(".db")){
+                    System.out.println("<Servidor|Arranque> Nao existe ficheiros de base de dados nesta diretoria. Vamos criar um '" + DEFAULTDATABASE + "' por si!");
+                    local_DB_Path += File.separator + DEFAULTDATABASE;
+                }
             }
         }
-        if (!(local_DB_Directory.canRead() && local_DB_Directory.canWrite())) {
-            System.out.println(" <Servidor>Sem permissoes de leitura na directoria " + local_DB_Directory);
-            return;
+        else {
+            if (local_DB_File_or_Directory.isFile()) {
+                if(!local_DB_File_or_Directory.getName().toLowerCase().endsWith(".db")) {
+                    System.out.println("<Servidor|Arranque> O caminho " + local_DB_File_or_Directory + " nao corresponde a um ficheiro de base de dados!");
+                    return;
+                }
+                if (!(local_DB_File_or_Directory.canRead() && local_DB_File_or_Directory.canWrite())) {
+                    System.out.println("<Servidor|Arranque> Sem permissoes de leitura e/ou escrita do ficheiro '" + local_DB_File_or_Directory + "'!");
+                    return;
+                }
+            }
+            else{
+                System.out.println("<Servidor|Arranque> O caminho " + local_DB_File_or_Directory + " nao corresponde a um ficheiro de base de dados nem a uma diretoria existente!");
+                return;
+            }
         }
 
         url = "jdbc:sqlite:" + local_DB_Path;
@@ -150,7 +181,6 @@ public class MainServer extends UnicastRemoteObject implements GetRemoteDatabase
             // Regista o servico no rmiregistry
             Naming.bind("rmi://localhost/" + service_name, mainDBService);
             System.out.println("<Servidor> Servico " + service_name + " registado no registry...");
-
 
         }catch(RemoteException e){
             System.out.println("Erro remoto - " + e);
