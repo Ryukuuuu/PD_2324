@@ -129,7 +129,7 @@ public class BackupServer extends UnicastRemoteObject implements GetRemoteDataba
                 try (FileOutputStream localFileOutputStream = new FileOutputStream(localFilePath)) {
                     System.out.println("Ficheiro " + localFilePath + " criado.");
 
-                    //Obtem a referencia remota para o servico com nome "servidor-ficheiros-pd"
+                    //Obtem a referencia remota para o servico
                     objectURL = "rmi://" + packet.getAddress().getHostAddress() + "/" + heartBeat.getRmiServiceName();
 
                     databaseService = (GetRemoteDatabaseService) Naming.lookup(objectURL);

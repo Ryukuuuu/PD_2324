@@ -100,7 +100,6 @@ public class MainServer extends UnicastRemoteObject implements GetRemoteDatabase
         MainServer mainDBService;
 
         if(args.length != 4){
-            // database/main/dasda.db
             System.out.println("<Sintaxe> java MainServer <porto clientes> <diretoria da BD> <nome do serviço> <porto registry>");
             return;
         }
