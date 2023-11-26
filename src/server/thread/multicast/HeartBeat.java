@@ -39,4 +39,13 @@ public class HeartBeat implements Serializable {
     public void setDataBaseVersionNumber(long dataBaseVersionNumber) {
         this.dataBaseVersionNumber = dataBaseVersionNumber;
     }
+
+    @Override
+    public String toString() {
+        return "HeartBeat{" +
+                "rmiPort=" + rmiPort +
+                ", rmiServiceName='" + rmiServiceName + '\'' +
+                ", dataBaseVersionNumber=" + dataBaseVersionNumber +
+                '}';
+    }
 }

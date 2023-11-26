@@ -9,7 +9,6 @@ public class DatabaseConnection {
     private Connection conn;
     private long versionDB;
     public DatabaseConnection(String DATABASE_URL) {
-        versionDB = 0L;
         try {
             conn = DriverManager.getConnection(DATABASE_URL);
         }catch (SQLException sqlE){
@@ -19,25 +18,23 @@ public class DatabaseConnection {
 
         createTables();
         versionDB = getDBVersion();
+        System.out.println("<Database|Arranque> Versao da base de dados: v" + versionDB);
         if(versionDB == 0){
             Statement statement;
-            try {
-                statement = conn.createStatement();
-                String insertFirstVersionStatement = "INSERT INTO DatabaseVersion (version) VALUES (0);";
-                statement.executeUpdate(insertFirstVersionStatement);
-            } catch (SQLException e) {
-                System.out.println("<Database|Erro> Insercao da versao a 0.");
-            }
             ClientData newAdmin = new ClientData("admin", 0L, "admin", "admin", true);
             if (getClient(newAdmin.getEmail(), newAdmin.getPassword()) == null) {
                 addNewEntryToClients(newAdmin);
                 System.out.println("<Database|NewAdmin> email: 'admin', password: 'admin'");
-            }
-            try{
-                statement = conn.createStatement();
-                statement.executeUpdate("UPDATE DatabaseVersion SET version=0 WHERE version=1;");
-            }catch (SQLException e){
-                System.out.println("<Database|Erro> Alteracao da versao de 1 » 0.");
+                System.out.println("<Database|Arranque> Versao da base de dados: v" + versionDB);
+                try{
+                    statement = conn.createStatement();
+                    StringBuilder sql = new StringBuilder("UPDATE DatabaseVersion SET version=");
+                    sql.append(0).append(" WHERE version=").append(versionDB);
+                    statement.executeUpdate(sql.toString());
+                    versionDB -= 1L;
+                }catch (SQLException e){
+                    System.out.println("<Database|Erro> Alteracao da versao de 1 » 0.");
+                }
             }
         }
         System.out.println("<Database|Arranque> Versao da base de dados: v" + versionDB);
@@ -78,11 +75,21 @@ public class DatabaseConnection {
                                                     "version INTEGER NOT NULL\n" +
                                                     ");";
             statement.execute(createDatabaseVersionStatement);
+
+            ResultSet rowCountResult = statement.executeQuery("SELECT COUNT(*) FROM DatabaseVersion");
+            rowCountResult.next();
+            int rowCount = rowCountResult.getInt(1);
+            if (rowCount == 0){
+                System.out.println("Vou inserir o 0...");
+                statement = conn.createStatement();
+                String insertFirstVersionStatement = "INSERT INTO DatabaseVersion (version) VALUES (0);";
+                statement.executeUpdate(insertFirstVersionStatement);
+            }
         } catch (SQLException e) {
             System.out.println("<Database|Erro> Criacao de tabelas.");
         }
     }
-    public long getDBVersion(){
+    public synchronized long getDBVersion(){
         Statement statement;
         try {
             statement = conn.createStatement();
@@ -101,14 +108,15 @@ public class DatabaseConnection {
         Statement statement;
         try {
             statement = conn.createStatement();
-            String updateVersionStatement = "UPDATE DatabaseVersion SET version=" + (versionDB+1) + " WHERE version=" + versionDB;
-            statement.executeUpdate(updateVersionStatement);
+            StringBuilder sql = new StringBuilder("UPDATE DatabaseVersion SET version=");
+            sql.append(versionDB + 1).append(" WHERE version=").append(versionDB);
+            statement.executeUpdate(sql.toString());
 
         } catch (SQLException e) {
             System.out.println("<Database|Erro> Atualizacao da versao da base dados " + versionDB + " » " + (versionDB+1) + ".");
             return;
         }
-        ++versionDB;
+        versionDB += 1L;
     }
     public ClientData getClient(String email, String password) {
         Statement statement;
@@ -383,7 +391,7 @@ public class DatabaseConnection {
         }
         return null;
     }
-    public ArrayList<ClientData> getPresences(String eventName){
+    public synchronized ArrayList<ClientData> getPresences(String eventName){
         Statement statement;
         ResultSet resultSet;
         ArrayList<ClientData> list = new ArrayList<>();

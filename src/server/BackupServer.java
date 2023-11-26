@@ -17,7 +17,7 @@ public class BackupServer extends UnicastRemoteObject implements GetRemoteDataba
     private static final int MULTICAST_PORT = 4444;
     private static final String MULTICAST_ADDRESS = "230.44.44.44";
     private static final int HEARTBEAT_TIMEOUT = 30000;
-    public static final int MAX_SIZE = 1000;
+    public static final int MAX_SIZE = 10000;
     private static final String BACKUP_DB_NAME = "BackupDB.db";
     GetRemoteDatabaseService databaseService;
     String localFilePath;
@@ -84,7 +84,6 @@ public class BackupServer extends UnicastRemoteObject implements GetRemoteDataba
 
         MulticastSocket multicastSocket = null;
         DatagramPacket packet;
-        HeartBeat heartBeat;
 
         if (args.length != 1) {
             System.out.println("<Sintaxe> java BackupServer <diretoria da réplica da BD>");
@@ -103,14 +102,6 @@ public class BackupServer extends UnicastRemoteObject implements GetRemoteDataba
             System.out.println("<BACKUP> Sem permissoes de escrita na directoria " + localDirectory);
             return;
         }
-        /*
-        File[] files = localDirectory.listFiles();
-        if (files != null && files.length == 0) {
-            System.out.println(files);
-            System.out.println("A diretoria " + localDirectory + " nao esta vazia!");
-            return;
-        }
-        */
 
         String[] files = localDirectory.list();
         if (files == null || files.length > 0) {
@@ -133,7 +124,7 @@ public class BackupServer extends UnicastRemoteObject implements GetRemoteDataba
 
             try (ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(packet.getData())))
             {
-                heartBeat = (HeartBeat) oin.readObject();
+                HeartBeat heartBeat = (HeartBeat) oin.readObject();
         // ----------------- vai buscar uma cópia da BD
                 try {
                     databaseCanonicalPath = new File(localDirectory.getPath() + File.separator + BACKUP_DB_NAME).getCanonicalPath();
@@ -141,13 +132,13 @@ public class BackupServer extends UnicastRemoteObject implements GetRemoteDataba
                     System.out.println(e);
                     return;
                 }
-
+                System.out.println(heartBeat);
                 try (FileOutputStream localFileOutputStream = new FileOutputStream(databaseCanonicalPath))
                 {
                     System.out.println("<BACKUP> Ficheiro " + databaseCanonicalPath + " criado.");
 
                     //Obtem a referencia remota para o servico
-                    System.out.println("vamos ver" + packet.getAddress().getHostAddress());
+                    System.out.println("vamos ver " + packet.getAddress().getHostAddress());
 
                     objectURL = "rmi://" + packet.getAddress().getHostAddress() + ":" + heartBeat.getRmiPort() + "/" + heartBeat.getRmiServiceName();
                     System.out.println(objectURL);
@@ -174,20 +165,20 @@ public class BackupServer extends UnicastRemoteObject implements GetRemoteDataba
             }
 
             while (true) {
-                packet = new DatagramPacket(new byte[MAX_SIZE], MAX_SIZE);
+                DatagramPacket packetCiclo = new DatagramPacket(new byte[MAX_SIZE], MAX_SIZE);
 
                 try {
-                    multicastSocket.receive(packet);
+                    multicastSocket.receive(packetCiclo);
 
-                    try (ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(packet.getData())))
+                    try (ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(packetCiclo.getData())))
                     {
-                        heartBeat = (HeartBeat) oin.readObject();
+                        HeartBeat heartBeatCiclo = (HeartBeat) oin.readObject();
 
-                        System.out.println("Recebi heart beat com versão: » " + heartBeat.getDataBaseVersionNumber());
+                        System.out.println("Recebi heart beat com versão: » " + heartBeatCiclo.getDataBaseVersionNumber());
                         System.out.println("My DB version: » " + backupServer.getDBVersion());
 
 
-                        if (backupServer.getDBVersion() != heartBeat.getDataBaseVersionNumber()) {
+                        if (backupServer.getDBVersion() != heartBeatCiclo.getDataBaseVersionNumber()) {
                             System.out.println("<BACKUP> Servidor de Backup desatualizado. A terminar...");
                             break;
                         }

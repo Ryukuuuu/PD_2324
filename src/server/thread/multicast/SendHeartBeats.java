@@ -16,12 +16,15 @@ public class SendHeartBeats extends Thread{
     private MulticastSocket multicastSocket;
     private ByteArrayOutputStream baos;
     private ObjectOutputStream oos;
-    private HeartBeat heartBeat;
-    //private long dataBaseVersion = 0;
     private boolean keepRunning = true;
+    private int rmiPort;
+    private String rmiServiceName;
+    private long dataBaseVersion;
 
     public SendHeartBeats(int rmiPort,String rmiServiceName,long dataBaseVersion){
-        this.heartBeat = new HeartBeat(rmiPort,rmiServiceName,dataBaseVersion);
+        this.rmiPort = rmiPort;
+        this.rmiServiceName = rmiServiceName;
+        this.dataBaseVersion = dataBaseVersion;
     }
 
 
@@ -40,12 +43,12 @@ public class SendHeartBeats extends Thread{
             while(keepRunning){
                 Thread.sleep(SLEEPTIME);
                 synchronized (this) {
-                    oos.writeObject(heartBeat);
+                    oos.writeObject(new HeartBeat(rmiPort, rmiServiceName, dataBaseVersion));
                     oos.flush();
                     DatagramPacket dp = new DatagramPacket(baos.toByteArray(), baos.size(),InetAddress.getByName(multicastGroup),multicastPort);
                     multicastSocket.send(dp);
 
-                    System.out.println("HeartBeat sent[Thread] version: " + heartBeat.getDataBaseVersionNumber());
+                    System.out.println("HeartBeat sent[Thread] version: " + dataBaseVersion);
 
                 }
             }
@@ -56,19 +59,14 @@ public class SendHeartBeats extends Thread{
 
     public synchronized void setDataBaseVersion(long dataBaseVersion){
 
-        System.out.println("A atualizar o heartbeat :" + dataBaseVersion);
+        System.out.println("A atualizar o heartbeat: " + dataBaseVersion);
 
-
-        if(heartBeat.getDataBaseVersionNumber() == dataBaseVersion)
-            return;
-        heartBeat.setDataBaseVersionNumber(dataBaseVersion);
+        this.dataBaseVersion = dataBaseVersion;
 
         try {
-            oos.writeObject(heartBeat);
+            oos.writeObject(new HeartBeat(rmiPort, rmiServiceName, dataBaseVersion));
             oos.flush();
             DatagramPacket dp = new DatagramPacket(baos.toByteArray(), baos.size(),InetAddress.getByName(multicastGroup),multicastPort);
-
-            System.out.println("A enviar heart beat com versão: " + heartBeat.getDataBaseVersionNumber());
 
             multicastSocket.send(dp);
             //System.out.println("HeartBeat sent[setDataBaseVersion]");

@@ -194,7 +194,8 @@ public class MainServer extends UnicastRemoteObject implements GetRemoteDatabase
             return;
         }
 
-        SendHeartBeats sendHeartBeats = new SendHeartBeats(registry_port,service_name,dbConnection.getDBVersion());
+        long currentDBversion = dbConnection.getDBVersion();
+        SendHeartBeats sendHeartBeats = new SendHeartBeats(registry_port,service_name, currentDBversion);
         UserConnectionsThread userConnectionsThread = new UserConnectionsThread(client_port, dbConnection, sendHeartBeats,mainDBService);
         
         System.out.println("<Servidor|Threads> Thread para criacao de Conexoes com Clients criada!");
