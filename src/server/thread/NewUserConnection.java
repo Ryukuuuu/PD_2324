@@ -7,6 +7,8 @@ import server.thread.multicast.SendHeartBeats;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -67,12 +69,22 @@ public class NewUserConnection implements Runnable{
             case LOGIN -> {
                 ClientData clientData = dbConnection.getClient(messageReceived.getClientData().getEmail(),messageReceived.getClientData().getPassword());
                 if(clientData != null){
+                    try {
+                        toClientSocket.setSoTimeout(0);
+                    } catch (SocketException e) {
+                        System.out.println("<ClientConnection|ERRO> Retirar o timeout ao socket apos login.");;
+                    }
                     this.clientData = clientData;
                     return new Message(MessageTypes.LOGGED_IN,clientData);
                 }
             }
             case SIGNING -> {
                 if(dbConnection.addNewEntryToClients(messageReceived.getClientData())){
+                    try {
+                        toClientSocket.setSoTimeout(0);
+                    } catch (SocketException e) {
+                        System.out.println("<ClientConnection|ERRO> Retirar o timeout ao socket apos login.");;
+                    }
                     this.clientData = messageReceived.getClientData();
                     userConnectionsThread.notifyAllClientsUpdate();
                     mainDBService.notifyObservers();
@@ -124,7 +136,7 @@ public class NewUserConnection implements Runnable{
             }
             case CHECK_PRESENCES -> {
                 userConnectionsThread.notifyAllClientsEventsUpdate();
-                return new Message(MessageTypes.CHECK_PRESENCES, dbConnection.getEvents(null, clientData.getEmail()));
+                return new Message(MessageTypes.CHECK_PRESENCES, dbConnection.getEvents(messageReceived.getEvent(), clientData.getEmail()));
             }
             /*case GET_PRESENCES_CSV -> {
                 ArrayList<Event> eventsList= dbConnection.getEvents(null, clientData.getEmail());
@@ -282,9 +294,21 @@ public class NewUserConnection implements Runnable{
                 oos.writeObject(responseMessage);
                 oos.flush();
 
+            } catch (SocketTimeoutException se){
+                System.out.println("<ClientConnection|ERRO> Client não fez login ou registo a tempo.");
             } catch (ClassNotFoundException | IOException e){
-                throw new RuntimeException(e);
+                System.out.println("<ClientConnection|ERRO> Leitura/Escrita do socket comprometida");
             }
+            finally {
+               keepRunning = false;
+            }
+        }
+
+        try {
+            if (!toClientSocket.isClosed())
+                toClientSocket.close();
+        } catch (IOException e) {
+            System.out.println("<ClientConnection|ERRO> Erro a fechar o socket.");
         }
     }
 }

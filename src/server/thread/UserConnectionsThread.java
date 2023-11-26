@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserConnectionsThread extends Thread{
-    // falta meter dados a receber no construtor
+    private final int LOGIN_TIMEOUT = 10000;
     private final int listening_port;
     private DatabaseConnection dbConnection;
     private SendHeartBeats sendHeartBeats;
@@ -63,33 +63,32 @@ public class UserConnectionsThread extends Thread{
         }
     }
 
-        @Override
-        public void run () {
-            Socket toClientSocket;
-            try (ServerSocket ss = new ServerSocket(listening_port)) {
-                try {
-                    //ciclo há espera de conexões
-                    while (true) {
-                        System.out.println("<Conexao com User> A aguardar novas conexoes...");
-                        toClientSocket = ss.accept();
 
-                        //não sei se isto é preciso, mas por enquanto deixo estar.
-                        usersConnected.add(toClientSocket);
-                        nCreatedThreads++;
-                        System.out.println("<Conexao com User> Novo User a estabelecer ligacao -> #" + nCreatedThreads);
-                        //crio Thread para efetuar comunicação com o cliente e arranco logo com ela
-                        NewUserConnection newUserConnection = new NewUserConnection(toClientSocket, dbConnection, this, sendHeartBeats, mainDBService);
-                        Thread t = new Thread(newUserConnection, "Thread " + nCreatedThreads);
-                        t.start();
-                        addNewClients(newUserConnection);
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+    @Override
+    public void run(){
+        Socket toClientSocket;
+        try(ServerSocket ss = new ServerSocket(listening_port)){
+            try{
+                //ciclo há espera de conexões
+                while (true) {
+                    System.out.println("<Conexao com User> A aguardar novas conexoes...");
+                    toClientSocket = ss.accept();
+                    toClientSocket.setSoTimeout(LOGIN_TIMEOUT);
+                    //não sei se isto é preciso, mas por enquanto deixo estar.
+                    usersConnected.add(toClientSocket);
+                    nCreatedThreads++;
+                    System.out.println("<Conexao com User> Novo User a estabelecer ligacao -> #" + nCreatedThreads);
+                    //crio Thread para efetuar comunicação com o cliente e arranco logo com ela
+                    NewUserConnection newUserConnection = new NewUserConnection(toClientSocket, dbConnection,this, sendHeartBeats, mainDBService);
+                    Thread t = new Thread(newUserConnection, "Thread " + nCreatedThreads);
+                    t.start();
+                    addNewClients(newUserConnection);
                 }
-            } catch (IOException e) {
+            }catch (IOException e){
                 throw new RuntimeException(e);
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+    }
 }
-
-

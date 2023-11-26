@@ -10,7 +10,8 @@ public enum ClientState {
     START_MENU,
     PROFILE,
     EDIT_LOG_INFO,
-    CHECK_PRESENCES,
+
+    CHECK_PRESENCES,    // confirmar
 
     START_MENU_ADMIN,
     EVENT_MENU,
@@ -18,8 +19,9 @@ public enum ClientState {
     EDIT_EVENT,
     DELETE_EVENT,
     GENERATE_EVENT_CODE,
-    CHECK_PRESENCES_EVENT,
-    ADD_PRESENCE_TO_EVENT;
+
+    CHECK_PRESENCES_EVENT, // confirmar
+    ADD_PRESENCE_TO_EVENT; // confirmar
 
     public IClientState createState(ClientManager clientManager, ClientContext context){
         return switch (this){
