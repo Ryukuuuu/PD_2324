@@ -41,9 +41,12 @@ public class SendHeartBeats extends Thread{
                 Thread.sleep(SLEEPTIME);
                 synchronized (this) {
                     oos.writeObject(heartBeat);
+                    oos.flush();
                     DatagramPacket dp = new DatagramPacket(baos.toByteArray(), baos.size(),InetAddress.getByName(multicastGroup),multicastPort);
                     multicastSocket.send(dp);
-                    //System.out.println("HeartBeat sent[Thread]");
+
+                    System.out.println("HeartBeat sent[Thread] version: " + heartBeat.getDataBaseVersionNumber());
+
                 }
             }
         } catch (IOException | InterruptedException e){
@@ -52,12 +55,21 @@ public class SendHeartBeats extends Thread{
     }
 
     public synchronized void setDataBaseVersion(long dataBaseVersion){
+
+        System.out.println("A atualizar o heartbeat :" + dataBaseVersion);
+
+
         if(heartBeat.getDataBaseVersionNumber() == dataBaseVersion)
             return;
         heartBeat.setDataBaseVersionNumber(dataBaseVersion);
+
         try {
             oos.writeObject(heartBeat);
+            oos.flush();
             DatagramPacket dp = new DatagramPacket(baos.toByteArray(), baos.size(),InetAddress.getByName(multicastGroup),multicastPort);
+
+            System.out.println("A enviar heart beat com versão: " + heartBeat.getDataBaseVersionNumber());
+
             multicastSocket.send(dp);
             //System.out.println("HeartBeat sent[setDataBaseVersion]");
         }catch (IOException e){

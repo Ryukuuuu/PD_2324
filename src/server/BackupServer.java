@@ -147,7 +147,10 @@ public class BackupServer extends UnicastRemoteObject implements GetRemoteDataba
                     System.out.println("<BACKUP> Ficheiro " + databaseCanonicalPath + " criado.");
 
                     //Obtem a referencia remota para o servico
-                    objectURL = "rmi://" + packet.getAddress().getHostAddress() + "/" + heartBeat.getRmiServiceName();
+                    System.out.println("vamos ver" + packet.getAddress().getHostAddress());
+
+                    objectURL = "rmi://" + packet.getAddress().getHostAddress() + ":" + heartBeat.getRmiPort() + "/" + heartBeat.getRmiServiceName();
+                    System.out.println(objectURL);
 
                     databaseService = (GetRemoteDatabaseService) Naming.lookup(objectURL);
 

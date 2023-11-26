@@ -44,10 +44,13 @@ public class MainServer extends UnicastRemoteObject implements GetRemoteDatabase
     public void removeObserver(GetRemoteDatabaseObserver observer) throws RemoteException {
         synchronized (observers) {
             if (observers.remove(observer))
-                System.out.println("<SERVER> Removido observador");        }
+                System.out.println("<SERVER> Removido observador");
+        }
     }
     public void notifyObservers() {
         List<GetRemoteDatabaseObserver> observersToRemove = new ArrayList<>();
+
+        System.out.println("<SERVER> A notificar observers: " + dbConnection.getDBVersion()); // apagar
 
         synchronized (observers) {
             for (GetRemoteDatabaseObserver observer : observers) {
@@ -93,9 +96,9 @@ public class MainServer extends UnicastRemoteObject implements GetRemoteDatabase
 
     public static void main(String[] args) {
         int client_port, registry_port;
-        
+
         String service_name, local_DB_Path, url;
-        File local_DB_Directory;
+        File local_DB_File_or_Directory;
 
         DatabaseConnection dbConnection;
         MainServer mainDBService;

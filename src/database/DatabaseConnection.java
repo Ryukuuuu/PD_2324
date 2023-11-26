@@ -100,7 +100,7 @@ public class DatabaseConnection {
         Statement statement;
         try {
             statement = conn.createStatement();
-            String updateVersionStatement = "UPDATE DatabaseVersion SET version=" + ++versionDB + ";";
+            String updateVersionStatement = "UPDATE DatabaseVersion SET version=" + ++versionDB + " WHERE version=" + (versionDB-1) + ";";
             statement.executeUpdate(updateVersionStatement);
         } catch (SQLException e) {
             System.out.println("Erro na atualizacao da versao da base dados " + (versionDB - 1) + " » " + versionDB);
