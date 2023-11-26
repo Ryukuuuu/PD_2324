@@ -174,6 +174,7 @@ public class BackupServer extends UnicastRemoteObject implements GetRemoteDataba
                     {
                         HeartBeat heartBeatCiclo = (HeartBeat) oin.readObject();
 
+                        System.out.println(heartBeatCiclo);
                         System.out.println("Recebi heart beat com versão: » " + heartBeatCiclo.getDataBaseVersionNumber());
                         System.out.println("My DB version: » " + backupServer.getDBVersion());
 

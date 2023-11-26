@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserConnectionsThread extends Thread{
-    // falta meter dados a receber no construtor
+    private final int LOGIN_TIMEOUT = 10000;
     private final int listening_port;
     private DatabaseConnection dbConnection;
     private SendHeartBeats sendHeartBeats;
@@ -57,7 +57,7 @@ public class UserConnectionsThread extends Thread{
                 while (true) {
                     System.out.println("<Conexao com User> A aguardar novas conexoes...");
                     toClientSocket = ss.accept();
-
+                    toClientSocket.setSoTimeout(LOGIN_TIMEOUT);
                     //não sei se isto é preciso, mas por enquanto deixo estar.
                     usersConnected.add(toClientSocket);
                     nCreatedThreads++;
