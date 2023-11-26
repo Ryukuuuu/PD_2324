@@ -100,12 +100,14 @@ public class MainServer extends UnicastRemoteObject implements GetRemoteDatabase
         MainServer mainDBService;
 
         if(args.length != 4){
+            // databases/main
             System.out.println("<Sintaxe> java MainServer <porto clientes> <diretoria da BD> <nome do serviço> <porto registry>");
             return;
         }
 
         local_DB_Path = args[1].trim();
         local_DB_Directory = new File(local_DB_Path);
+
         if (!local_DB_Directory.exists()) {
             System.out.println("<Servidor> A diretoria " + local_DB_Directory + " nao existe!");
             return;
@@ -117,9 +119,14 @@ public class MainServer extends UnicastRemoteObject implements GetRemoteDatabase
             }
         }
         if (!(local_DB_Directory.canRead() && local_DB_Directory.canWrite())) {
-            System.out.println(" <Servidor>Sem permissoes de leitura na directoria " + local_DB_Directory);
+            System.out.println(" <Servidor> Sem permissoes de leitura na directoria " + local_DB_Directory);
             return;
         }
+
+
+        System.out.println("Cheguei aquui");
+        if(true)
+            return;
 
         url = "jdbc:sqlite:" + local_DB_Path;
         dbConnection = new DatabaseConnection(url);
