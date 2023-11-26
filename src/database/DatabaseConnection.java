@@ -481,7 +481,8 @@ public class DatabaseConnection {
                 return true;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            //throw new RuntimeException(e);
+            System.out.println("TESTE");
         }
         return false;
     }

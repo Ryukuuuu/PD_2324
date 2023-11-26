@@ -1,5 +1,6 @@
 package server.thread;
 
+import data.MessageTypes;
 import database.DatabaseConnection;
 import server.MainServer;
 import server.thread.multicast.SendHeartBeats;
@@ -48,31 +49,47 @@ public class UserConnectionsThread extends Thread{
         }
     }
 
-    @Override
-    public void run(){
-        Socket toClientSocket;
-        try(ServerSocket ss = new ServerSocket(listening_port)){
-            try{
-                //ciclo há espera de conexões
-                while (true) {
-                    System.out.println("<Conexao com User> A aguardar novas conexoes...");
-                    toClientSocket = ss.accept();
-
-                    //não sei se isto é preciso, mas por enquanto deixo estar.
-                    usersConnected.add(toClientSocket);
-                    nCreatedThreads++;
-                    System.out.println("<Conexao com User> Novo User a estabelecer ligacao -> #" + nCreatedThreads);
-                    //crio Thread para efetuar comunicação com o cliente e arranco logo com ela
-                    NewUserConnection newUserConnection = new NewUserConnection(toClientSocket, dbConnection,this, sendHeartBeats, mainDBService);
-                    Thread t = new Thread(newUserConnection, "Thread " + nCreatedThreads);
-                    t.start();
-                    addNewClients(newUserConnection);
+    public void notifyAddPresenceToClients(MessageTypes type,String email) {
+        for (NewUserConnection newUserConnection : userConnections) {
+                if (newUserConnection.getClientData().getEmail().equals(email) || newUserConnection.getClientData().isAdmin()) {
+                    newUserConnection.notifyAddPresenceToClient(type);
                 }
-            }catch (IOException e){
-                throw new RuntimeException(e);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        }
+
+    public void notifyDeletePresenceToClients (MessageTypes type,String eventName){
+        for(NewUserConnection newUserConnection : userConnections){
+            newUserConnection.notifyDeleteEventPresences(type,eventName);
         }
     }
+
+        @Override
+        public void run () {
+            Socket toClientSocket;
+            try (ServerSocket ss = new ServerSocket(listening_port)) {
+                try {
+                    //ciclo há espera de conexões
+                    while (true) {
+                        System.out.println("<Conexao com User> A aguardar novas conexoes...");
+                        toClientSocket = ss.accept();
+
+                        //não sei se isto é preciso, mas por enquanto deixo estar.
+                        usersConnected.add(toClientSocket);
+                        nCreatedThreads++;
+                        System.out.println("<Conexao com User> Novo User a estabelecer ligacao -> #" + nCreatedThreads);
+                        //crio Thread para efetuar comunicação com o cliente e arranco logo com ela
+                        NewUserConnection newUserConnection = new NewUserConnection(toClientSocket, dbConnection, this, sendHeartBeats, mainDBService);
+                        Thread t = new Thread(newUserConnection, "Thread " + nCreatedThreads);
+                        t.start();
+                        addNewClients(newUserConnection);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 }
+
+

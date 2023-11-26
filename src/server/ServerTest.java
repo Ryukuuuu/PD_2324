@@ -6,12 +6,13 @@ import data.Message;
 import testdatabase.TestDatabase;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Scanner;
 
 public class ServerTest {
     public static void main(String[] args) {
 
-        int serverPort;
+        /*int serverPort;
         boolean stop = false;
         Message mess, newMess;
         Scanner sc = new Scanner(System.in);
@@ -19,13 +20,13 @@ public class ServerTest {
         ClientData connectedClient;
 
         ArrayList<Thread> clients = new ArrayList<>();
-
+*/
         /*DATABASE TESTE*/
-        TestDatabase testDatabase = new TestDatabase();
+        //TestDatabase testDatabase = new TestDatabase();
         /*--------------*/
+        /*
 
-
-         /*try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]))) {
+         try (ServerSocket serverSocket = new ServerSocket(Integer.parseInt(args[0]))) {
 
 
 
@@ -91,21 +92,9 @@ public class ServerTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-*/
+
         while(true){}
-    }
+        */
 
-    private static ClientData fillClientWithData(String email, String password) {
-        ClientData newClient = new ClientData(email, password);
-
-        newClient.setId(1);
-        newClient.setName("John");
-        newClient.setAdmin(false);
-
-        return newClient;
-    }
-
-    private static ClientData testLogin(ClientData clientData, TestDatabase testDatabase) {
-        return testDatabase.getClient(clientData.getEmail(), clientData.getPassword());
     }
 }
