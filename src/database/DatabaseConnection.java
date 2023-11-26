@@ -494,7 +494,8 @@ public class DatabaseConnection {
             String selectEventsStatement = "SELECT name, activeCode\n" +
                                            "FROM Events\n" +
                                            "WHERE activeCode=" + eventCode + "\n" +
-                                           "AND '" + atTime + "' BETWEEN startingTime AND codeValidityEnding;";
+                                           "AND '" + atTime + "' BETWEEN startingTime AND " +
+                             "CASE WHEN codeValidityEnding > endingTime THEN endingTime ELSE codeValidityEnding END;";
             resultSetOfCode = selectEventWithCorrectCodeStatement.executeQuery(selectEventsStatement);
             if(resultSetOfCode.next()){
                 eventNameFound = resultSetOfCode.getString("name");
