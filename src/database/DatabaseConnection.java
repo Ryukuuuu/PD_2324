@@ -93,7 +93,7 @@ public class DatabaseConnection {
                 return result.getLong("version");
 
         } catch (SQLException e) {
-            System.out.println("<Database|Erro>Obtencao da versao da base de dados.");
+            System.out.println("<Database|Erro> Obtencao da versao da base de dados.");
         }
         return 0L;
     }
@@ -101,11 +101,14 @@ public class DatabaseConnection {
         Statement statement;
         try {
             statement = conn.createStatement();
-            String updateVersionStatement = "UPDATE DatabaseVersion SET version=" + ++versionDB + " WHERE version=" + (versionDB-1) + ";";
+            String updateVersionStatement = "UPDATE DatabaseVersion SET version=" + (versionDB+1) + " WHERE version=" + versionDB;
             statement.executeUpdate(updateVersionStatement);
+
         } catch (SQLException e) {
-            System.out.println("<Database|Erro> Atualizacao da versao da base dados " + (versionDB - 1) + " » " + versionDB + ".");
+            System.out.println("<Database|Erro> Atualizacao da versao da base dados " + versionDB + " » " + (versionDB+1) + ".");
+            return;
         }
+        ++versionDB;
     }
     public ClientData getClient(String email, String password) {
         Statement statement;
