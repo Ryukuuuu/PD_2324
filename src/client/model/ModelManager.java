@@ -83,6 +83,11 @@ public class ModelManager {
 
     /*---------------------START MENU---------------------*/
     public void sendSubmitCodeMessage(long eventCode){connectionManager.sendMessageToServer(createMessage(MessageTypes.SUBMIT_CODE,eventCode));}
+    public void sendGenerateCodeMessage(String eventName,String codeDuration){connectionManager.sendMessageToServer(createMessage(MessageTypes.GENERATE_EVENT_CODE,new Event(eventName,codeDuration)));}
+    public void generateEventCode(){
+        fsm.generateEventCode();
+        pcs.firePropertyChange(PROP_STATE,null,null);
+    }
     public void startMenu(){
         fsm.toStartMenu();
         pcs.firePropertyChange(PROP_STATE,null,null);
@@ -120,15 +125,12 @@ public class ModelManager {
     public Message getUpdatedInfo(){return connectionManager.getLastMessageFromServer();}
     public ClientData getClientInfo(){return connectionManager.getLastMessageFromServer().getClientData();}
     public void fireCodeUpdate(){
-        System.out.println("Fire code update");
         pcs.firePropertyChange(PROP_UPDATE_CODE,null,null);
     }
     public void fireEventUpdate(){
-        System.out.println("Fire event update");
         pcs.firePropertyChange(PROP_UPDATE_EVENT,null,null);
     }
     public void fireUpdate(){
-        System.out.println("Fire update");
         pcs.firePropertyChange(PROP_UPDATE,null,null);
     }
     //Method called by the ui to check if the last operation was a success

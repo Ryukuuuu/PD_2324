@@ -14,6 +14,7 @@ public class AdminMenuController {
     public Button btnEditEvent;
     public Button btnLogout;
     public Button btnDeleteEvent;
+    public Button btnGenerateCode;
     private ModelManager modelManager;
 
     public void init(ModelManager modelManager){
@@ -39,11 +40,9 @@ public class AdminMenuController {
         modelManager.editEventMenu();
     }
     @FXML
-    private void setBtnDeleteEvent(){
-        modelManager.deleteEvent();
-    }
+    private void setBtnDeleteEvent(){modelManager.deleteEvent();}
     @FXML
-    private void setBtnLogout(){
-        modelManager.sendLogoutMessage();
-    }
+    private void setBtnGenerateCode(){modelManager.generateEventCode();}
+    @FXML
+    private void setBtnLogout(){modelManager.sendLogoutMessage();}
 }

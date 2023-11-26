@@ -46,12 +46,12 @@
             </HBox>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
-                  <Button fx:id="btnGenerate" mnemonicParsing="false" prefHeight="44.0" prefWidth="200.0" text="Generate">
+                  <Button fx:id="btnGenerate" onAction="#setBtnGenerate" mnemonicParsing="false" prefHeight="44.0" prefWidth="200.0" text="Generate">
                      <font>
                         <Font size="20.0" />
                      </font>
                   </Button>
-                  <Button fx:id="btnBack" mnemonicParsing="false"  prefHeight="44.0" prefWidth="200.0" text="Back">
+                  <Button fx:id="btnBack" onAction="#setBtnBack" mnemonicParsing="false"  prefHeight="44.0" prefWidth="200.0" text="Back">
                      <font>
                         <Font size="20.0" />
                      </font>

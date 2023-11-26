@@ -12,6 +12,7 @@ public interface IClientState {
     boolean createEvent();
     boolean editEvent();
     boolean deleteEvent();
+    boolean generateEventCode();
     boolean toSignIn();
     boolean toAddPresences();
     boolean toCheckPresencesOfEvent();

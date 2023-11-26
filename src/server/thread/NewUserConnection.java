@@ -10,6 +10,8 @@ import java.net.Socket;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Random;
 
 public class NewUserConnection implements Runnable{
@@ -135,6 +137,9 @@ public class NewUserConnection implements Runnable{
             }
             case GENERATE_EVENT_CODE -> {
                 Event editedEvent;
+                Calendar currentTime = Calendar.getInstance();
+                currentTime.add(Calendar.MINUTE,Integer.parseInt(messageReceived.getEvent().getCodeValidityEnding()));
+                messageReceived.getEvent().setCodeValidityEnding(currentTime.get(Calendar.HOUR_OF_DAY)+":"+currentTime.get(Calendar.MINUTE)+":"+currentTime.get(Calendar.SECOND));
                 do{
                     long newCode = generateCode();
                     editedEvent = dbConnection.editActiveCode(messageReceived.getEvent().getName(), newCode, messageReceived.getEvent().getCodeValidityEnding());

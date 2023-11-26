@@ -448,22 +448,25 @@ public class DatabaseConnection {
     public synchronized boolean removeEvent(String eventName){
         Statement statement;
         int result;
-        try {
-            statement = conn.createStatement();
-            String selectEvent = "DELETE FROM Events\n" +
-                                 "WHERE name='" + eventName + "';";
-            result = statement.executeUpdate(selectEvent);
+        ArrayList<ClientData> data = getPresences(eventName);
+        if(data.isEmpty()){
+            try {
 
-            if(result != 0) {
-                System.out.println("Evento: '" + eventName + "' foi removido com sucesso!");
-                updateDBVersion();
-                return true;
+                statement = conn.createStatement();
+                String selectEvent = "DELETE FROM Events\n" +
+                                     "WHERE name='" + eventName + "';";
+                result = statement.executeUpdate(selectEvent);
+
+                if(result != 0) {
+                    System.out.println("Evento: '" + eventName + "' foi removido com sucesso!");
+                    updateDBVersion();
+                    return true;
+                }
+            } catch (SQLException e) {
+                System.out.println("Erro no statement de obtencao de Events: ");
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            System.out.println("Erro no statement de obtencao de Events: ");
-            e.printStackTrace();
         }
-
         return false;
     }
     public synchronized boolean addPresence(String clientEmail, String eventName, String atTime){
@@ -494,7 +497,8 @@ public class DatabaseConnection {
             String selectEventsStatement = "SELECT name, activeCode\n" +
                                            "FROM Events\n" +
                                            "WHERE activeCode=" + eventCode + "\n" +
-                                           "AND '" + atTime + "' BETWEEN startingTime AND codeValidityEnding;";
+                                           "AND '" + atTime + "' BETWEEN startingTime AND " +
+                             "CASE WHEN codeValidityEnding > endingTime THEN endingTime ELSE codeValidityEnding END;";
             resultSetOfCode = selectEventWithCorrectCodeStatement.executeQuery(selectEventsStatement);
             if(resultSetOfCode.next()){
                 eventNameFound = resultSetOfCode.getString("name");

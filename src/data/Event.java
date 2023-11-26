@@ -35,6 +35,11 @@ public class Event implements Serializable {
         this.endingTime = endingTime;
     }
 
+    public Event(String eventName, String codeDuration) {
+        this.name = eventName;
+        this.codeValidityEnding = codeDuration;
+    }
+
     public String getName() {
         return name;
     }
