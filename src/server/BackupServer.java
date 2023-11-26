@@ -8,158 +8,77 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.sql.*;
 
 public class BackupServer extends UnicastRemoteObject implements GetRemoteDatabaseObserver /* implements Runnable */ {
     private static final int MULTICAST_PORT = 4444;
     private static final String MULTICAST_ADDRESS = "230.44.44.44";
-
     private static final int HEARTBEAT_TIMEOUT = 30000;
-    private static final String BACKUP_DB_NAME = "BackupDB";
     public static final int MAX_SIZE = 1000;
-
-    private long DB_version;
-    private MulticastSocket socket;
-    protected boolean running;
-
-    // ?
+    private static final String BACKUP_DB_NAME = "BackupDB";
+    GetRemoteDatabaseService databaseService;
     String localFilePath;
 
-    public BackupServer(MulticastSocket socket, String localFilePath ) throws RemoteException {
-        DB_version = -1;
-        this.socket = socket;
-
+    public BackupServer(GetRemoteDatabaseService databaseService, String localFilePath) throws RemoteException {
+        this.databaseService = databaseService;
         this.localFilePath = localFilePath;
     }
 
     public long getDBVersion() {
-        return DB_version;
-    }
+        String url = "jdbc:sqlite:" + localFilePath + File.separator + BACKUP_DB_NAME;
+        try {
+            Connection conn = DriverManager.getConnection(url);
 
-    public void setDBVersion(long DB_version) {
-        this.DB_version = DB_version;
-    }
+            Statement stm = conn.createStatement();
+            ResultSet result = stm.executeQuery("SELECT version FROM Databaseversion");
 
-    public void terminate() {
-        running = false;
-    }
-
-    @Override
-    public void writeFileChunk(byte[] fileChunk, int nbytes) throws RemoteException, IOException {
-
+            if(result.next())
+                return result.getLong("version");
+        } catch (SQLException e) {
+            System.out.println("<Backup> Erro ao aceder a base de dados");
+        }
+        return -1L;
     }
 
     @Override
     public void notifyDatabaseUpdate() throws RemoteException {
+        File dbpath = new File(localFilePath + File.separator + BACKUP_DB_NAME);
 
-    }
+        try (FileOutputStream localFileOutputStream = new FileOutputStream(dbpath.getCanonicalPath())) {
+            System.out.println("Ficheiro " + dbpath + " criado.");
 
+            int offset = 0;
+            byte[] buff;
 
-   // @Override
-    public void run() {
-        DatagramPacket packet;
-        HeartBeat heartBeat;
-
-        // Função para ir buscar a base de dados
-        /*
-        try {
-            localFilePath = new File(localDirectory.getPath() + File.separator + BACKUP_DB_NAME).getCanonicalPath();
-        } catch (IOException e) {
-            System.out.println(e);
-            return;
-        }
-
-        try (FileOutputStream localFileOutputStream = new FileOutputStream(localFilePath)) {
-            System.out.println("Ficheiro " + localFilePath + " criado.");
-
-            //Obtem a referencia remota para o servico com nome "servidor-ficheiros-pd"
-            objectURL = "rmi://" + packet.getAddress().getHostAddress() + "/" + heartBeat.getRmiServiceName();
-
-            GetRemoteDatabaseService databaseService = (GetRemoteDatabaseService) Naming.lookup(objectURL);
-
-            offset = 0;
             while ((buff = databaseService.getDatabaseCopy(offset)) != null) {
                 localFileOutputStream.write(buff);
                 offset += buff.length;
             }
 
-            System.out.println("Transferencia do ficheiro " + databaseName + " concluida.");
+            System.out.println("Transferencia do ficheiro " + dbpath + " concluida.");
+
+        } catch (FileNotFoundException e) {
+            System.out.println("Ocorreu a excecao {" + e + "} ao tentar abrir o ficheiro!");
+        } catch (IOException e) {
+            System.out.println("Ocorreu a excecao de E/S: \n\t" + e);
         }
-            } catch(
-    RemoteException e)
-
-    {
-        System.out.println("Erro remoto - " + e);
-    } catch(
-    NotBoundException e)
-
-    {
-        System.out.println("Servico remoto desconhecido - " + e);
-    } catch(
-    IOException e)
-
-    {
-        System.out.println("Erro E/S - " + e);
-    } catch(
-    Exception e)
-
-    {
-        System.out.println("Erro - " + e);
     }
-*/
-
-        while (running) {
-            packet = new DatagramPacket(new byte[MAX_SIZE], MAX_SIZE);
-
-            try {
-                socket.receive(packet);
-
-                try (ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(packet.getData()))) {
-                    heartBeat = (HeartBeat) oin.readObject();
-
-                    if (DB_version < heartBeat.getDataBaseVersionNumber()) {
-                        terminate();
-                        System.out.println("<Backup> Servidor de Backup desatualizado. A terminar...");
-                    }
-
-                } catch (ClassNotFoundException e) {
-                    System.out.println("\nMensagem recebida de tipo inesperado!");
-                }
-
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
-
-        }
-        // remove observer
-        socket.close();
-        System.exit(1);
-}
 
     public static void main(String[] args) {
         File localDirectory;
-
-        String localFilePath;
-
-        String objectURL;
+        String localFilePath, objectURL;
 
         byte[] buff;
         long offset;
 
         BackupServer backupServer = null;
+        GetRemoteDatabaseService databaseService = null;
 
-        // ----------- MULTICAST -----------
-        InetAddress group;
         MulticastSocket multicastSocket = null;
         DatagramPacket packet;
-        NetworkInterface nif; // ?
-
         HeartBeat heartBeat;
 
-        // BufferedReader bin = new BufferedReader(new InputStreamReader(System.in));
-        // ----------------------
-
         if (args.length != 1) {
-            // databases/backup1
             System.out.println("<Sintaxe> java BackupServer <diretoria da réplica da BD>");
             return;
         }
@@ -183,37 +102,23 @@ public class BackupServer extends UnicastRemoteObject implements GetRemoteDataba
             return;
         }
 
-// --------------------- MULTICAST -----------
+        // --------------------- MULTICAST -----------
         try {
-            group = InetAddress.getByName(MULTICAST_ADDRESS);
-            /*
-            try {
-                nif = NetworkInterface.getByInetAddress(InetAddress.getByName(args[3])); //e.g., 127.0.0.1, 192.168.10.1, ...
-            } catch (SocketException | NullPointerException | UnknownHostException | SecurityException ex){
-                nif = NetworkInterface.getByName(args[3]); //e.g., lo0, eth0, wlan0, en0, ...
-            }
-            */
+            InetAddress group = InetAddress.getByName(MULTICAST_ADDRESS);
             multicastSocket = new MulticastSocket(MULTICAST_PORT);
-            multicastSocket.joinGroup(group); // deprecated... idk
+            NetworkInterface nif = NetworkInterface.getByName("localhost");
+
+            multicastSocket.joinGroup(new InetSocketAddress(group, MULTICAST_PORT), nif);
             multicastSocket.setSoTimeout(HEARTBEAT_TIMEOUT);
 
-            //boolean running = true;
-
-            // ---- teste
-            backupServer = new BackupServer(multicastSocket, localFilePath);
-
+        // --------------------  recebe o 1º heartbeat
             packet = new DatagramPacket(new byte[MAX_SIZE], MAX_SIZE);
-// --------------------  ouve o 1º heartbeat
             multicastSocket.receive(packet);
 
             try (ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(packet.getData())))
             {
                 heartBeat = (HeartBeat) oin.readObject();
-
-// ----------------- vai buscar uma cópia da BD
-        // --------- (e atualiza o versão)
-                //backupServer.setDBVersion(heartBeat.getDataBaseVersionNumber());
-
+        // ----------------- vai buscar uma cópia da BD
                 try {
                     localFilePath = new File(localDirectory.getPath() + File.separator + BACKUP_DB_NAME).getCanonicalPath();
                 } catch (IOException e) {
@@ -221,14 +126,13 @@ public class BackupServer extends UnicastRemoteObject implements GetRemoteDataba
                     return;
                 }
 
-                try (FileOutputStream localFileOutputStream = new FileOutputStream(localFilePath))
-                {
+                try (FileOutputStream localFileOutputStream = new FileOutputStream(localFilePath)) {
                     System.out.println("Ficheiro " + localFilePath + " criado.");
 
                     //Obtem a referencia remota para o servico com nome "servidor-ficheiros-pd"
                     objectURL = "rmi://" + packet.getAddress().getHostAddress() + "/" + heartBeat.getRmiServiceName();
 
-                    GetRemoteDatabaseService databaseService = (GetRemoteDatabaseService) Naming.lookup(objectURL);
+                    databaseService = (GetRemoteDatabaseService) Naming.lookup(objectURL);
 
                     offset = 0;
                     while ((buff = databaseService.getDatabaseCopy(offset)) != null) {
@@ -239,53 +143,56 @@ public class BackupServer extends UnicastRemoteObject implements GetRemoteDataba
                     System.out.println("Transferencia do ficheiro " + localFilePath + " concluida.");
 
 
-    // ----------- Regista-se como listener
+                    // ----------- Regista-se como listener
+                    backupServer = new BackupServer(databaseService, localFilePath);
 
                     databaseService.addObserver(backupServer);
 
                 } catch (NotBoundException e) {
                     throw new RuntimeException(e);
                 }
-
-
-                // connection db
-
-                while(true) {
-
-                }
-
-
-
-                // -----
-                // Thread para aguardar e processar datagramas no socket
-                /*
-
-                backupServer = new BackupServer(multicastSocket);
-                Thread thread = new Thread(backupServer);
-                thread.start();
-
-                */
-
-            } catch (ClassNotFoundException e) {
-                System.out.println("\nMensagem recebida de tipo inesperado!");
-            } catch (SocketTimeoutException e) {
-                System.out.println("<BACKUP> A terminar... Passar 30 segundos sem receber heart beats.");
-                System.exit(1);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } finally {
-                if (backupServer != null) {
-                    backupServer.terminate();
-                }
-                if (multicastSocket != null) {
-                    multicastSocket.close();
-                }
-                // eliminar .db
             }
-        } catch (SocketException | UnknownHostException e) {
-            throw new RuntimeException(e);
+
+            while (true) {
+                packet = new DatagramPacket(new byte[MAX_SIZE], MAX_SIZE);
+
+                try {
+                    multicastSocket.receive(packet);
+
+                    try (ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(packet.getData())))
+                    {
+                        heartBeat = (HeartBeat) oin.readObject();
+
+                        if (backupServer.getDBVersion() != heartBeat.getDataBaseVersionNumber()) {
+                            System.out.println("<Backup> Servidor de Backup desatualizado. A terminar...");
+                            break;
+                        }
+
+                    } catch (ClassNotFoundException e) {
+                        System.out.println("\nMensagem recebida de tipo inesperado!");
+                    }
+
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+
+            databaseService.removeObserver(backupServer);
+            UnicastRemoteObject.unexportObject(backupServer, true);
+            // remover .db
+            new File(localFilePath + File.separator + BACKUP_DB_NAME).delete();
+
+        } catch (ClassNotFoundException e) {
+            System.out.println("\nMensagem recebida de tipo inesperado!");
+        } catch (SocketTimeoutException e) {
+            System.out.println("<BACKUP> A terminar... Passar 30 segundos sem receber heart beats.");
+            System.exit(1);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (multicastSocket != null) {
+                multicastSocket.close();
+            }
         }
     }
 }

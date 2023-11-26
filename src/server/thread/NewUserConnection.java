@@ -2,11 +2,11 @@ package server.thread;
 
 import data.*;
 import database.DatabaseConnection;
+import server.MainServer;
 import server.thread.multicast.SendHeartBeats;
 
 import java.io.*;
 import java.net.Socket;
-import java.sql.Time;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -24,7 +24,9 @@ public class NewUserConnection implements Runnable{
     private static final String FILENAME_FROM_TEMPLATE = "/ficheiros_csv/presences_in_events_from_%s";
     private static final String FILENAME_AT_TEMPLATE = "/ficheiros_csv/presences_at_%s";
 
-    public NewUserConnection(Socket toClientSocket, DatabaseConnection dbConnection, UserConnectionsThread userConnectionsThread, SendHeartBeats sendHeartBeats) {
+    private MainServer mainDBService;
+
+    public NewUserConnection(Socket toClientSocket, DatabaseConnection dbConnection, UserConnectionsThread userConnectionsThread, SendHeartBeats sendHeartBeats, MainServer mainDBService) {
         this.toClientSocket = toClientSocket;
         this.dbConnection = dbConnection;
         this.userConnectionsThread = userConnectionsThread;
@@ -37,6 +39,7 @@ public class NewUserConnection implements Runnable{
             System.out.println("<ERRO> Nao foi possivel obter as streams associadas a um Socket conectado ao cliente.");
         }
         // ref
+        this.mainDBService = mainDBService;
     }
 
     public synchronized void notifyEventUpdate(){
@@ -70,6 +73,7 @@ public class NewUserConnection implements Runnable{
                 if(dbConnection.addNewEntryToClients(messageReceived.getClientData())){
                     this.clientData = messageReceived.getClientData();
                     userConnectionsThread.notifyAllClientsUpdate();
+                    mainDBService.notifyObservers();
                     sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
                     return new Message(MessageTypes.ACC_CREATED,messageReceived.getClientData());
                 }
@@ -79,12 +83,15 @@ public class NewUserConnection implements Runnable{
                 if(data != null){
                     this.clientData = data;
                     userConnectionsThread.notifyAllClientsUpdate();
+                    mainDBService.notifyObservers();
+                    sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
                     return new Message(MessageTypes.EDIT_LOG_INFO,clientData);
                 }
             }
             case SUBMIT_CODE -> {
                 String formattedTimeNow = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
                 if(dbConnection.checkCodeToAssignPresence(messageReceived.getEventCode(), clientData.getEmail(), formattedTimeNow)) {
+                    mainDBService.notifyObservers();
                     sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
                     return new Message(MessageTypes.SUBMIT_CODE);
                 }
@@ -92,6 +99,7 @@ public class NewUserConnection implements Runnable{
             case CREATE_EVENT -> {
                 if(dbConnection.addNewEntryToEvents(messageReceived.getEvent())){
                     userConnectionsThread.notifyAllClientsEventsUpdate();
+                    mainDBService.notifyObservers();
                     sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
                     return new Message(MessageTypes.CREATE_EVENT);
                 }
@@ -99,6 +107,7 @@ public class NewUserConnection implements Runnable{
             case EDIT_EVENT -> {
                 if(dbConnection.editEventInfo(messageReceived.getEvent())!=null){
                     userConnectionsThread.notifyAllClientsEventsUpdate();
+                    mainDBService.notifyObservers();
                     sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
                     return new Message(MessageTypes.EDIT_EVENT);
                 }
@@ -106,6 +115,7 @@ public class NewUserConnection implements Runnable{
             case REMOVE_EVENT -> {
                 if(dbConnection.removeEvent(messageReceived.getEvent().getName())){
                     userConnectionsThread.notifyAllClientsEventsUpdate();
+                    mainDBService.notifyObservers();
                     sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
                     return new Message(MessageTypes.REMOVE_EVENT);
                 }
@@ -129,6 +139,8 @@ public class NewUserConnection implements Runnable{
                     long newCode = generateCode();
                     editedEvent = dbConnection.editActiveCode(messageReceived.getEvent().getName(), newCode, messageReceived.getEvent().getCodeValidityEnding());
                 }while (editedEvent == null);
+                mainDBService.notifyObservers();
+                sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
                 return new Message(MessageTypes.GENERATE_EVENT_CODE, editedEvent);
             }
             case CHECK_REGISTERED_PRESENCES -> {
@@ -149,14 +161,23 @@ public class NewUserConnection implements Runnable{
                 createClientsPresencesCSVFile(clientData, eventsList, filename);
             }*/
             case REMOVE_PRESENCE -> {
-                return new Message(dbConnection.removePresencesFromEvent(messageReceived.getEvent().getName()), MessageTypes.REMOVE_PRESENCE);
+                ArrayList<ClientData> data = dbConnection.removePresencesFromEvent(messageReceived.getEvent().getName());
+                if(data != null) {
+                    mainDBService.notifyObservers();
+                    sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
+                    return new Message(data, MessageTypes.REMOVE_PRESENCE);
+                }
             }
             case ADD_PRESENCE -> {
                 String formattedTimeNow = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
                 if(dbConnection.addPresence(messageReceived.getClientData().getEmail(),
                                             messageReceived.getEvent().getName(),
                                             formattedTimeNow))
+                {
+                    mainDBService.notifyObservers();
+                    sendHeartBeats.setDataBaseVersion(dbConnection.getDBVersion());
                     return new Message(MessageTypes.ADD_PRESENCE);
+                }
             }
             case LOGOUT -> {return new Message(MessageTypes.LOGOUT);}
 

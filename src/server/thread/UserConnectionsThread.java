@@ -1,8 +1,8 @@
 package server.thread;
 
 import database.DatabaseConnection;
+import server.MainServer;
 import server.thread.multicast.SendHeartBeats;
-import testdatabase.TestDatabase;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -19,13 +19,17 @@ public class UserConnectionsThread extends Thread{
     private List<NewUserConnection> userConnections;
     private int nCreatedThreads;
 
-    public UserConnectionsThread(int listening_port, DatabaseConnection dbConnection,SendHeartBeats sendHeartBeats){
+    private MainServer mainDBService;
+
+    public UserConnectionsThread(int listening_port, DatabaseConnection dbConnection, SendHeartBeats sendHeartBeats, MainServer mainDBService){
         this.listening_port = listening_port;
         this.dbConnection = dbConnection;
         this.sendHeartBeats = sendHeartBeats;
         usersConnected = new ArrayList<>();
         userConnections = new ArrayList<>();
         nCreatedThreads = 0;
+
+        this.mainDBService = mainDBService;
     }
 
     private synchronized void addNewClients(NewUserConnection newUserConnection){
@@ -59,7 +63,7 @@ public class UserConnectionsThread extends Thread{
                     nCreatedThreads++;
                     System.out.println("<Conexao com User> Novo User a estabelecer ligacao -> #" + nCreatedThreads);
                     //crio Thread para efetuar comunicação com o cliente e arranco logo com ela
-                    NewUserConnection newUserConnection = new NewUserConnection(toClientSocket, dbConnection,this,sendHeartBeats);
+                    NewUserConnection newUserConnection = new NewUserConnection(toClientSocket, dbConnection,this, sendHeartBeats, mainDBService);
                     Thread t = new Thread(newUserConnection, "Thread " + nCreatedThreads);
                     t.start();
                     addNewClients(newUserConnection);
