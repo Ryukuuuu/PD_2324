@@ -124,7 +124,7 @@ public class NewUserConnection implements Runnable{
             }
             case CHECK_PRESENCES -> {
                 userConnectionsThread.notifyAllClientsEventsUpdate();
-                return new Message(MessageTypes.CHECK_PRESENCES, dbConnection.getEvents(null, clientData.getEmail()));
+                return new Message(MessageTypes.CHECK_PRESENCES, dbConnection.getEvents(messageReceived.getEvent(), clientData.getEmail()));
             }
             /*case GET_PRESENCES_CSV -> {
                 ArrayList<Event> eventsList= dbConnection.getEvents(null, clientData.getEmail());
