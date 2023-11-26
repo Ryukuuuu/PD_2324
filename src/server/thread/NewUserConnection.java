@@ -283,8 +283,15 @@ public class NewUserConnection implements Runnable{
                 oos.flush();
 
             } catch (ClassNotFoundException | IOException e){
-                throw new RuntimeException(e);
+                System.out.println("<ClientConnection|ERRO> Leitura/Escrita do socket comprometida");
             }
+        }
+
+        try {
+            if (!toClientSocket.isClosed())
+                    toClientSocket.close();
+        } catch (IOException e) {
+            System.out.println("<ClientConnection|ERRO> Erro a fechar o socket.");
         }
     }
 }
