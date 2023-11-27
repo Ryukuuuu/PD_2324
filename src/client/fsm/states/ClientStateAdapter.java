@@ -26,7 +26,7 @@ public class ClientStateAdapter implements IClientState{
     @Override
     public boolean editUserInfoMenu(){return false;}
     @Override
-    public boolean toCheckPresences(){return false;}
+    public boolean toCheckPresencesOfEvents(){return false;}
     @Override
     public boolean toEvent(){return false;}
     @Override

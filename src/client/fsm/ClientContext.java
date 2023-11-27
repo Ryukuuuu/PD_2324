@@ -35,6 +35,7 @@ public class ClientContext {
     public boolean profile(){return state.profile();}
     public boolean events(){return state.toEvent();}
     public boolean adminEvents(){return state.toEventsByUser();}
+    public boolean toCheckPresencesOfEvent(){return state.toCheckPresencesOfEvent();}
     public boolean addDeletePresence(){return state.addDeletePresences();}
     public boolean editUserInfo(ClientData clientData){return state.editUserInfo(clientData);}
     public boolean editUserInfo(){return state.editUserInfoMenu();}

@@ -33,8 +33,11 @@ public class AdminAddDeletePresenceController {
 
     @FXML
     private void setBtnAdd(){
-        if(checkAddPresence())
-            modelManager.sendAddPresenceMessage(tfUserEmail.getText(),tfEventName.getText());
+        if(checkAddPresence()) {
+            modelManager.sendAddPresenceMessage(tfUserEmail.getText(), tfEventName.getText());
+            tfUserEmail.clear();
+            tfEventName.clear();
+        }
         else{
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText("All the fields must be filled");
@@ -43,8 +46,11 @@ public class AdminAddDeletePresenceController {
     }
     @FXML
     private void setBtnDelete(){
-        if(checkDeletePresence())
+        if(checkDeletePresence()) {
+            tfUserEmail.clear();
             modelManager.sendDeletePresencesMessage(tfEventName.getText());
+            tfEventName.clear();
+        }
         else{
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText("Event field must be filled");

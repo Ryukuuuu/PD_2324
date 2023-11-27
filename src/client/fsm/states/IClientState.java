@@ -7,7 +7,7 @@ public interface IClientState {
     boolean profile();
     boolean editUserInfo(ClientData clientData);
     boolean editUserInfoMenu();
-    boolean toCheckPresences();
+    boolean toCheckPresencesOfEvents();
     boolean toEvent();
     boolean toEventsByUser();
     boolean createEvent();

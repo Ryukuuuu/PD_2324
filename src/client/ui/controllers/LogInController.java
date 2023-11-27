@@ -34,7 +34,6 @@ public class LogInController {
 
     private void registerHandlers(){
         modelManager.addClient(ModelManager.PROP_STATE,evt -> Platform.runLater(this::update));
-        modelManager.addClient(ModelManager.PROP_UPDATE,evt -> Platform.runLater(this::teste));
     }
 
     private void update(){
@@ -51,11 +50,7 @@ public class LogInController {
         modelManager.toSignin();
     }
     @FXML
-    private void exit(){
-        modelManager.closeConnection();
-        Platform.exit();
-    }
-    private void teste(){
+    private void exit() {
         modelManager.closeConnection();
         Platform.exit();
     }

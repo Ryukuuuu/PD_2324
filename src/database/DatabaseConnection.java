@@ -231,7 +231,7 @@ public class DatabaseConnection {
         }
         return null;
     }
-    private Event getEventByName(String eventName){
+    public Event getEventByName(String eventName){
         Statement statement;
         ResultSet result;
         try {

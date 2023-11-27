@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.ui.controllers.AdminEventMenuController">
+<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="client.ui.controllers.AdminEventMenuByEventController">
    <top>
       <AnchorPane prefHeight="60.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
          <children>
@@ -19,7 +19,7 @@
                <font>
                   <Font size="15.0" />
                </font></Button>
-            <Button fx:id="btnCsv" layoutX="859.0" layoutY="8.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="130.0" text="CSV">
+            <Button fx:id="btnCsv" onAction="#setBtnCsv" layoutX="859.0" layoutY="8.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="130.0" text="CSV">
                <font>
                   <Font size="15.0" />
                </font>
@@ -30,7 +30,7 @@
                </font>
             </TextField>
             <TextField fx:id="tfEvent" layoutX="156.0" layoutY="19.0" promptText="Event" />
-            <Button fx:id="btnSearch" onAction="#setBtnSearch" layoutX="312.0" layoutY="15.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="87.0" text="Search">
+            <Button fx:id="btnSearch" layoutX="312.0" layoutY="15.0" mnemonicParsing="false" onAction="#setBtnSearch" prefHeight="30.0" prefWidth="87.0" text="Search">
                <font>
                   <Font size="15.0" />
                </font>
@@ -45,29 +45,19 @@
                <content>
                   <TableView fx:id="table" prefHeight="800.0" prefWidth="1000.0">
                     <columns>
-                      <TableColumn fx:id="name" prefWidth="200.0" text="Name">
+                      <TableColumn fx:id="name" prefWidth="333.3" text="Name">
                           <cellValueFactory>
                           <PropertyValueFactory property="name" />
                         </cellValueFactory>
                       </TableColumn>
-                      <TableColumn fx:id="local" minWidth="0.0" prefWidth="200.0" text="Local">
+                      <TableColumn fx:id="clientID" minWidth="0.0" prefWidth="333.3" text="Local">
                           <cellValueFactory>
-                              <PropertyValueFactory property="local" />
+                              <PropertyValueFactory property="id" />
                           </cellValueFactory>
                       </TableColumn>
-                        <TableColumn fx:id="date" prefWidth="200.0" text="Date">
+                        <TableColumn fx:id="email" prefWidth="333.3" text="Date">
                             <cellValueFactory>
-                                <PropertyValueFactory property="date" />
-                            </cellValueFactory>
-                        </TableColumn>
-                        <TableColumn fx:id="start" prefWidth="200.0" text="Starting Time">
-                            <cellValueFactory>
-                                <PropertyValueFactory property="startingTime" />
-                            </cellValueFactory>
-                        </TableColumn>
-                        <TableColumn fx:id="end" prefWidth="200.0" text="Ending Time">
-                            <cellValueFactory>
-                                <PropertyValueFactory property="endingTime" />
+                                <PropertyValueFactory property="email" />
                             </cellValueFactory>
                         </TableColumn>
                     </columns>

@@ -65,5 +65,4 @@ public class ProfileController {
     private void logOut(){
         modelManager.sendLogoutMessage();
     }
-
 }

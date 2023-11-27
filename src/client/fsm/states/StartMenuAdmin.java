@@ -31,10 +31,15 @@ public class StartMenuAdmin extends ClientStateAdapter{
         changeState(ClientState.GENERATE_EVENT_CODE);
         return true;
     }
+    @Override
+    public boolean toCheckPresencesOfEvent(){
+        changeState(ClientState.ADMIN_EVENT_MENU_BY_EVENTS);
+        return true;
+    }
 
     @Override
     public boolean toEvent(){
-        changeState(ClientState.ADMIN_EVENT_MENU_BY_EVENTS);
+        changeState(ClientState.ADMIN_EVENT_MENU);
         return true;
     }
 

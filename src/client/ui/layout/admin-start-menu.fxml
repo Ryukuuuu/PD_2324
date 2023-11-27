@@ -16,6 +16,22 @@
                   <Font size="20.0" />
                </font>
             </Button>
+            <Button fx:id="btnCheckPresencesInEvent" onAction="#setBtnCheckPresencesInEvent" alignment="CENTER" mnemonicParsing="false"  prefHeight="50.0" prefWidth="250.0" text="Check Presences In Event">
+               <font>
+                  <Font size="20.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin>
+            </Button>
+            <Button fx:id="btnCheckCreatedEvents" alignment="CENTER" mnemonicParsing="false" onAction="#setBtnCheckCreatedEvents" prefHeight="50.0" prefWidth="250.0" text="Check Created Events">
+               <font>
+                  <Font size="20.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin>
+            </Button>
             <Button fx:id="btnCreateEvent" alignment="CENTER" mnemonicParsing="false" onAction="#setBtnCreateEvent" prefHeight="50.0" prefWidth="250.0" text="Create Event" VBox.vgrow="ALWAYS">
                <font>
                   <Font size="20.0" />

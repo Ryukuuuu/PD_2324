@@ -22,8 +22,6 @@ public class UserMenuController {
     private ModelManager modelManager;
     public BorderPane borderPane;
     public Button btnProfile;
-    public Button btnEventsMenu;
-    public Button btnLogout;
 
     public void init(ModelManager modelManager) {
         this.modelManager = modelManager;
@@ -60,7 +58,10 @@ public class UserMenuController {
 
     @FXML
     private void events(){
-        modelManager.sendEventsMessage();
+        if(modelManager.getState() == ClientState.EVENT_MENU)
+            modelManager.sendEventsMessage(MessageTypes.CHECK_PRESENCES);
+        else
+            modelManager.sendEventsMessage(MessageTypes.CHECK_CREATED_EVENTS);
     }
 
     @FXML
@@ -98,9 +99,7 @@ public class UserMenuController {
 
     private void notifyDeletedPresence(){
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setHeaderText("Presences from the event: "
-                + modelManager.checkLastMessageFromServer().getEvent().getName()
-                +" were removed");
+        alert.setHeaderText("Presences from the event");
         alert.show();
     }
 }

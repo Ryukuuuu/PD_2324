@@ -2,7 +2,8 @@ package client.ui.controllers;
 
 import client.fsm.states.ClientState;
 import client.model.ModelManager;
-import data.Event;
+import data.ClientData;
+import data.Message;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -10,45 +11,44 @@ import javafx.scene.layout.BorderPane;
 
 import java.util.ArrayList;
 
-public class AdminEventMenuByUserController {
+public class AdminEventMenuByEventController {
     public BorderPane borderPane;
     public Button btnBack;
     public Button btnCsv;
     public TextField tfFileName;
-    public TextField tfUserEmail;
+    public TextField tfEvent;
     public Button btnSearch;
-    public TableView<Event> table;
-    public TableColumn<Event,Event> name;
-    public TableColumn<Event,Event> local;
-    public TableColumn<Event,Event> date;
-    public TableColumn<Event,Event> start;
-    public TableColumn<Event,Event> end;
 
-    private ArrayList<Event> events = new ArrayList<>();
+    public TableView<ClientData> table;
+    public TableColumn<ClientData,ClientData> name;
+    public TableColumn<ClientData,ClientData> clientID;
+    public TableColumn<ClientData,ClientData> email;
+    private ArrayList<ClientData> clientData = new ArrayList<>();
+
     private ModelManager modelManager;
     private static final String CSV_PATH = "src/client/csvFiles/";
 
     public void init(ModelManager modelManager){
         this.modelManager = modelManager;
-        registerHandles();
+        registerHandlers();
         update();
     }
 
-    private void registerHandles(){
+    private void registerHandlers(){
         modelManager.addClient(ModelManager.PROP_STATE,evt -> Platform.runLater(this::update));
-        modelManager.addClient(ModelManager.PROP_UPDATE_EVENT,evt -> Platform.runLater(this::updateEvents));
+        modelManager.addClient(ModelManager.PROP_UPDATE_EVENT,evt -> Platform.runLater(this::updateData));
     }
     private void update(){
-        borderPane.setVisible(modelManager.getState() == ClientState.ADMIN_EVENT_MENU_BY_USERS);
+        borderPane.setVisible(modelManager.getState() == ClientState.ADMIN_EVENT_MENU_BY_EVENTS);
     }
 
-    private boolean updateEvents(){
+    private boolean updateData(){
         table.getItems().clear();
-        events = modelManager.checkLastMessageFromServer().getEvents();
+        clientData = modelManager.checkLastMessageFromServer().getClients();
         //System.out.println(events);
-        if(events == null) return false;
-        if(events.isEmpty()) return false;
-        table.getItems().addAll(events);
+        if(clientData == null) return false;
+        if(clientData.isEmpty()) return false;
+        table.getItems().addAll(clientData);
         return true;
     }
 
@@ -62,12 +62,14 @@ public class AdminEventMenuByUserController {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText("File name must be filled");
         }
-        else
-            modelManager.createClientsPresencesCSVFile(events,CSV_PATH + tfFileName.getText() + ".csv");
+        else{
+            Message message = modelManager.checkLastMessageFromServer();
+            modelManager.createEventsPresencesCSVFile(message.getEvent(),message.getClients(),CSV_PATH + tfFileName.getText() + ".csv");
+        }
     }
 
     @FXML
     private void setBtnSearch(){
-        modelManager.getEventsByUser(tfUserEmail.getText());
+        modelManager.getPresencesByEvent(tfEvent.getText());
     }
 }

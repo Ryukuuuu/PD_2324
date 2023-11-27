@@ -170,7 +170,7 @@ public class NewUserConnection implements Runnable{
                 return new Message(MessageTypes.GENERATE_EVENT_CODE, editedEvent);
             }
             case CHECK_REGISTERED_PRESENCES -> {
-                return new Message(dbConnection.getPresences(messageReceived.getEvent().getName()), MessageTypes.CHECK_REGISTERED_PRESENCES);
+                return new Message(dbConnection.getPresences(messageReceived.getEvent().getName()), MessageTypes.CHECK_REGISTERED_PRESENCES,dbConnection.getEventByName(messageReceived.getEvent().getName()));
             }
 
             case CHECK_USER_REGISTERED_PRESENCES -> {
@@ -199,7 +199,6 @@ public class NewUserConnection implements Runnable{
                 }
             }
             case LOGOUT -> {return new Message(MessageTypes.LOGOUT);}
-
             case QUIT -> {
                 keepRunning = false;
                 return new Message(MessageTypes.QUIT);

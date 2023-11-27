@@ -3,6 +3,7 @@ package client.ui.controllers;
 import client.fsm.states.ClientState;
 import client.model.ModelManager;
 import com.sun.webkit.Timer;
+import data.MessageTypes;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -18,6 +19,8 @@ public class AdminMenuController {
     public Button btnCheckEvent;
     public Button btnAddDeletePresence;
     public Button btnCheckUserPresences;
+    public Button btnCheckPresencesInEvent;
+    public Button btnCheckCreatedEvents;
     private ModelManager modelManager;
 
     public void init(ModelManager modelManager){
@@ -36,6 +39,10 @@ public class AdminMenuController {
 
     @FXML
     private void setBtnCheckUserPresences(){modelManager.toEvents();}
+    @FXML
+    private void setBtnCheckPresencesInEvent(){modelManager.presencesInEvent();}
+    @FXML
+    private void setBtnCheckCreatedEvents(){modelManager.sendEventsMessage(MessageTypes.CHECK_CREATED_EVENTS);}
     @FXML
     private void setBtnCreateEvent(){
         modelManager.createEventMenu();

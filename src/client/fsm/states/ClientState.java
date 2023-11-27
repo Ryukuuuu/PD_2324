@@ -16,6 +16,7 @@ public enum ClientState {
     EVENT_MENU,
     ADMIN_EVENT_MENU_BY_USERS,
     ADMIN_EVENT_MENU_BY_EVENTS,
+    ADMIN_EVENT_MENU,
     CREATE_EVENT,
     EDIT_EVENT,
     DELETE_EVENT,
@@ -35,6 +36,7 @@ public enum ClientState {
             case EVENT_MENU -> new EventMenu(clientManager,context);
             case ADMIN_EVENT_MENU_BY_USERS -> new AdminEventMenuByUsers(clientManager,context);
             case ADMIN_EVENT_MENU_BY_EVENTS -> new AdminEventMenuByEvents(clientManager,context);
+            case ADMIN_EVENT_MENU -> new AdminEventMenu(clientManager,context);
             case ADD_DELETE_PRESENCE_TO_EVENT -> new AddDeletePresenceToEvent(clientManager,context);
             case CHECK_PRESENCES_EVENT -> new CheckPresencesOfEvent(clientManager,context);
             case CREATE_EVENT -> new CreateEvent(clientManager,context);

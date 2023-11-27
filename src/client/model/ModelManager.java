@@ -22,6 +22,7 @@ public class ModelManager {
     public static final String PROP_UPDATE_REFRESH_EVENT = "_refreshEvent_";
     public static final String PROP_ADD_PRESENCE_UPDATE = "_addPresenceUpdate_";
     public static final String PROP_UPDATE_DELETE_PRESENCE = "_deletePrecenseUpdate_";
+    public static final String PROP_UPDATE_QUIT = "_quit_";
 
     public static final String PROP_STATE = "_state_";
 
@@ -146,6 +147,7 @@ public class ModelManager {
     }
     public void fireDeletePresenceUpdate(){pcs.firePropertyChange(PROP_UPDATE_DELETE_PRESENCE,null,null);}
     public void fireEventRefreshUpdate(){pcs.firePropertyChange(PROP_UPDATE_REFRESH_EVENT,null,null);}
+    public void fireQuitUpdate(){pcs.firePropertyChange(PROP_UPDATE_QUIT,null,null);}
     public void fireUpdate(){
         pcs.firePropertyChange(PROP_UPDATE,null,null);
     }
@@ -154,8 +156,9 @@ public class ModelManager {
     public void resendLastMessageToServer(){connectionManager.resendLastMessage();}
 
     /*-------------------------Events------------------------*/
-    public void sendEventsMessage(){
-        connectionManager.sendMessageToServer(createMessage(MessageTypes.CHECK_PRESENCES));
+    public void sendEventsMessage(MessageTypes type){
+        System.out.println("Sended: " + type);
+        connectionManager.sendMessageToServer(createMessage(type));
     }
 
     public void events(){
@@ -163,10 +166,15 @@ public class ModelManager {
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
 
-    public void sendEventsMessageWithFilters(Event eventFilter){connectionManager.sendMessageToServer(createMessage(MessageTypes.CHECK_PRESENCES,eventFilter));}
+    public void sendEventsMessageWithFilters(Event eventFilter,MessageTypes type){connectionManager.sendMessageToServer(createMessage(MessageTypes.CHECK_PRESENCES,eventFilter));}
 
     public void toEvents(){
         fsm.adminEvents();
+        pcs.firePropertyChange(PROP_STATE,null,null);
+    }
+
+    public void presencesInEvent(){
+        fsm.toCheckPresencesOfEvent();
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
 
@@ -192,6 +200,7 @@ public class ModelManager {
     public void sendDeleteEventMessage(String name){connectionManager.sendMessageToServer(createMessage(MessageTypes.REMOVE_EVENT,new Event(name)));}
 
     public void getEventsByUser(String email){connectionManager.sendMessageToServer(createMessage(MessageTypes.CHECK_USER_REGISTERED_PRESENCES,new ClientData(email)));}
+    public void getPresencesByEvent(String name){connectionManager.sendMessageToServer(createMessage(MessageTypes.CHECK_REGISTERED_PRESENCES,new Event(name)));}
     /*---------------------END EXECUTION---------------------*/
     public void closeConnection(){
         connectionManager.sendMessageToServer(createMessage(MessageTypes.QUIT,fsm.getClientData()));

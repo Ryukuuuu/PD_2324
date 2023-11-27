@@ -58,10 +58,7 @@ public class ConnectionManager {
                     try {
                         messageFromServer = (Message) ois.readObject();
                         checkMessageReceived();
-                    } catch (SocketTimeoutException e) {
-                        modelManager.fireUpdate();
-                        keepListening=false;
-                    } catch (ClassNotFoundException | IOException e){
+                    } catch (ClassNotFoundException | IOException e) {
                         keepListening=false;
                     }
                 }
@@ -106,12 +103,12 @@ public class ConnectionManager {
                 case LOGOUT -> modelManager.logout();
                 case EDIT_LOG_INFO -> modelManager.editUserInformation(messageFromServer.getClientData());
                 case SUBMIT_CODE, GENERATE_EVENT_CODE -> modelManager.fireCodeUpdate();
-                case REMOVE_EVENT,CHECK_USER_REGISTERED_PRESENCES -> modelManager.fireEventUpdate();
+                case CHECK_USER_REGISTERED_PRESENCES, CHECK_REGISTERED_PRESENCES -> modelManager.fireEventUpdate();
                 case CLIENT_UPDATE-> modelManager.fireUpdate();
                 case ADD_PRESENCE -> modelManager.fireAddPresenceUpdate();
-                case REMOVE_PRESENCE -> modelManager.fireDeletePresenceUpdate();
-                case CHECK_PRESENCES -> modelManager.events();
+                case CHECK_PRESENCES,CHECK_CREATED_EVENTS -> modelManager.events();
                 case EVENT_UPDATE -> modelManager.fireEventRefreshUpdate();
+                case QUIT -> modelManager.fireQuitUpdate();
                 //Received a message from server and notifies modelManager to update the view
                 default -> modelManager.fireUpdate();
             }

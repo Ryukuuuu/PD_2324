@@ -38,6 +38,7 @@ public class UserConnectionsThread extends Thread{
     }
 
     public void notifyAllClientsEventsUpdate(){
+        System.out.println(userConnections.size());
         for(NewUserConnection newUserConnection : userConnections){
             newUserConnection.notifyEventUpdate();
         }

@@ -29,7 +29,7 @@
                   <Font size="15.0" />
                </font>
             </TextField>
-            <TextField fx:id="tfUserEmail" layoutX="156.0" layoutY="19.0" promptText="Event" />
+            <TextField fx:id="tfUserEmail" layoutX="156.0" layoutY="19.0" promptText="Email" />
             <Button fx:id="btnSearch" onAction="#setBtnSearch" layoutX="312.0" layoutY="15.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="87.0" text="Search">
                <font>
                   <Font size="15.0" />

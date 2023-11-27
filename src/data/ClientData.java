@@ -45,33 +45,11 @@ public class ClientData implements Serializable {
     }
 
 
-    //Called if login is successful to fill the object with the info in the database
-    public void fillClientDataAfterLogin(ClientData clientData){
-        this.name = clientData.getName();
-        this.id = clientData.getId();
-        this.admin = clientData.isAdmin();
-    }
-
     public boolean hasInformationToDisplay(){
         if(name != null && email != null && id != 0){
             return true;
         }
         return false;
-    }
-    
-    public void updateData(ClientData clientData){
-        if(clientData.getName() != null){
-            this.name = clientData.getName();
-        }
-        if(clientData.getEmail() != null){
-            this.email = clientData.getEmail();
-        }
-        if(clientData.getPassword() != null){
-            this.password = clientData.getPassword();
-        }
-        if(clientData.getId() != 0){
-            this.id = clientData.getId();
-        }
     }
 
     public String getName() {

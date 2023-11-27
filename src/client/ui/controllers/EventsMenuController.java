@@ -3,6 +3,7 @@ package client.ui.controllers;
 import client.fsm.states.ClientState;
 import client.model.ModelManager;
 import data.Event;
+import data.MessageTypes;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -55,17 +56,16 @@ public class EventsMenuController {
     }
 
     private void update(){
-        borderPane.setVisible(modelManager.getState() == ClientState.EVENT_MENU);
-        if(modelManager.getState() == ClientState.EVENT_MENU) {
+        borderPane.setVisible(modelManager.getState() == ClientState.EVENT_MENU || modelManager.getState() == ClientState.ADMIN_EVENT_MENU);
+        if(modelManager.getState() == ClientState.EVENT_MENU || modelManager.getState() == ClientState.ADMIN_EVENT_MENU) {
             updateEvents();
-            checkInfoForCSV();
         }
     }
 
     private boolean updateEvents(){
         table.getItems().clear();
         events = modelManager.checkLastMessageFromServer().getEvents();
-        //System.out.println(events);
+        System.out.println(events);
         if(events == null) return false;
         if(events.isEmpty()) return false;
         table.getItems().addAll(events);
@@ -77,7 +77,6 @@ public class EventsMenuController {
     }
 
     private boolean checkInfoForCSV(){
-        System.out.println("Equals: " + tfFileName.getText().equals("")+"\nEmpty: " + table.getItems().isEmpty());
         if(tfFileName.getText().equals(""))
             return true;
         if(table.getItems().isEmpty())
@@ -101,6 +100,9 @@ public class EventsMenuController {
     @FXML
     private void setBtnSearch(){
         Event eventFilter = new Event(tfName.getText(),tfLocal.getText(),tfDate.getText(),tfStartingTime.getText(),tfEndingTime.getText());
-        modelManager.sendEventsMessageWithFilters(eventFilter);
+        if(modelManager.getState() == ClientState.EVENT_MENU)
+            modelManager.sendEventsMessageWithFilters(eventFilter, MessageTypes.CHECK_PRESENCES);
+        else
+            modelManager.sendEventsMessageWithFilters(eventFilter, MessageTypes.CHECK_CREATED_EVENTS);
     }
 }
