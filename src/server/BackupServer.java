@@ -165,12 +165,11 @@ public class BackupServer extends UnicastRemoteObject implements GetRemoteDataba
             }
 
             while (true) {
-                DatagramPacket packetCiclo = new DatagramPacket(new byte[MAX_SIZE], MAX_SIZE);
 
                 try {
-                    multicastSocket.receive(packetCiclo);
+                    multicastSocket.receive(packet);
 
-                    try (ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(packetCiclo.getData())))
+                    try (ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(packet.getData())))
                     {
                         HeartBeat heartBeatCiclo = (HeartBeat) oin.readObject();
 
