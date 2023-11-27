@@ -3,10 +3,13 @@ package client.ui;
 import client.model.ModelManager;
 import client.ui.controllers.RootController;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class MainJFX extends Application {
 
@@ -23,6 +26,13 @@ public class MainJFX extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(MainJFX.class.getResource("layout/root-pane.fxml"));
         Parent child = fxmlLoader.load();
         RootController r = fxmlLoader.getController();
+        stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent windowEvent) {
+                modelManager.closeConnection();
+                Platform.exit();
+            }
+        });
         r.init(modelManager);
         Scene scene = new Scene(child,1000,800);
         stage.setScene(scene);
