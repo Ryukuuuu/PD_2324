@@ -20,24 +20,14 @@ public class HeartBeat implements Serializable {
         return rmiPort;
     }
 
-    public void setRmiPort(int rmiPort) {
-        this.rmiPort = rmiPort;
-    }
 
     public String getRmiServiceName() {
         return rmiServiceName;
     }
 
-    public void setRmiServiceName(String rmiServiceName) {
-        this.rmiServiceName = rmiServiceName;
-    }
 
     public long getDataBaseVersionNumber() {
         return dataBaseVersionNumber;
-    }
-
-    public void setDataBaseVersionNumber(long dataBaseVersionNumber) {
-        this.dataBaseVersionNumber = dataBaseVersionNumber;
     }
 
     @Override

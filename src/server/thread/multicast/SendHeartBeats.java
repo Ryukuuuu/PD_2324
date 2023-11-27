@@ -69,7 +69,6 @@ public class SendHeartBeats extends Thread{
             DatagramPacket dp = new DatagramPacket(baos.toByteArray(), baos.size(),InetAddress.getByName(multicastGroup),multicastPort);
 
             multicastSocket.send(dp);
-            //System.out.println("HeartBeat sent[setDataBaseVersion]");
         }catch (IOException e){
             throw new RuntimeException(e);
         }

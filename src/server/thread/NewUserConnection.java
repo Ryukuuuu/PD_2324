@@ -243,7 +243,7 @@ public class NewUserConnection implements Runnable{
 
                 responseMessage = handleRequestMessage(requestMessage);
                 try {
-                    System.out.println("<RESPOSTA> " + requestMessage.getType().name() + " de <" + requestMessage.getClientData().getEmail() + ">");
+                    System.out.println("<RESPOSTA> " + requestMessage.getType().name() + " de <" + requestMessage.getClientData().getEmail() + ">>>" + responseMessage.getType().name());
                 } catch (NullPointerException e) {
                     System.out.println("<RESPOSTA> " + requestMessage.getType().name() + " de <" + clientData.getEmail() + ">>> " + responseMessage.getType().name());
                 }
