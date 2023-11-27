@@ -492,20 +492,25 @@ public class DatabaseConnection {
     public synchronized boolean addPresence(String clientEmail, String eventName, String atTime){
         Statement insertStatement;
         int result;
-        try {
-            insertStatement = conn.createStatement();
-            String insertClientEventStatement = "INSERT INTO ClientsEvents (clientEmail, eventName, atTime) VALUES " +
-                                                "('" + clientEmail + "','" + eventName + "','" + atTime + "');";
-            result = insertStatement.executeUpdate(insertClientEventStatement);
-            if(result != 0){
-                updateDBVersion();
-                System.out.println("<Database|Insercao> Nova presenca.");
-                System.out.println("\tEmail: '" + clientEmail + "', Event: '" + eventName + "', Time: '" + atTime + "'");
-                return true;
+
+        Event myEvent = getEventByName(eventName);
+        if(myEvent != null){
+            try {
+                insertStatement = conn.createStatement();
+                String insertClientEventStatement = "INSERT INTO ClientsEvents (clientEmail, eventName, atTime) VALUES " +
+                        "('" + clientEmail + "','" + eventName + "','" + atTime + "');";
+                result = insertStatement.executeUpdate(insertClientEventStatement);
+                if(result != 0){
+                    updateDBVersion();
+                    System.out.println("<Database|Insercao> Nova presenca.");
+                    System.out.println("\tEmail: '" + clientEmail + "', Event: '" + eventName + "', Time: '" + atTime + "'");
+                    return true;
+                }
+            } catch (SQLException e) {
+                System.out.println("<Database|Erro> Insercao de uma nova presenca.");
             }
-        } catch (SQLException e) {
-            System.out.println("<Database|Erro> Insercao de uma nova presenca.");
         }
+
         return false;
     }
     public synchronized boolean checkCodeToAssignPresence(long eventCode, String email, String atTime) {
