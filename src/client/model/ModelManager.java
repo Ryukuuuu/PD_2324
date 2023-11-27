@@ -147,7 +147,7 @@ public class ModelManager {
     }
     public void fireDeletePresenceUpdate(){pcs.firePropertyChange(PROP_UPDATE_DELETE_PRESENCE,null,null);}
     public void fireEventRefreshUpdate(){pcs.firePropertyChange(PROP_UPDATE_REFRESH_EVENT,null,null);}
-    public void fireQuitUpdate(){pcs.firePropertyChange(PROP_UPDATE_QUIT,null,null);}
+
     public void fireUpdate(){
         pcs.firePropertyChange(PROP_UPDATE,null,null);
     }

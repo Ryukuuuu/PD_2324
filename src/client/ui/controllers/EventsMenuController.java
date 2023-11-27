@@ -65,7 +65,7 @@ public class EventsMenuController {
     private boolean updateEvents(){
         table.getItems().clear();
         events = modelManager.checkLastMessageFromServer().getEvents();
-        System.out.println(events);
+        //System.out.println(events);
         if(events == null) return false;
         if(events.isEmpty()) return false;
         table.getItems().addAll(events);

@@ -108,7 +108,7 @@ public class ConnectionManager {
                 case ADD_PRESENCE -> modelManager.fireAddPresenceUpdate();
                 case CHECK_PRESENCES,CHECK_CREATED_EVENTS -> modelManager.events();
                 case EVENT_UPDATE -> modelManager.fireEventRefreshUpdate();
-                case QUIT -> modelManager.fireQuitUpdate();
+                case QUIT -> modelManager.closeConnection();
                 //Received a message from server and notifies modelManager to update the view
                 default -> modelManager.fireUpdate();
             }

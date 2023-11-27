@@ -45,7 +45,7 @@ public class ProfileController {
 
     private void fillTextsWithClientData(){
         ClientData clientData = modelManager.getClientData();
-        System.out.println(clientData);
+        //System.out.println(clientData);
         if(clientData == null)
             return;
         if(clientData.hasInformationToDisplay()){

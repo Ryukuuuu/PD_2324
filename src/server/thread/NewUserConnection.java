@@ -93,6 +93,7 @@ public class NewUserConnection implements Runnable{
                     this.clientData = clientData;
                     return new Message(MessageTypes.LOGGED_IN,clientData);
                 }
+                return new Message(MessageTypes.QUIT);
             }
             case SIGNING -> {
                 if(dbConnection.addNewEntryToClients(messageReceived.getClientData())){

@@ -32,7 +32,7 @@ public class AdminGenerateEventCodeController {
     }
 
     private void update(){
-        System.out.println(modelManager.getState());
+        //System.out.println(modelManager.getState());
         borderPane.setVisible(modelManager.getState() == ClientState.GENERATE_EVENT_CODE);
     }
 
