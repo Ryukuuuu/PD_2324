@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserConnectionsThread extends Thread{
-    private final int LOGIN_TIMEOUT = 10000;
+    private final int LOGIN_TIMEOUT = 100000;
     private final int listening_port;
     private DatabaseConnection dbConnection;
     private SendHeartBeats sendHeartBeats;
