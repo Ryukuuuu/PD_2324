@@ -58,19 +58,40 @@ public class SignInController {
         tfPassword.clear();
     }
 
-    @FXML
-    private void submitSignIn(){
-        if(checkId()) {
-            modelManager.submitSignIn(tfName.getText(), Long.parseLong(tfId.getText()), tfEmail.getText(), tfPassword.getText());
-            //System.out.println("Submitted:" + modelManager.getState());
-        }
-        else{
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setHeaderText("Id must be a number");
-            alert.show();
-        }
+    private boolean isValidEmail() {
+        return tfEmail.getText().matches("\\S+(@isec\\.pt|esac\\.pt|esec\\.pt|estgoh\\.pt|estesc\\.pt|iscac\\.pt)");
     }
 
+    private boolean checkInfo(){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        if(tfName.getText().equals("")){
+            alert.setHeaderText("Insert a valid name");
+            alert.show();
+            return false;
+        }
+        if(!checkId()){
+            alert.setHeaderText("Id must be a number");
+            alert.show();
+            return false;
+        }
+        if(!isValidEmail()){
+            alert.setHeaderText("Invalid email");
+            alert.show();
+            return false;
+        }
+        if(tfPassword.getText().equals("")){
+            alert.setHeaderText("Insert a password");
+            alert.show();
+            return false;
+        }
+        return true;
+    }
+
+    @FXML
+    private void submitSignIn() {
+        if (checkInfo())
+            modelManager.submitSignIn(tfName.getText(), Long.parseLong(tfId.getText()), tfEmail.getText(), tfPassword.getText());
+    }
     @FXML
     private void setBtnBack(){modelManager.back();}
 }
