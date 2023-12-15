@@ -36,7 +36,7 @@ public class UserMenuController {
 
     private void registerHandlers(){
         modelManager.addClient(ModelManager.PROP_STATE,evt -> Platform.runLater(this::update));
-        modelManager.addClient(ModelManager.PROP_UPDATE_CODE,evt -> Platform.runLater(this::showResultOfCodeSubmitted));
+        //modelManager.addClient(ModelManager.PROP_UPDATE_CODE,evt -> Platform.runLater(this::showResultOfCodeSubmitted));
         //modelManager.addClient(ModelManager.PROP_ADD_PRESENCE_UPDATE,evt -> Platform.runLater(this::showUpdate));
         modelManager.addClient(ModelManager.PROP_UPDATE_DELETE_PRESENCE,evt -> Platform.runLater(this::notifyDeletedPresence));
     }
