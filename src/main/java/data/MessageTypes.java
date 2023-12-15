@@ -1,0 +1,36 @@
+package data;
+
+public enum MessageTypes {
+    //Normal user types
+    SUBMIT_CODE,
+    EDIT_LOG_INFO,
+    CHECK_PRESENCES,
+    GET_PRESENCES_CSV,
+
+    //Administrator types
+    CREATE_EVENT,
+    EDIT_EVENT,
+    REMOVE_EVENT,
+    EVENT_UPDATE,
+    EVENT_UPDATE_REFRESH,
+    CLIENT_UPDATE,
+    CHECK_CREATED_EVENTS,
+    GENERATE_EVENT_CODE,
+    CHECK_REGISTERED_PRESENCES,
+    GET_REGISTERED_PRESENCES_CSV,
+    CHECK_USER_REGISTERED_PRESENCES,
+    GET_USER_REGISTERED_PRESENCES_CSV,
+    REMOVE_PRESENCE,
+    ADD_PRESENCE,
+
+    //Common types
+    LOGIN,
+    LOGOUT,
+    SIGNING,
+    QUIT,
+
+    //Server Return Messages
+    FAILED,
+    LOGGED_IN,
+    ACC_CREATED
+}
