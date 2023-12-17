@@ -29,14 +29,12 @@ public class ConnectionManagerREST {
             connection.setRequestProperty("Authorization", authorizationValue);
         }
 
-        // Não é necessário?
-        /*
+
         if (body != null) {
             connection.setDoOutput(true);
             connection.setRequestProperty("Content-Type", "Application/Json");
             connection.getOutputStream().write(body.getBytes());
         }
-        */
 
         connection.connect();
 

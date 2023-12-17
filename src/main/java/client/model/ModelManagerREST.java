@@ -5,6 +5,7 @@ import client.fsm.states.ClientState;
 import com.nimbusds.jose.shaded.gson.Gson;
 import data.ClientData;
 import data.Event;
+import org.ietf.jgss.GSSContext;
 import pt.isec.pd.spring_boot.exemplo3.models.RequestMessage;
 
 import java.beans.PropertyChangeListener;
@@ -27,6 +28,7 @@ public class ModelManagerREST {
     private static final String editUserURI = "http://localhost:8080/client/edit";
 
     private static final String submitEventCodeURI = "http://localhost:8080/events/submitCode";
+    private static final String generateEventCodeURI = "http://localhost:8080/events/generateCode";
     private static final String checkPresencesURI = "http://localhost:8080/events/checkPresences";
     private static final String addPresenceURI = "http://localhost:8080/events/addPresence";
     private static final String deletePresenceURI = "http://localhost:8080/events/deletePresence";
@@ -88,7 +90,7 @@ public class ModelManagerREST {
     public void submitSigning(String name, long id, String email, String password){
         ClientData signingClientInfo = new ClientData(name, id, email, password);
         try {
-            connectionManager.sendRequestAndShowResponse(signingURI, POST, null, getBase64EncodedObject(signingClientInfo));
+            connectionManager.sendRequestAndShowResponse(signingURI, POST, null, convertObjectToJSON(signingClientInfo));
         }catch (IOException e){
             System.out.println("<MMREST>Erro submiting sign in");
         }
@@ -107,8 +109,9 @@ public class ModelManagerREST {
 
     public void sendEditUserInformationMessage(String name,String password,long id,String email){
         ClientData clientInfo = new ClientData(name, id, email, password);
+        System.out.println(clientInfo);
         try{
-            connectionManager.sendRequestAndShowResponse(editUserURI,POST,"bearer " + token,getBase64EncodedObject(clientInfo));
+            connectionManager.sendRequestAndShowResponse(editUserURI,POST,"bearer " + token,convertObjectToJSON(clientInfo));
         }catch (IOException e){
             System.out.println("<MMREST>Error editing credencials");
         }
@@ -132,7 +135,7 @@ public class ModelManagerREST {
 
     public void sendEventsMessageWithFilters(Event event){
         try{
-            connectionManager.sendRequestAndShowResponse(getEventsURI,GET,"bearer " + token,getBase64EncodedObject(event));
+            connectionManager.sendRequestAndShowResponse(getEventsURI,GET,"bearer " + token,convertObjectToJSON(event));
         }catch (IOException e){
             System.out.println("<MMREST> error getting events with filters");
         }
@@ -179,7 +182,7 @@ public class ModelManagerREST {
         RequestMessage requestMessage = new RequestMessage(getClientData(),eventCode);
 
         try {
-            connectionManager.sendRequestAndShowResponse(submitEventCodeURI, POST, "bearer " + token, getBase64EncodedObject(requestMessage));
+            connectionManager.sendRequestAndShowResponse(submitEventCodeURI, POST, "bearer " + token, convertObjectToJSON(requestMessage));
         }catch (IOException e){
             System.out.println("<MMREST>Error submiting code");
         }
@@ -190,7 +193,7 @@ public class ModelManagerREST {
     public void createEvent(String name,String local,String date,String startingTime,String endingTime){
         RequestMessage requestMessage = new RequestMessage(new Event(name, local, date, startingTime, endingTime));
         try{
-            connectionManager.sendRequestAndShowResponse(createEventURI,POST,"bearer " + token,getBase64EncodedObject(requestMessage));
+            connectionManager.sendRequestAndShowResponse(createEventURI,POST,"bearer " + token,convertObjectToJSON(requestMessage));
         }catch (IOException e){
             System.out.println("<MMREST>Error creating event");
         }
@@ -199,7 +202,7 @@ public class ModelManagerREST {
     public void sendDeleteEventMessage(String eventName){
         RequestMessage requestMessage = new RequestMessage(new Event(eventName));
         try{
-            connectionManager.sendRequestAndShowResponse(deleteEventURI,DELETE,"bearer " + token,getBase64EncodedObject(requestMessage));
+            connectionManager.sendRequestAndShowResponse(deleteEventURI,DELETE,"bearer " + token,convertObjectToJSON(requestMessage));
         }catch (IOException e){
             System.out.println("<MMREST>Error deleting event");
         }
@@ -208,7 +211,7 @@ public class ModelManagerREST {
     public void sendEditEventMessage(String name,String local,String date,String startingTime,String endingTime){
         RequestMessage requestMessage = new RequestMessage(new Event(name, local, date, startingTime, endingTime));
         try{
-            connectionManager.sendRequestAndShowResponse(editEventURI,POST,"bearer " + token,getBase64EncodedObject(requestMessage));
+            connectionManager.sendRequestAndShowResponse(editEventURI,POST,"bearer " + token,convertObjectToJSON(requestMessage));
         }catch (IOException e){
             System.out.println("<MMREST>Error editing message");
         }
@@ -219,7 +222,7 @@ public class ModelManagerREST {
     public void sendAddPresenceMessage(String email,String eventName){
         RequestMessage requestMessage = new RequestMessage(new ClientData(email),new Event(eventName));
         try {
-            connectionManager.sendRequestAndShowResponse(addPresenceURI, POST, "bearer " + token, getBase64EncodedObject(requestMessage));
+            connectionManager.sendRequestAndShowResponse(addPresenceURI, POST, "bearer " + token, convertObjectToJSON(requestMessage));
         }catch (IOException e){
             System.out.println("<MMREST>Error adding presence");
         }
@@ -228,7 +231,7 @@ public class ModelManagerREST {
     public void sendDeletePresencesMessage(String eventName){
         RequestMessage requestMessage = new RequestMessage(new Event(eventName));
         try{
-            connectionManager.sendRequestAndShowResponse(deletePresenceURI,DELETE,"bearer " + token, getBase64EncodedObject(requestMessage));
+            connectionManager.sendRequestAndShowResponse(deletePresenceURI,DELETE,"bearer " + token, convertObjectToJSON(requestMessage));
         }catch (IOException e){
             System.out.println("<MMREST>Error deleting presence");
         }
@@ -237,7 +240,7 @@ public class ModelManagerREST {
 
     public void getPresencesByEvent(String eventName){
         try{
-            connectionManager.sendRequestAndShowResponse(getPresencesByEventURI,GET,"bearer " + token,getBase64EncodedObject(eventName));
+            connectionManager.sendRequestAndShowResponse(getPresencesByEventURI,GET,"bearer " + token,convertObjectToJSON(eventName));
         }catch (IOException e){
             System.out.println("<MMREST>Error getting presences from event");
         }
@@ -245,7 +248,7 @@ public class ModelManagerREST {
 
     public void getEventsByUser(String email){
         try{
-            connectionManager.sendRequestAndShowResponse(getPresencesByUserURI,GET,"bearer "+token,getBase64EncodedObject(email));
+            connectionManager.sendRequestAndShowResponse(getPresencesByUserURI,GET,"bearer "+token,convertObjectToJSON(email));
         }catch (IOException e){
             System.out.println("<MMREST>Error getting presences of user");
         }
@@ -254,7 +257,10 @@ public class ModelManagerREST {
     /*---------------------EVENT CODE---------------------*/
 
     public void sendGenerateCodeMessage(String eventName,String duration){
-
+        RequestMessage requestMessage = new RequestMessage(new Event(eventName,duration));
+        try{
+            connectionManager.sendRequestAndShowResponse(generateEventCodeURI,POST,"bearer"+token,convertObjectToJSON(requestMessage));
+        }catch (IOException e){}
     }
 
     public long getGeneratedCode(){
@@ -324,6 +330,7 @@ public class ModelManagerREST {
 
     /*---------------------ENCODING---------------------*/
     private <T> String getBase64EncodedObject(T obj) {
+
         try (
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos)
@@ -331,12 +338,15 @@ public class ModelManagerREST {
 
             oos.writeObject(obj);
             byte[] objByteArray = baos.toByteArray();
-
             return Base64.getEncoder().encodeToString(objByteArray);
         } catch (IOException e) {
             System.out.println("Error encoding");
         }
         return null;
+    }
+
+    private <T> String convertObjectToJSON(T obj){
+        return new Gson().toJson(obj);
     }
 
     /*---------------------STATE---------------------*/

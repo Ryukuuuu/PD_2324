@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpsServer;
 import data.ClientData;
 import data.Event;
 import database.DatabaseConnection;
+import jakarta.annotation.security.RolesAllowed;
 import org.apache.coyote.Response;
 import org.springframework.cglib.core.Local;
 import org.springframework.http.HttpEntity;
@@ -17,6 +18,8 @@ import javax.xml.crypto.Data;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Random;
 
 @RestController
 public class EventsController {
@@ -30,6 +33,20 @@ public class EventsController {
             }
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid code");
+    }
+
+    @PostMapping("events/generateCode")
+    @RolesAllowed("ADMIN")
+    public ResponseEntity generateEventCode(@RequestBody RequestMessage requestMessage){
+        Event editedEvent;
+        Calendar currentTime = Calendar.getInstance();
+        currentTime.add(Calendar.MINUTE,Integer.parseInt(requestMessage.getEvent().getCodeValidityEnding()));
+        requestMessage.getEvent().setCodeValidityEnding(currentTime.get(Calendar.HOUR_OF_DAY)+":"+currentTime.get(Calendar.MINUTE)+":"+currentTime.get(Calendar.SECOND));
+        do{
+            long newCode = generateCode();
+            editedEvent = DatabaseConnection.getInstance().editActiveCode(requestMessage.getEvent().getName(), newCode, requestMessage.getEvent().getCodeValidityEnding());
+        }while (editedEvent == null);
+        return ResponseEntity.status(HttpStatus.OK).body(editedEvent);
     }
 
 
@@ -68,8 +85,10 @@ public class EventsController {
     }
 
     @PostMapping("events/create")
+    //@RolesAllowed("ADMIN")
     public ResponseEntity createEvent(@RequestBody RequestMessage requestMessage){
         DatabaseConnection dbConnection = DatabaseConnection.getInstance();
+        System.out.println("TESTE");
         if(dbConnection.addNewEntryToEvents(requestMessage.getEvent())){
             return ResponseEntity.status(HttpStatus.OK).body("Event Created");
         }
@@ -102,5 +121,14 @@ public class EventsController {
     public ResponseEntity getEvents(@RequestBody Event event){
         ArrayList<Event> events = DatabaseConnection.getInstance().getEvents(event,null);
         return ResponseEntity.status(HttpStatus.OK).body(events);
+    }
+
+    private long generateCode(){
+        Random random = new Random();
+        // Generate a random number between 1000 and 9999
+        int randomInt = random.nextInt(9000) + 1000;
+
+        // Convert the int to long and return
+        return randomInt;
     }
 }

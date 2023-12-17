@@ -211,7 +211,6 @@ public class NewUserConnection implements Runnable{
 
     private long generateCode() {
         Random random = new Random();
-
         // Generate a random number between 1000 and 9999
         int randomInt = random.nextInt(9000) + 1000;
 

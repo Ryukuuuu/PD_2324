@@ -32,7 +32,10 @@ public class ClientController {
                                          @RequestBody ClientData clientData){
         DatabaseConnection dbConnection = DatabaseConnection.getInstance();
         ClientData clientInfo = dbConnection.getClientWithoutPass(authentication.getName());
-        if(clientInfo != null && clientData != null){
+
+        System.out.println("ClientInfo: " + authentication.getName());
+
+        if(clientInfo != null){
             ClientData newClientInfo = dbConnection.editClientInfo(clientData);
             if(newClientInfo != null){
                 return ResponseEntity.status(HttpStatus.OK).body(newClientInfo);
