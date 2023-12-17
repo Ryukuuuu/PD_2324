@@ -12,6 +12,9 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class MainJFX extends Application {
 
     ModelManagerREST modelManager;
@@ -26,7 +29,8 @@ public class MainJFX extends Application {
 
     @Override
     public void start(Stage stage) throws Exception{
-        FXMLLoader fxmlLoader = new FXMLLoader(MainJFX.class.getResource("layout/root-pane.fxml"));
+
+        FXMLLoader fxmlLoader = new FXMLLoader(MainJFX.class.getResource("/layout/root-pane.fxml"));
         Parent child = fxmlLoader.load();
         RootController r = fxmlLoader.getController();
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {

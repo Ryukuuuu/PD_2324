@@ -11,5 +11,7 @@ public class ClientREST {
 
     //private static ModelManagerREST modelManagerREST = new ModelManagerREST();
 
-    public static void main(String[] args) {Application.launch(MainJFX.class, args);}
+    public static void main(String[] args) {
+        Application.launch(MainJFX.class, args);
+    }
 }

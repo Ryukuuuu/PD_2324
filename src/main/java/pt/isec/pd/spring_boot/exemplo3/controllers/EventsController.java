@@ -97,6 +97,7 @@ public class EventsController {
         return ResponseEntity.status(HttpStatus.OK).body(events);
     }
 
+    // passar isto para /events ?
     @GetMapping("events/getEvents")
     public ResponseEntity getEvents(@RequestBody Event event){
         ArrayList<Event> events = DatabaseConnection.getInstance().getEvents(event,null);
