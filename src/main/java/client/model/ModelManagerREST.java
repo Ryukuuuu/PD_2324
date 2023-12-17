@@ -10,7 +10,6 @@ import pt.isec.pd.spring_boot.exemplo3.models.RequestMessage;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Base64;
 
@@ -20,10 +19,13 @@ public class ModelManagerREST {
     private static final String POST = "POST";
     private static final String GET = "GET";
     private static final String DELETE = "DELETE";
+
     private static final String loginURI = "http://localhost:8080/login";
-    private static final String getClientInfoAfterLoginURI = "http://localhost:8080/client";
     private static final String signingURI = "http://localhost:8080/signing";
+
+    private static final String getClientInfoAfterLoginURI = "http://localhost:8080/client";
     private static final String editUserURI = "http://localhost:8080/client/edit";
+
     private static final String submitEventCodeURI = "http://localhost:8080/events/submitCode";
     private static final String checkPresencesURI = "http://localhost:8080/events/checkPresences";
     private static final String addPresenceURI = "http://localhost:8080/events/addPresence";
@@ -61,10 +63,10 @@ public class ModelManagerREST {
             token = connectionManager.sendRequestAndShowResponse(loginURI, POST, "basic " + credentials, null);
             if (token != null) {
                 String clientInfoJSON = connectionManager.sendRequestAndShowResponse(getClientInfoAfterLoginURI, GET, "bearer " + token, null);
-                Gson gson = new Gson();
+                Gson gson = new Gson();  // new GsonBuilder().create(); ?
                 loginSuccess(gson.fromJson(clientInfoJSON, ClientData.class));
             }
-        }catch (IOException e){}
+        }catch (IOException ignored){}
     }
 
     public void loginSuccess(ClientData clientData){
@@ -166,14 +168,11 @@ public class ModelManagerREST {
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
 
-
-
     /*---------------------LOG OUT---------------------*/
     public void logout(){
         fsm.logout();
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
-
 
     /*---------------------SUBMIT CODE---------------------*/
     public void submitEventCode(long eventCode){
@@ -324,17 +323,17 @@ public class ModelManagerREST {
     }
 
     /*---------------------ENCODING---------------------*/
-    private <T> String getBase64EncodedObject(T obj){
-        try(
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(baos)
-                ){
+    private <T> String getBase64EncodedObject(T obj) {
+        try (
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos)
+        ) {
 
             oos.writeObject(obj);
             byte[] objByteArray = baos.toByteArray();
 
             return Base64.getEncoder().encodeToString(objByteArray);
-        }catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Error encoding");
         }
         return null;

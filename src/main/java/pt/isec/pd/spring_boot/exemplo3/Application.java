@@ -93,7 +93,8 @@ public class Application {
 		public SecurityFilterChain eventsFilterChain(HttpSecurity http) throws Exception{
 			return http
 					.csrf(AbstractHttpConfigurer::disable)
-					.securityMatcher("/events","/events/**")
+					.securityMatcher("/hello", "/hello/**", "/swagger-ui/**", "/v3/**")
+					//.securityMatcher("/events","/events/**")
 					.authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
 					.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 					.build();
