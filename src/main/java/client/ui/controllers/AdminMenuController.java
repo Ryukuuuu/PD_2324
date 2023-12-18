@@ -39,11 +39,11 @@ public class AdminMenuController {
     }
 
     @FXML
-    private void setBtnCheckUserPresences(){modelManager.events();}
+    private void setBtnCheckUserPresences(){modelManager.toMenuEvents();}
     @FXML
     private void setBtnCheckPresencesInEvent(){modelManager.presencesInEvent();}
     @FXML
-    private void setBtnCheckCreatedEvents(){modelManager.events();}
+    private void setBtnCheckCreatedEvents(){modelManager.toMenuEvents();}
     @FXML
     private void setBtnCreateEvent(){
         modelManager.createEventMenu();

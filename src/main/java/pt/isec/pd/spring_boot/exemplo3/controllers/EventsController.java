@@ -70,6 +70,7 @@ public class EventsController {
     }
 
     @PostMapping("events/addPresence")
+    @RolesAllowed("ADMIN")
     public ResponseEntity addPresences(@RequestBody RequestMessage requestMessage){
         String formattedTimeNow = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
         DatabaseConnection dbConnection = DatabaseConnection.getInstance();
@@ -83,6 +84,7 @@ public class EventsController {
     }
 
     @DeleteMapping("events/deletePresence")
+    @RolesAllowed("ADMIN")
     public ResponseEntity deletePresence(@RequestBody RequestMessage requestMessage){
         DatabaseConnection dbConnection = DatabaseConnection.getInstance();
 
@@ -93,7 +95,7 @@ public class EventsController {
     }
 
     @PostMapping("events/create")
-    //@RolesAllowed("ADMIN")
+    @RolesAllowed("ADMIN")
     public ResponseEntity createEvent(@RequestBody RequestMessage requestMessage){
         DatabaseConnection dbConnection = DatabaseConnection.getInstance();
 
@@ -104,6 +106,7 @@ public class EventsController {
     }
 
     @DeleteMapping("events/delete")
+    @RolesAllowed("ADMIN")
     public ResponseEntity deleteEvent(@RequestBody RequestMessage requestMessage){
         DatabaseConnection dbConnection = DatabaseConnection.getInstance();
         if(dbConnection.removeEvent(requestMessage.getEvent().getName())){
@@ -113,6 +116,7 @@ public class EventsController {
     }
 
     @GetMapping("events/presencesByEvent")
+    @RolesAllowed("ADMIN")
     public ResponseEntity getPresencesByEvent(@RequestParam(value="eventName", required = false) String eventName){
         ArrayList<ClientData> clients = DatabaseConnection.getInstance().getPresences(eventName);
 
@@ -127,6 +131,7 @@ public class EventsController {
 
 
     @GetMapping("events/getEvents")
+    @RolesAllowed("ADMIN")
     public ResponseEntity getEvents(@RequestBody(required = false) Event event){
         ArrayList<Event> events = DatabaseConnection.getInstance().getEvents(event,null);
         return ResponseEntity.status(HttpStatus.OK).body(events);
