@@ -8,6 +8,8 @@ public class RequestMessage {
     private Event event;
     private long eventCode;
 
+    public RequestMessage(){}
+
     public RequestMessage(ClientData clientData){
         this.clientData = clientData;
     }
@@ -19,6 +21,8 @@ public class RequestMessage {
         this.clientData = clientData;
         this.event = event;
     }
+
+
 
     public RequestMessage(Event event){
         this.event = event;

@@ -69,6 +69,6 @@ public class AdminEventMenuByUserController {
 
     @FXML
     private void setBtnSearch(){
-        modelManager.getEventsByUser(tfUserEmail.getText());
+        events = modelManager.getEventsByUser(tfUserEmail.getText());
     }
 }

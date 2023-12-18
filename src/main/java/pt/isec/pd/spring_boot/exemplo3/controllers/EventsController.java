@@ -88,7 +88,6 @@ public class EventsController {
     //@RolesAllowed("ADMIN")
     public ResponseEntity createEvent(@RequestBody RequestMessage requestMessage){
         DatabaseConnection dbConnection = DatabaseConnection.getInstance();
-        System.out.println("TESTE");
         if(dbConnection.addNewEntryToEvents(requestMessage.getEvent())){
             return ResponseEntity.status(HttpStatus.OK).body("Event Created");
         }
@@ -111,14 +110,14 @@ public class EventsController {
     }
 
     @GetMapping("events/presencesByUser")
-    public ResponseEntity getPresencesByUser(@RequestBody RequestMessage requestMessage){
-        ArrayList<Event> events = DatabaseConnection.getInstance().getEvents(requestMessage.getEvent(),requestMessage.getClientData().getEmail());
+    public ResponseEntity getPresencesByUser(@RequestParam String email){
+        ArrayList<Event> events = DatabaseConnection.getInstance().getEvents(null,email);
         return ResponseEntity.status(HttpStatus.OK).body(events);
     }
 
     // passar isto para /events ?
     @GetMapping("events/getEvents")
-    public ResponseEntity getEvents(@RequestBody Event event){
+    public ResponseEntity getEvents(@RequestBody(required = false) Event event){
         ArrayList<Event> events = DatabaseConnection.getInstance().getEvents(event,null);
         return ResponseEntity.status(HttpStatus.OK).body(events);
     }

@@ -71,6 +71,6 @@ public class AdminEventMenuByEventController {
 
     @FXML
     private void setBtnSearch(){
-        modelManager.getPresencesByEvent(tfEvent.getText());
+        clientData = modelManager.getPresencesByEvent(tfEvent.getText());
     }
 }
