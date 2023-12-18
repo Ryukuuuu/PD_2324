@@ -3,6 +3,7 @@ package client.model;
 import client.fsm.ClientContext;
 import client.fsm.states.ClientState;
 import com.nimbusds.jose.shaded.gson.Gson;
+import com.nimbusds.jose.shaded.gson.GsonBuilder;
 import data.ClientData;
 import data.Event;
 import org.ietf.jgss.GSSContext;
@@ -193,7 +194,10 @@ public class ModelManagerREST {
     public void createEvent(String name,String local,String date,String startingTime,String endingTime){
         RequestMessage requestMessage = new RequestMessage(new Event(name, local, date, startingTime, endingTime));
         try{
-            connectionManager.sendRequestAndShowResponse(createEventURI,POST,"bearer " + token,convertObjectToJSON(requestMessage));
+            Gson gson = new GsonBuilder().create();
+            connectionManager.sendRequestAndShowResponse(createEventURI,POST,"bearer " + token, gson.toJson(requestMessage));
+
+            //connectionManager.sendRequestAndShowResponse(createEventURI,POST,"bearer " + token,convertObjectToJSON(requestMessage));
         }catch (IOException e){
             System.out.println("<MMREST>Error creating event");
         }
@@ -259,7 +263,7 @@ public class ModelManagerREST {
     public void sendGenerateCodeMessage(String eventName,String duration){
         RequestMessage requestMessage = new RequestMessage(new Event(eventName,duration));
         try{
-            connectionManager.sendRequestAndShowResponse(generateEventCodeURI,POST,"bearer"+token,convertObjectToJSON(requestMessage));
+            connectionManager.sendRequestAndShowResponse(generateEventCodeURI,POST,"bearer "+token,convertObjectToJSON(requestMessage));
         }catch (IOException e){}
     }
 

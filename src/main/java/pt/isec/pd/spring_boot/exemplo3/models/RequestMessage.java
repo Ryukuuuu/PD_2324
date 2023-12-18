@@ -8,6 +8,10 @@ public class RequestMessage {
     private Event event;
     private long eventCode;
 
+    public RequestMessage() {
+        System.out.println("Construtor default RequestMessage");
+    }
+
     public RequestMessage(ClientData clientData){
         this.clientData = clientData;
     }
@@ -21,6 +25,7 @@ public class RequestMessage {
     }
 
     public RequestMessage(Event event){
+        System.out.println("Construtor RequestMessage");
         this.event = event;
     }
 
