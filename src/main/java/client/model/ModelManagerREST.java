@@ -2,11 +2,16 @@ package client.model;
 
 import client.fsm.ClientContext;
 import client.fsm.states.ClientState;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.shaded.gson.Gson;
-import com.nimbusds.jose.shaded.gson.GsonBuilder;
+import com.nimbusds.jose.shaded.gson.JsonObject;
 import data.ClientData;
 import data.Event;
 import org.ietf.jgss.GSSContext;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import pt.isec.pd.spring_boot.exemplo3.models.RequestMessage;
 
 import java.beans.PropertyChangeListener;
@@ -14,6 +19,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 public class ModelManagerREST {
 
@@ -39,6 +45,7 @@ public class ModelManagerREST {
     private static final String getEventsURI = "http://localhost:8080/events/getEvents";
     private static final String getPresencesByEventURI = "http://localhost:8080/events/presencesByEvent";
     private static final String getPresencesByUserURI = "http://localhost:8080/events/presencesByUser";
+    private static final String getGetEventsURI = "http://localhost:8080/events/getEvents";
 
 
     /*PCS*/
@@ -194,10 +201,7 @@ public class ModelManagerREST {
     public void createEvent(String name,String local,String date,String startingTime,String endingTime){
         RequestMessage requestMessage = new RequestMessage(new Event(name, local, date, startingTime, endingTime));
         try{
-            Gson gson = new GsonBuilder().create();
-            connectionManager.sendRequestAndShowResponse(createEventURI,POST,"bearer " + token, gson.toJson(requestMessage));
-
-            //connectionManager.sendRequestAndShowResponse(createEventURI,POST,"bearer " + token,convertObjectToJSON(requestMessage));
+            connectionManager.sendRequestAndShowResponse(createEventURI,POST,"bearer " + token,convertObjectToJSON(requestMessage));
         }catch (IOException e){
             System.out.println("<MMREST>Error creating event");
         }
@@ -242,20 +246,40 @@ public class ModelManagerREST {
 
     }
 
-    public void getPresencesByEvent(String eventName){
+    public ArrayList<ClientData> getPresencesByEvent(String eventName){
         try{
-            connectionManager.sendRequestAndShowResponse(getPresencesByEventURI,GET,"bearer " + token,convertObjectToJSON(eventName));
+            ObjectMapper objectMapper = new ObjectMapper();
+            String clientsString = connectionManager.sendRequestAndShowResponse(getPresencesByEventURI,GET,"bearer " + token,convertObjectToJSON(eventName));
+            ArrayList<ClientData> clients =  objectMapper.readValue(clientsString, new TypeReference<ArrayList<ClientData>>() {});
+            return clients;
         }catch (IOException e){
             System.out.println("<MMREST>Error getting presences from event");
         }
+        return null;
     }
 
-    public void getEventsByUser(String email){
+    public ArrayList<Event> getEventsByUser(String email){
         try{
-            connectionManager.sendRequestAndShowResponse(getPresencesByUserURI,GET,"bearer "+token,convertObjectToJSON(email));
+            ObjectMapper objectMapper = new ObjectMapper();
+            String eventsString = connectionManager.sendRequestAndShowResponse(getPresencesByUserURI,GET,"bearer "+token,null);
+            ArrayList<Event> events = objectMapper.readValue(eventsString, new TypeReference<ArrayList<Event>>() {});
+            return events;
         }catch (IOException e){
             System.out.println("<MMREST>Error getting presences of user");
         }
+        return null;
+    }
+
+    public ArrayList<Event> getEvents(){
+        try{
+            ObjectMapper objectMapper = new ObjectMapper();
+            String eventsString = connectionManager.sendRequestAndShowResponse(getEventsURI,GET,"bearer "+token,null);
+            ArrayList<Event> events = objectMapper.readValue(eventsString, new TypeReference<ArrayList<Event>>() {});
+            return events;
+        }catch (IOException e){
+            System.out.println("<MMREST>Error getting presences of user");
+        }
+        return null;
     }
 
     /*---------------------EVENT CODE---------------------*/

@@ -45,6 +45,8 @@ public class Event implements Serializable {
         this.codeValidityEnding = codeDuration;
     }
 
+    public Event(){}
+
     public String getName() {
         return name;
     }

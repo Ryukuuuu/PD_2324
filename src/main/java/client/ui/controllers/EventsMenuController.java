@@ -67,6 +67,7 @@ public class EventsMenuController {
         table.getItems().clear();
         //events = modelManager.checkLastMessageFromServer().getEvents();
         //System.out.println(events);
+        events = modelManager.getEvents();
         if(events == null) return false;
         if(events.isEmpty()) return false;
         table.getItems().addAll(events);
@@ -100,10 +101,11 @@ public class EventsMenuController {
 
     @FXML
     private void setBtnSearch(){
-        Event eventFilter = new Event(tfName.getText(),tfLocal.getText(),tfDate.getText(),tfStartingTime.getText(),tfEndingTime.getText());
+        modelManager.getEvents();
+        /*Event eventFilter = new Event(tfName.getText(),tfLocal.getText(),tfDate.getText(),tfStartingTime.getText(),tfEndingTime.getText());
         if(modelManager.getState() == ClientState.EVENT_MENU)
             modelManager.sendEventsMessageWithFilters(eventFilter);
         else
-            modelManager.sendEventsMessageWithFilters(eventFilter);
+            modelManager.sendEventsMessageWithFilters(eventFilter);*/
     }
 }
