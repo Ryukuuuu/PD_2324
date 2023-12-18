@@ -105,8 +105,9 @@ public class EventsController {
     }
 
     @GetMapping("events/presencesByEvent")
-    public ResponseEntity getPresencesByEvent(@RequestParam String eventName){
+    public ResponseEntity getPresencesByEvent(@RequestParam(value="eventName", required = false) String eventName){
         ArrayList<ClientData> clients = DatabaseConnection.getInstance().getPresences(eventName);
+
         return ResponseEntity.status(HttpStatus.OK).body(clients);
     }
 

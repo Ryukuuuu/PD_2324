@@ -25,10 +25,6 @@ public class Event implements Serializable {
         this.endingTime = endingTime;
     }
 
-    public Event(){
-        System.out.println("Construtor default Event");
-    }
-
     public Event(String name){this.name = name;}
 
     public Event(String name, String local, String date, String startingTime, String endingTime) {

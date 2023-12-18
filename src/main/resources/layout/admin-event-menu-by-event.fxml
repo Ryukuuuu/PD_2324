@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.cell.PropertyValueFactory?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="client.ui.controllers.AdminEventMenuByEventController">
+<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.ui.controllers.AdminEventMenuByEventController">
    <top>
       <AnchorPane prefHeight="60.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
          <children>
@@ -19,7 +13,7 @@
                <font>
                   <Font size="15.0" />
                </font></Button>
-            <Button fx:id="btnCsv" onAction="#setBtnCsv" layoutX="859.0" layoutY="8.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="130.0" text="CSV">
+            <Button fx:id="btnCsv" layoutX="859.0" layoutY="8.0" mnemonicParsing="false" onAction="#setBtnCsv" prefHeight="45.0" prefWidth="130.0" text="CSV">
                <font>
                   <Font size="15.0" />
                </font>
@@ -50,12 +44,12 @@
                           <PropertyValueFactory property="name" />
                         </cellValueFactory>
                       </TableColumn>
-                      <TableColumn fx:id="clientID" minWidth="0.0" prefWidth="333.3" text="Local">
+                      <TableColumn fx:id="clientID" minWidth="0.0" prefWidth="333.3" text="ID">
                           <cellValueFactory>
                               <PropertyValueFactory property="id" />
                           </cellValueFactory>
                       </TableColumn>
-                        <TableColumn fx:id="email" prefWidth="333.3" text="Date">
+                        <TableColumn fx:id="email" prefWidth="333.3" text="Email">
                             <cellValueFactory>
                                 <PropertyValueFactory property="email" />
                             </cellValueFactory>

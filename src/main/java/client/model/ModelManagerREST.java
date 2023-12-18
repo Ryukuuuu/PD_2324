@@ -5,21 +5,21 @@ import client.fsm.states.ClientState;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.shaded.gson.Gson;
-import com.nimbusds.jose.shaded.gson.JsonObject;
+import com.nimbusds.jose.shaded.gson.GsonBuilder;
 import data.ClientData;
 import data.Event;
-import org.ietf.jgss.GSSContext;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import pt.isec.pd.spring_boot.exemplo3.models.RequestMessage;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.List;
+
 
 public class ModelManagerREST {
 
@@ -45,11 +45,11 @@ public class ModelManagerREST {
     private static final String getEventsURI = "http://localhost:8080/events/getEvents";
     private static final String getPresencesByEventURI = "http://localhost:8080/events/presencesByEvent";
     private static final String getPresencesByUserURI = "http://localhost:8080/events/presencesByUser";
-    private static final String getGetEventsURI = "http://localhost:8080/events/getEvents";
-
+    //private static final String getGetEventsURI = "http://localhost:8080/events/getEvents";
 
     /*PCS*/
     private static final String PROP_STATE = "_state_";
+    private static final String PROP_UPDATE_EVENT = "_updateEvent_";
 
     private PropertyChangeSupport pcs;
     private ClientContext fsm;
@@ -132,11 +132,13 @@ public class ModelManagerREST {
     }
 
     public void events(){
+        /*
         try {
             connectionManager.sendRequestAndShowResponse(checkPresencesURI, GET, "bearer " + token, null);
         }catch (IOException e){
             System.out.println("<MMREST>Error getting events");
         }
+        */
         fsm.events();
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
@@ -248,9 +250,31 @@ public class ModelManagerREST {
 
     public ArrayList<ClientData> getPresencesByEvent(String eventName){
         try{
-            ObjectMapper objectMapper = new ObjectMapper();
-            String clientsString = connectionManager.sendRequestAndShowResponse(getPresencesByEventURI,GET,"bearer " + token,convertObjectToJSON(eventName));
-            ArrayList<ClientData> clients =  objectMapper.readValue(clientsString, new TypeReference<ArrayList<ClientData>>() {});
+            ArrayList<ClientData> clients = new ArrayList<>();
+
+            String newURI = getPresencesByEventURI + "?eventName=" + eventName;
+
+            String clientsString = connectionManager.sendRequestAndShowResponse(newURI,GET,"bearer " + token, null);
+
+            JsonArray jsonArray;
+
+            try (JsonReader jsonReader = Json.createReader(new StringReader(clientsString)))
+            {
+                jsonArray = jsonReader.readArray();
+            }
+
+           Gson gson = new GsonBuilder().create();
+
+            for(int i=0; i<jsonArray.size(); i++){
+                JsonObject object = jsonArray.getJsonObject(i);
+                ClientData clientData = gson.fromJson(object.toString(), ClientData.class);
+                clients.add(clientData);
+                System.out.println("\t- " + clientData);
+            }
+
+            fsm.events();
+            pcs.firePropertyChange(PROP_UPDATE_EVENT,null,null);
+
             return clients;
         }catch (IOException e){
             System.out.println("<MMREST>Error getting presences from event");
