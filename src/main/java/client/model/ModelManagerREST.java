@@ -131,17 +131,22 @@ public class ModelManagerREST {
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
 
-    public void events(){
-        /*
-        try {
-            connectionManager.sendRequestAndShowResponse(checkPresencesURI, GET, "bearer " + token, null);
-        }catch (IOException e){
-            System.out.println("<MMREST>Error getting events");
-        }
-        */
+    public void toMenuEvents(){
         fsm.events();
         pcs.firePropertyChange(PROP_STATE,null,null);
     }
+
+    public ArrayList<Event> events(){
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String events = connectionManager.sendRequestAndShowResponse(checkPresencesURI, GET, "bearer " + token, null);
+            return objectMapper.readValue(events, new TypeReference<ArrayList<Event>>() {});
+        }catch (IOException e){
+            System.out.println("<MMREST>Error getting events");
+        }
+        return null;
+    }
+
 
     public void sendEventsMessageWithFilters(Event event){
         try{
@@ -219,9 +224,9 @@ public class ModelManagerREST {
     }
 
     public void sendEditEventMessage(String name,String local,String date,String startingTime,String endingTime){
-        RequestMessage requestMessage = new RequestMessage(new Event(name, local, date, startingTime, endingTime));
+        Event newEvent = new Event(name, local, date, startingTime, endingTime);
         try{
-            connectionManager.sendRequestAndShowResponse(editEventURI,POST,"bearer " + token,convertObjectToJSON(requestMessage));
+            connectionManager.sendRequestAndShowResponse(editEventURI,POST,"bearer " + token,convertObjectToJSON(newEvent));
         }catch (IOException e){
             System.out.println("<MMREST>Error editing message");
         }
@@ -285,9 +290,8 @@ public class ModelManagerREST {
     public ArrayList<Event> getEventsByUser(String email){
         try{
             ObjectMapper objectMapper = new ObjectMapper();
-            String eventsString = connectionManager.sendRequestAndShowResponse(getPresencesByUserURI,GET,"bearer "+token,null);
-            ArrayList<Event> events = objectMapper.readValue(eventsString, new TypeReference<ArrayList<Event>>() {});
-            return events;
+            String eventsString = connectionManager.sendRequestAndShowResponse(getPresencesByUserURI,GET,"bearer "+token,convertObjectToJSON(email));
+            return objectMapper.readValue(eventsString, new TypeReference<ArrayList<Event>>() {});
         }catch (IOException e){
             System.out.println("<MMREST>Error getting presences of user");
         }
@@ -298,8 +302,7 @@ public class ModelManagerREST {
         try{
             ObjectMapper objectMapper = new ObjectMapper();
             String eventsString = connectionManager.sendRequestAndShowResponse(getEventsURI,GET,"bearer "+token,null);
-            ArrayList<Event> events = objectMapper.readValue(eventsString, new TypeReference<ArrayList<Event>>() {});
-            return events;
+            return objectMapper.readValue(eventsString, new TypeReference<ArrayList<Event>>() {});
         }catch (IOException e){
             System.out.println("<MMREST>Error getting presences of user");
         }

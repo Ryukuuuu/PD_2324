@@ -50,13 +50,22 @@ public class EventsController {
     }
 
 
+    @PostMapping("events/edit")
+    @RolesAllowed("ADMIN")
+    public ResponseEntity editEvent(@RequestBody Event event){
+        Event editedEvent = DatabaseConnection.getInstance().editEventInfo(event);
+        if(editedEvent != null){
+            return ResponseEntity.status(HttpStatus.OK).body(editedEvent);
+        }
+        return null;
+    }
+
     @GetMapping("events/checkPresences")
-    public ResponseEntity checkPresences(Authentication authentication,
-                                         @RequestBody RequestMessage requestMessage){
+    public ResponseEntity checkPresences(Authentication authentication){
         String clientEmail = authentication.getName();
         DatabaseConnection dbConnection = DatabaseConnection.getInstance();
 
-        ArrayList<Event> events = dbConnection.getEvents(requestMessage.getEvent(),requestMessage.getClientData().getEmail());
+        ArrayList<Event> events = dbConnection.getEvents(null,clientEmail);
         return ResponseEntity.status(HttpStatus.OK).body(events);
     }
 
@@ -64,7 +73,6 @@ public class EventsController {
     public ResponseEntity addPresences(@RequestBody RequestMessage requestMessage){
         String formattedTimeNow = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
         DatabaseConnection dbConnection = DatabaseConnection.getInstance();
-
         if(dbConnection.addPresence(
                 requestMessage.getClientData().getEmail(),
                 requestMessage.getEvent().getName(),
@@ -88,7 +96,7 @@ public class EventsController {
     //@RolesAllowed("ADMIN")
     public ResponseEntity createEvent(@RequestBody RequestMessage requestMessage){
         DatabaseConnection dbConnection = DatabaseConnection.getInstance();
-        System.out.println("TESTE");
+
         if(dbConnection.addNewEntryToEvents(requestMessage.getEvent())){
             return ResponseEntity.status(HttpStatus.OK).body("Event Created");
         }
@@ -112,7 +120,7 @@ public class EventsController {
     }
 
     @GetMapping("events/presencesByUser")
-    public ResponseEntity getPresencesByUser(@RequestParam String email){
+    public ResponseEntity getPresencesByUser(@RequestBody String email){
         ArrayList<Event> events = DatabaseConnection.getInstance().getEvents(null,email);
         return ResponseEntity.status(HttpStatus.OK).body(events);
     }

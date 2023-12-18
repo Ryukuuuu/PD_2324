@@ -29,7 +29,7 @@ public class AdminGenerateEventCodeController {
 
     private void registerHandlers(){
         modelManager.addClient(ModelManager.PROP_STATE,evt -> Platform.runLater(this::update));
-        modelManager.addClient(ModelManager.PROP_UPDATE_CODE,evt -> Platform.runLater(this::getGeneratedCode));
+        //modelManager.addClient(ModelManager.PROP_UPDATE_CODE,evt -> Platform.runLater(this::getGeneratedCode));
     }
 
     private void update(){
@@ -60,7 +60,7 @@ public class AdminGenerateEventCodeController {
         return true;
     }
 
-    private void getGeneratedCode(){
+    /*private void getGeneratedCode(){
         try{
             long code = modelManager.getGeneratedCode();
             if(code != 0){
@@ -70,5 +70,5 @@ public class AdminGenerateEventCodeController {
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setHeaderText("Error generating code");
         }
-    }
+    }*/
 }

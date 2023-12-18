@@ -59,7 +59,7 @@ public class UserMenuController {
 
     @FXML
     private void events(){
-        modelManager.events();
+        modelManager.toMenuEvents();
     }
 
     @FXML

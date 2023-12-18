@@ -50,7 +50,7 @@ public class EventsMenuController {
 
     private void registerHandlers(){
         modelManager.addClient(ModelManager.PROP_STATE,evt -> Platform.runLater(this::update));
-        modelManager.addClient(ModelManager.PROP_UPDATE_EVENT,evt -> Platform.runLater(this::updateEvents));
+        //modelManager.addClient(ModelManager.PROP_UPDATE_EVENT,evt -> Platform.runLater(this::updateEvents));
         modelManager.addClient(ModelManager.PROP_UPDATE_REFRESH_EVENT,evt -> Platform.runLater(this::getEventsUpdated));
         modelManager.addClient(ModelManager.PROP_ADD_PRESENCE_UPDATE,evt -> Platform.runLater(this::getEventsUpdated));
         modelManager.addClient(ModelManager.PROP_UPDATE_DELETE_PRESENCE,evt -> Platform.runLater(this::getEventsUpdated));
@@ -59,6 +59,10 @@ public class EventsMenuController {
     private void update(){
         borderPane.setVisible(modelManager.getState() == ClientState.EVENT_MENU || modelManager.getState() == ClientState.ADMIN_EVENT_MENU);
         if(modelManager.getState() == ClientState.EVENT_MENU || modelManager.getState() == ClientState.ADMIN_EVENT_MENU) {
+            if(modelManager.getState() == ClientState.EVENT_MENU)
+                events = modelManager.events();
+            if(modelManager.getState() == ClientState.ADMIN_EVENT_MENU)
+                events = modelManager.getEvents();
             updateEvents();
         }
     }
@@ -67,7 +71,6 @@ public class EventsMenuController {
         table.getItems().clear();
         //events = modelManager.checkLastMessageFromServer().getEvents();
         //System.out.println(events);
-        events = modelManager.getEvents();
         if(events == null) return false;
         if(events.isEmpty()) return false;
         table.getItems().addAll(events);
